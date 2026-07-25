@@ -1,0 +1,60 @@
+\section{Conclusion}\label{sec:conclusion}
+
+We gave a parameterized account of MP-TSCFLP, and the picture that
+emerges has two layers, a coverage layer, structural and strong, that
+fires wherever a facility side sees a dimension discriminating it
+through a $\{0,1\}$ incidence matrix, and a numeric layer, weak, that
+dissolves under a unary encoding where no pair discriminates.
+Table~\ref{tab:landscape} and Figure~\ref{fig:resultsmap} record the
+resulting landscape entry by entry, from the size-parameter dichotomy
+through the bracketing of the parameter $k$ to the kernelization and
+width results, with witnesses on both sides of every border of the
+binary-encoding map.
+
+Five questions remain, and we regard them as the natural continuation of
+this work. The first asks for a greedy $\ln|K|$ upper bound matching the
+inapproximability of the coverage layer, the constructive half that would
+close the approximability of that layer from above and below, with the
+non-metric uncapacitated median problem \citep{Hochbaum1982} as the
+precedent. A parameterized companion attaches to the same layer. The
+reduction behind Theorem~\ref{thm:cover}, run with the enlarged
+amplifier of Corollary~\ref{cor:coverinapprox}, maps the minimum cover
+size onto the optimum value while shifting the parameter by one, so a
+constant-factor \FPT\ approximation in $k$ for MP-TSCFLP would hand
+back one for \textsc{Set Cover} parameterized by the cover size, which
+is itself $\mathrm W[2]$-hard to approximate within any constant
+\citep{LinRenSunWang2023}, and we conjecture that no such approximation
+exists. The second asks whether the parameter $k$ lies in $\mathrm
+W[2]$, since our sandwich leaves the exact class as the one open
+classification of the project, and the barrier of binary arithmetic and
+flow minimisation inside the verifier against weft two is of interest
+beyond this model. The third asks for the unary status of $\{|J|,|L|\}$ and
+of the two triples $\{|I|,|K|,|L|\}$ and $\{|J|,|K|,|L|\}$, the only gaps
+of the sixteen-by-two dichotomy table, where the witnessing slices go
+polynomial under unary data and no other hard slice is yet known. The
+fourth asks whether a polynomial kernel exists in the full parameter
+$|I|+|J|+|K|+|L|$ with general numbers, the exact point where the
+yes-certificate comparison turns bilinear and both weight families would
+have to be reduced at once, a genuine methodological frontier of weighted
+kernelization. The fifth asks how transport costs that are structured
+beyond separability, uniform per side, metric or of low rank, fall on the
+tractable or the hard side, refining the frontier over the cost classes
+that appear in real data. Every hardness construction in the paper uses
+transport costs without metric structure, so the map may bind
+differently on distance-based data, and the fifth open problem asks
+exactly that question. Progress on any one of the five would redraw a
+border of the landscape assembled here.
+
+For practice the reading is brief and concrete. The a priori bound
+$k^\ast$ is computed by a sort and a prefix scan of the capacities per
+product and side, and by nothing costlier,
+lower-bounds the
+facilities any feasible design must open, and is the very threshold on
+which our enumeration prunes. The completed campaign
+tests it against solver effort on the full benchmark and finds a
+direction a naive reading would not guess, for larger bounds accompany
+smaller terminal gaps, in an association that is negative in every size
+group and survives multiplicity correction pooled and in the
+five-product groups. The log analysis traces that association to the
+tightness of the root relaxation, so on this benchmark the bound
+annotates relaxation tightness rather than search difficulty.

@@ -1,0 +1,42 @@
+% Requires: \usetikzlibrary{positioning,arrows.meta}
+\begin{figure}[H]
+  \centering
+  \resizebox{0.97\textwidth}{!}{%
+  \begin{tikzpicture}[
+      >={Stealth[length=1.8mm]},
+      res/.style={draw=black!70,line width=0.4pt,fill=black!6,
+        rounded corners=2pt,align=center,inner sep=3.5pt,
+        font=\footnotesize},
+      flow/.style={draw=black,line width=0.5pt,->}
+    ]
+    \node[res,text width=2.1cm] (D) at (0,0)
+      {design $(y,z)$\\
+       \textcolor{black!60}{\scriptsize from master or enumeration}};
+    \node[res,text width=2.6cm] (O) at (3.6,0)
+      {routing oracle\\
+       \textcolor{black!60}{\scriptsize one transportation block per
+       product $l$}};
+    \node[res,text width=3.0cm] (C) at (7.5,0)
+      {primal and dual certificates\\
+       \textcolor{black!60}{\scriptsize optimal flow and
+       $u^\ast\in\Delta_l$, or a ray}};
+    \node[res,text width=2.6cm] (K) at (11.2,0)
+      {disaggregated cut\\
+       \textcolor{black!60}{\scriptsize optimality on $\theta_l$, or
+       feasibility}};
+    \draw[flow] (D) -- (O);
+    \draw[flow] (O) -- (C);
+    \draw[flow] (C) -- (K);
+  \end{tikzpicture}%
+  }
+  \caption{From a design to a cut, the pipeline of
+  Proposition~\ref{prop:duals}. Each oracle call of
+  Proposition~\ref{prop:oracle} prices the design one product at a
+  time, returns an optimal flow together with a dual point
+  $u^\ast\in\Delta_l$ certifying the block value, and that dual point
+  yields the disaggregated Benders optimality cut, valid across every
+  design because $\Delta_l$ never depends on $(y,z)$, while an
+  infeasible block yields a recession ray and a feasibility cut
+  instead.}
+  \label{fig:bendersflow}
+\end{figure}

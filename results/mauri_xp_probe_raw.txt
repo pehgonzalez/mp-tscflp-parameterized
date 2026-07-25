@@ -1,0 +1,12 @@
+instance=PSC2-C3-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=8 nodes=258 time=60.065 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=56 rneg=0 cap=0
+instance=PSC1-C3-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=8 nodes=262 time=60.157 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=58 rneg=0 cap=0
+instance=PSC3-C3-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=8 nodes=262 time=60.094 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=58 rneg=0 cap=0
+instance=PSC4-C3-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=8 nodes=255 time=60.014 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=54 rneg=0 cap=0
+instance=PSC1-C2-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=17 nodes=313 time=60.125 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=83 rneg=0 cap=0
+instance=PSC5-C3-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=8 nodes=261 time=60.167 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=57 rneg=0 cap=0
+instance=PSC1-C4-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=17 nodes=252 time=60.135 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=52 rneg=0 cap=0
+instance=PSC1-C5-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=17 nodes=255 time=60.157 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=54 rneg=0 cap=0
+instance=PSC2-C2-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=17 nodes=315 time=60.051 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=84 rneg=0 cap=0
+instance=PSC2-C4-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=17 nodes=255 time=60.073 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=54 rneg=0 cap=0
+instance=PSC2-C5-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=17 nodes=258 time=60.128 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=56 rneg=0 cap=0
+instance=PSC3-C2-50-5.txt status=TIMEOUT obj=inf k_used=150 kstar=17 nodes=309 time=60.172 agg=0 timeout=1 p1=0 p2i=0 p2b=0 p3=80 rneg=0 cap=0

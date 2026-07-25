@@ -1,0 +1,28 @@
+\begin{table}[H]
+\centering
+\caption{The benchmark campaign by size group, $3{,}600$~s per instance.
+Columns give the group $|I|$-$|L|$, the instance count, the minimum,
+median and maximum of the covering bound $k^\ast$, the median terminal
+gap in percent, the number of proven optima, the within-group Spearman
+correlation between $k^\ast$ and the terminal gap, and its
+Holm-adjusted two-sided permutation $p$-value. Correlations carry
+percentile bootstrap $95\%$ confidence intervals in brackets. Each
+interval describes one group alone, and the within-group column is the
+sharper instrument, the pooled value mixing the group effect with size.
+The pooled correlation over all $100$ instances is $-0.28$,
+Holm-adjusted $p=0.013$.}
+\label{tab:q3groups}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccc}
+\hline
+group & $\#$ & $k^\ast$ min/med/max & gap (\%) & opt.\ &
+$\rho$ [$95\%$ CI] & $p$ \\
+\hline
+$50$-$5$ & $25$ & $8$/$17$/$36$ & $0.4$ & $3$ & $-0.59$ [$-0.81$, $-0.22$] & $0.006$ \\
+$50$-$10$ & $25$ & $8$/$17$/$35$ & $0.4$ & $0$ & $-0.39$ [$-0.69$, $+0.09$] & $0.102$ \\
+$100$-$5$ & $25$ & $14$/$32$/$67$ & $1.1$ & $0$ & $-0.70$ [$-0.86$, $-0.45$] & $0.001$ \\
+$100$-$10$ & $25$ & $14$/$33$/$69$ & $4.2$ & $0$ & $-0.40$ [$-0.75$, $+0.12$] & $0.102$ \\
+\hline
+\end{tabular}
+\end{table}

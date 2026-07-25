@@ -1,0 +1,54 @@
+
+Gurobi 13.0.2 (win64) logging started Fri Jul 17 18:30:23 2026
+
+Set parameter LogFile to value "logs/kstar_nI40_nJ40_nK100_nL5_tI6_tJ6_s5_m1_exact_s0_20260717-183023.gurobi.log"
+Set parameter Seed to value 0
+Set parameter TimeLimit to value 599.9666165
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0.5
+Set parameter Cutoff to value 1e+100
+Gurobi Optimizer version 13.0.2 build v13.0.2rc1 (win64 - Windows 11+.0 (26200.2))
+
+CPU model: Intel(R) Core(TM) i9-14900HX, instruction set [SSE2|AVX|AVX2]
+Thread count: 24 physical cores, 32 logical processors, using up to 32 threads
+
+Non-default parameters:
+TimeLimit  599.9666165
+MIPGap  0
+MIPGapAbs  0.5
+PreCrush  1
+LazyConstraints  1
+
+Optimize a model with 10 rows, 85 columns and 400 nonzeros (Min)
+Model fingerprint: 0xab6af26c
+Model has 85 linear objective coefficients
+Variable types: 5 continuous, 80 integer (80 binary)
+Coefficient statistics:
+  Matrix range     [2e+00, 1e+03]
+  Objective range  [1e+00, 5e+02]
+  Bounds range     [1e+00, 8e+03]
+  RHS range        [1e+03, 1e+03]
+
+Using branch priorities.
+Presolve removed 8 rows and 0 columns
+Presolve time: 0.00s
+Presolved: 2 rows, 85 columns, 80 nonzeros
+Variable types: 5 continuous, 80 integer (80 binary)
+
+Root relaxation: objective 3.649703e+04, 4 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 36497.0302    0    2          - 36497.0302      -     -    0s
+H    0     0                    203010.00000 36497.0302  82.0%     -    0s
+H    0     0                    200572.00000 36497.0302  81.8%     -    0s
+H    0     0                    190166.00000 36497.0302  80.8%     -    0s
+H    0     0                    178193.00000 36497.0302  79.5%     -    0s
+H    0     0                    153053.00000 36497.0302  76.2%     -    0s
+     0     0 36742.6810    0    5 153053.000 36742.6810  76.0%     -    0s
+     0     0 36841.4370    0    6 153053.000 36841.4370  75.9%     -    0s
+     0     0 36990.0919    0    8 153053.000 36990.0919  75.8%     -    0s
+     0     0 36996.4388    0    8 153053.000 36996.4388  75.8%     -    0s
+H    0     0                    151043.00000 36996.4388  75.5%     -    0s
+     0     2 37057.6429    0   11 151043.000 37057.6429  75.5%     -    0s

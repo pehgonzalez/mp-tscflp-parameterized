@@ -1,0 +1,304 @@
+\section{Computational study}
+\label{sec:experiments}
+
+The experiments pursue three questions. (Q1) Is the enumeration algorithm of
+Theorem~\ref{thm:xp} practical in its predicted regime, and where does that
+regime end. (Q2) How does it compare with the standard mixed-integer approach.
+(Q3) Does the covering bound $k^\ast$ track instance difficulty beyond the
+algorithm that motivated it, and through which mechanism. The remainder of the section is organised so that
+the reader can locate each answer directly. Section~\ref{sec:exp-setup}
+describes the codes, the instance families and the machines.
+Section~\ref{sec:exp-q1} answers Q1 on the family whose covering bound is
+controlled by construction, Section~\ref{sec:exp-q2} addresses Q2 against
+the integer programming baseline, and Section~\ref{sec:exp-q3} addresses
+Q3 by
+confronting $k^\ast$ with the effort of a solver that makes no use of it.
+
+\subsection{Setup}
+\label{sec:exp-setup}
+
+The study compares three exact codes. The first (\textsc{Xp}) is a C++20
+implementation of Algorithm~\ref{alg:xpbb}, with the covering pruning, the
+admissible cost bound and the dominance rule of Section~\ref{sec:algorithms},
+and a deadline-aware enumerator. The baseline (\textsc{Mip}) is the compact
+model \eqref{eq:obj}--\eqref{eq:dom} solved by Gurobi. A third code
+(\textsc{Bd}) solves the same model by a branch-and-Benders-cut in which the
+per-product transportation subproblems are separated by the disaggregated cuts
+of Proposition~\ref{prop:duals}. All three read the same instance files.
+The \textsc{Xp} implementation was cross-validated against an independent
+brute-force enumeration of all designs with an exact per-product min-cost-flow
+oracle, matching it on $180$ small seeded instances and on $1{,}381$ exact
+comparisons of optimal value, feasibility and covering bound across a full sweep
+of the cardinality, with no disagreement. The verification battery in the
+accompanying code performs on the order of nine hundred thousand
+individual checks, spanning design enumerations, closed-form comparisons
+and LP cross-checks, with no failure. More than $560{,}000$ of the
+checks are exhaustive design enumerations validating the numeric-layer
+constructions alone, roughly ten thousand are equivalence
+verifications, two hundred are independent LP cross-checks, $1{,}381$
+are cross-solver comparisons, and the remainder are per-construction
+parameter sweeps.
+
+The study uses two instance families, the first with a main grid and a
+boundary extension, the second the benchmark. The first is a family with controlled
+covering bound, built by a deterministic generator seeded by the parameter
+tuple, in which, on each side, one facility fewer than the per-side target
+receives capacities that jointly fall one unit short of the binding
+product's demand, a choice that pins the per-side covering count to the
+target. The main
+grid has target per-side count in $\{2,3,4,5,6\}$, so $k^\ast\in\{4,6,8,10,12\}$,
+factory and depot counts in $\{20,40\}$, customers in $\{50,100\}$, products in
+$\{5,10\}$ and five seeds, for $400$ instances, and a boundary extension on
+smaller graphs, with per-side target in $\{2,4,6,8\}$ so
+$k^\ast\in\{4,8,12,16\}$ and $n=|I|+|J|$ over $\{20,24,28,30,40\}$, probes where
+the regime ends, adding $60$ instances for $460$ runs in all. The
+generator records the recomputed bound alongside each instance, and on
+all $460$ instances the recomputed $k^\ast$ equals the target exactly.
+The second family is the classical
+benchmark of \citet{MauriEtAl2021}, its $100$ instances split into four size
+groups $|I|$-$|J|$-$|K|$ of $50$-$100$-$200$ and $100$-$200$-$400$ with
+$|L|\in\{5,10\}$, for which no optimal value was proven in \citet{MauriEtAl2021} nor, to
+our knowledge, since. On these instances the customer-aggregation rule of
+Proposition~\ref{prop:aggregation} never applies, since in every one of
+the $100$ instances no two customers share their full cost column and
+hence $\tau=|K|$. Capacity capping leaves every benchmark capacity
+unchanged, since no capacity exceeds its product's total demand,
+customer aggregation never applies as just noted, and the covering
+bound is thus the only signal the paper's toolkit produces on these
+instances. One by-product of
+parsing them is used repeatedly
+below and is recorded here. Every
+datum is integral, so the optimal value is integral by
+Proposition~\ref{prop:oracle}, and a solver that reports optimality with
+an absolute gap below one therefore determines the exact optimum,
+subject to the floating-point tolerances under which the solver
+certifies its bound, a caveat Section~\ref{sec:exp-q2} makes explicit
+for the three closed runs. The
+terminal gap of a run is the relative optimality gap the solver reports
+when it stops, the difference between incumbent and bound divided by the
+incumbent, quoted in percent throughout.
+
+The enumeration runs were executed under a fixed $60$~s limit. The
+\textsc{Xp} binary is single-threaded C++20, compiled with g++~13.3.0 at
+optimisation level O2, and ran on a Linux virtual machine with an Intel
+Xeon processor at $2.1$~GHz.
+The integer programming runs use Gurobi $13.0.2$ on an Intel Core i9-14900HX
+with $24$ cores under Windows, with the controlled family limited to $600$~s
+and the benchmark to $3{,}600$~s. Gurobi ran with default tolerances,
+automatic thread count and a fixed seed recorded with every run, and on
+each run the harness recomputed the incumbent's cost independently from
+its flows, with agreement on all $900$ runs. The enumeration and the
+integer programming codes ran on different machines, so times are
+compared only within a code and never across codes, and the
+solved-versus-censored contrasts that the section draws are insensitive
+to the hardware difference. The asymmetry of the limits favours the
+baseline by
+design. The enumeration limit maps where that algorithm stops being fast, the
+larger Gurobi budget gives the baseline its best chance of producing
+reference optima, and a censored run enters a speed comparison only
+through the lower bound its limit certifies. The time of a censored run
+is recorded at its limit. Every completed enumeration run is
+deterministic, and each instance was run once. The software archive with
+the codes, the instance generator and manifests, the raw result files and
+one verification script per hardness construction accompanies the
+submission as supplementary material and is released at
+\url{https://github.com/pehgonzalez/mp-tscflp-parameterized}.
+
+\subsection{The regime of the enumeration algorithm (Q1)}
+\label{sec:exp-q1}
+
+The controlled family was built to probe the boundary that
+Theorem~\ref{thm:xp} predicts, and the outcome is unambiguous. The main grid, whose
+graphs all have $n=|I|+|J|\ge 40$, lies entirely outside the $60$~s regime, so
+all $400$ instances are censored. This is the result rather than a failure of
+protocol. At $n\ge 40$ the search processes a median of roughly
+$2{,}700$ nodes before the limit, while a completed search at $n=24$
+already needs a median of roughly $50{,}000$, and the cost of each node
+grows with $|I|$, $|J|$, $|K|$ and $|L|$ through the oracle. The raw
+per-run records in the archive carry node, pruning and oracle
+counters. The boundary extension locates the frontier, and
+Table~\ref{tab:q1boundary} reports it in full. Each boundary cell holds
+three seeded runs and the medians are taken over solved runs only, so the
+times are indicative and the visible values at $n=24$ are biased downward
+by that conditioning. At $n=20$ every instance
+solves, at $n=24$ seven of twelve solve, and from $n=28$ upward none solves
+within the limit, so the boundary observed for this implementation
+under this protocol, in plain optimisation mode,
+sits at $n\approx 24$. The same table shows the covering-bound effect at
+fixed size, with the median time at $n=20$ falling from $13.7$~s at
+$k^\ast=4$ to $0.6$~s at $k^\ast=16$. Figure~\ref{fig:q1} shows both
+readings graphically, the boundary in panel (a) and the covering-bound
+effect in panel (b).
+
+\input{tables/tab_q1_boundary.tex}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_q1_regime.pdf}
+\caption{The enumeration algorithm on the controlled family, all $460$ runs
+under the $60$~s limit. Panel (a) plots time against $n=|I|+|J|$. Solved runs
+are filled and coloured by the covering bound $k^\ast$, and they occur only in
+the shaded band up to $n\approx 24$. Every run beyond it is censored, shown as
+grey open circles on the limit line, including the whole $400$-instance main
+grid, which lies at $n\ge 40$. Panel (b) gives the median solve time against $k^\ast$ at
+$n=20$ and $n=24$, where instances with a larger bound solve faster,
+with medians taken over solved runs only. Open markers in panel (b) are
+medians over fewer than three solved runs. Lower is better in both
+panels, and the censored band beyond $n\approx 24$ is the observed
+border of the regime that Theorem~\ref{thm:xp} delimits.}
+\label{fig:q1}
+\end{figure}
+
+Within the solvable range the covering bound acts in a direction that
+requires explanation. Time and node counts decrease as $k^\ast$ grows,
+and the solved count at $n=24$ in Table~\ref{tab:q1boundary} rises from
+one in three at $k^\ast=4$ to three in three at $k^\ast=16$. The
+covering pruning of Lemma~\ref{lem:cover} is the mechanism compatible
+with this pattern. In plain optimisation the
+cardinality never binds, so $k^\ast$ can act on the search only through
+that pruning, and tight capacities let it discard subtrees
+that loose capacities leave standing. The generator, however, varies
+capacities to move the bound and therefore moves other instance
+features with it, so an ablation isolating the pruning is left for
+future work. The mirror pattern expected for the
+cardinality sweep, in which the exponent $n^k$ grows with the target count, is
+left for a dedicated run.
+
+\subsection{Comparison with the mixed-integer approach (Q2)}
+\label{sec:exp-q2}
+
+Q2 places the enumeration and the integer programming codes side by
+side, each under its own protocol, and the observed outcome is an
+empirical result consistent with the worst-case limitation of support
+enumeration rather than a consequence of it. Outside the
+small-$n$ regime the weight-independent enumeration bound gives \textsc{Xp} no
+way to prune below $n^{k}$, whereas the compact model carries the linear
+structure a modern solver exploits, so \textsc{Mip} is expected to close quickly the very controlled-family
+instances on which \textsc{Xp} exhausts its $60$~s budget. The campaign
+realises that expectation, and Table~\ref{tab:q2codes} summarises it.
+\textsc{Mip} closes all $400$ controlled instances with a median solving
+time of $0.55$~s, among them every instance the enumeration had left
+censored at $60$~s.
+
+\input{tables/tab_q2_codes.tex} The value of
+Theorem~\ref{thm:xp} is thus classificatory rather than competitive, and
+the observed dominance is no defeat of the algorithm but an
+empirical face consistent with the same hardness the theory maps. What the exact codes
+earn is not speed but proof, since by the integrality remark of
+Section~\ref{sec:exp-setup} a solver that closes an instance settles a
+value the benchmark of \citet{MauriEtAl2021} had left to heuristics. On
+the benchmark itself the $3{,}600$~s budget proves optimality on three of
+the $100$ instances, all in the smaller size group with five products,
+values the original study left unproven. The three instances are
+PSC1-C1-50-5, PSC4-C1-50-5 and PSC5-C1-50-5, closed at optimal values
+$1{,}923{,}801$, $1{,}909{,}659$ and $1{,}895{,}151$ in $2{,}001$, $642$
+and $883$ seconds. Each value lies strictly below the best solution
+reported for the same instance by \citet{MauriEtAl2021}, respectively
+$1{,}923{,}813$, $1{,}910{,}011$ and $1{,}896{,}699$, so the campaign
+closes the three instances and improves their best-known solutions at the
+same time. On these three runs the terminal bound equalled the incumbent
+at the recorded precision, and we report the optima subject to the
+solver's default floating-point certificates, with the incumbent costs
+confirmed by the independent recomputation noted above.
+The branch-and-Benders-cut \textsc{Bd} enters here not as a faster
+solver, for it closes $8$ of the $400$ controlled instances within the
+same budget, but as a device for cross-validation and for the structural
+reading of Proposition~\ref{prop:duals}, and the codes are compared only
+on optimal values they jointly certify.
+
+\subsection{The covering bound and the root relaxation (Q3)}
+\label{sec:exp-q3}
+
+The last question asks whether $k^\ast$ tracks difficulty beyond the
+algorithm that motivated it, and through which mechanism, so we
+confront the covering bound with the integer
+solver on the benchmark that the original study left without a single proven
+optimum. The bound is available
+without solving anything, computed by one sort and one prefix scan,
+and it varies widely across the benchmark, as Figure~\ref{fig:q3} shows. Table~\ref{tab:q3groups} reports the campaign by
+size group, the range of the bound, the median terminal gap, the proven
+optima and the within-group correlations with their Holm-adjusted
+$p$-values. Within every size group the
+bound spreads over a factor of four or more, and this spread at fixed
+size removes the most evident confounder, instance size, while other
+instance features still vary within a group, so the bound may in part
+proxy properties the design does not separate.
+
+\input{tables/tab_q3_groups.tex}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{fig_q3_kstar.pdf}
+\caption{The covering bound $k^\ast$ across the four benchmark groups. Each
+point is one instance and the bar marks the group median. The bound spreads by
+a factor of more than four inside every group, varying across instances of
+equal size, so its variation is not a proxy for instance size.}
+\label{fig:q3}
+\end{figure}
+
+The completed campaign lets the correlation between $k^\ast$ and the
+effort \textsc{Mip} spends on the $100$ benchmark instances be read
+directly, with a within-group control that separates the effect of the
+bound from the effect of size. Pooled over the benchmark, the covering
+bound and the terminal gap are rank-correlated with Spearman
+$\rho=-0.28$. Ninety-seven of the hundred runs end at the limit, so
+solving time carries no usable signal on this benchmark and the analysis
+reads the terminal gap alone. The terminal gap blends primal and dual
+progress and depends on the objective scale and on the solver
+tolerances, so it is an imperfect proxy of computational effort.
+Within the four size groups the association strengthens, the four
+coefficients being negative throughout and ranging from
+$-0.39$ to $-0.70$ with descriptive mean $-0.52$, as the $\rho$ column
+of Table~\ref{tab:q3groups}
+shows. Significance was assessed by a two-sided permutation test on the
+Spearman statistic. The test is Monte Carlo with $20{,}000$
+permutations under a fixed seed, the $p$-value uses the add-one
+convention so it cannot vanish, ties including zero gaps are handled by
+mid-ranks, and every reported $p$-value is Holm-adjusted over the five
+gap correlations. The pooled correlation and the two five-product
+groups survive the correction, with adjusted $p$-values of $0.013$,
+$0.006$ and $0.001$, while the two ten-product groups do not, and the
+$p$ column of Table~\ref{tab:q3groups} reports the adjusted value of
+every group. The direction is negative in all four groups, established
+where the test passes and inconclusive where it does not. The bootstrap
+intervals of Table~\ref{tab:q3groups} tell the same story, excluding
+zero exactly in the groups that survive the correction.
+Figure~\ref{fig:q3scatter} plots the hundred instances behind these
+coefficients, and the negative drift is visible inside each group.
+The sign is the substantive finding. A naive reading
+of the bound would predict the opposite, a small $k^\ast$ meaning few
+facilities to open and hence an easy instance, but on this benchmark
+larger bounds go with smaller terminal gaps, the same inverse direction
+the enumeration exhibits in Q1, where tight capacities give the covering
+pruning its greatest effect.
+
+The stored solver logs admit a mediation analysis that locates the
+mechanism, extracted by a pinned script with no further runs. The
+terminal gap on this benchmark is essentially the root relaxation gap,
+the two rank-correlating between $+0.89$ and $+1.00$ within groups and
+at $+0.97$ pooled. The covering bound correlates with the root gap
+between $-0.42$ and $-0.73$ in every group ($-0.36$ pooled), and once
+the root gap is controlled the partial rank correlation of the bound
+with the terminal gap collapses, ranging from $-0.04$ to $+0.52$ across
+groups with no stable sign ($+0.29$ pooled). The bound moreover
+correlates positively with the explored node count in every group. The
+association of the bound with solver effort is therefore mediated by
+the relaxation. Tight capacities give tight root relaxations, and
+within the $3{,}600$~s budget the solver rarely moves far from its root
+bound. On this benchmark the covering bound annotates relaxation
+tightness rather than search difficulty, its direction stable across
+groups and its strength moderate within the five-product groups and
+weaker pooled. We make no causal claim beyond the controlled
+comparison.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_q3_scatter.pdf}
+\caption{Terminal gap of \textsc{Mip} under the $3{,}600$~s limit
+against the covering bound $k^\ast$, one marker per benchmark
+instance, coloured by size group. Within every group larger bounds
+accompany smaller gaps, the association Table~\ref{tab:q3groups}
+quantifies. The within-group reading is what controls for instance
+size.}
+\label{fig:q3scatter}
+\end{figure}

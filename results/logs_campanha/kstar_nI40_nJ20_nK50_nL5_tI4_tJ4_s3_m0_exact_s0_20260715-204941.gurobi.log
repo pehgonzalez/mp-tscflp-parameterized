@@ -1,0 +1,84 @@
+
+Gurobi 13.0.2 (win64) logging started Wed Jul 15 20:49:41 2026
+
+Set parameter LogFile to value "logs/kstar_nI40_nJ20_nK50_nL5_tI4_tJ4_s3_m0_exact_s0_20260715-204941.gurobi.log"
+Set parameter Seed to value 0
+Set parameter TimeLimit to value 599.9869857
+Set parameter NodefileStart to value 4
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0.9999
+Set parameter Cutoff to value 1e+100
+Gurobi Optimizer version 13.0.2 build v13.0.2rc1 (win64 - Windows 11+.0 (26200.2))
+
+CPU model: Intel(R) Core(TM) i9-14900HX, instruction set [SSE2|AVX|AVX2]
+Thread count: 24 physical cores, 32 logical processors, using up to 32 threads
+
+Non-default parameters:
+TimeLimit  599.9869857
+MIPGap  0
+MIPGapAbs  0.9999
+NodefileStart  4
+
+Optimize a model with 650 rows, 9060 columns and 23300 nonzeros (Min)
+Model fingerprint: 0x0883ad01
+Model has 9060 linear objective coefficients
+Variable types: 9000 continuous, 60 integer (60 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 7e+02]
+  Objective range  [1e+00, 5e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [5e+00, 2e+01]
+
+Using branch priorities.
+Found heuristic solution: objective 332247.00000
+Presolve time: 0.01s
+Presolved: 650 rows, 9060 columns, 23300 nonzeros
+Variable types: 9000 continuous, 60 integer (60 binary)
+
+Root relaxation: objective 2.844766e+04, 499 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 28447.6586    0   55 332247.000 28447.6586  91.4%     -    0s
+H    0     0                    42206.423180 28447.6586  32.6%     -    0s
+H    0     0                    41476.000000 28447.6586  31.4%     -    0s
+     0     0 32906.6495    0   38 41476.0000 32906.6495  20.7%     -    0s
+H    0     0                    39180.000000 32970.3341  15.8%     -    0s
+     0     0 35548.1991    0   38 39180.0000 35548.1991  9.27%     -    0s
+     0     0 35612.9700    0   38 39180.0000 35612.9700  9.10%     -    0s
+     0     0 35666.5593    0   39 39180.0000 35666.5593  8.97%     -    0s
+     0     0 35666.5994    0   39 39180.0000 35666.5994  8.97%     -    0s
+     0     0 36454.9691    0   38 39180.0000 36454.9691  6.96%     -    0s
+H    0     0                    37343.000000 36456.9873  2.37%     -    0s
+     0     0 36674.0166    0   37 37343.0000 36674.0166  1.79%     -    0s
+     0     0 36697.6868    0   35 37343.0000 36697.6868  1.73%     -    0s
+     0     0 36713.4279    0   36 37343.0000 36713.4279  1.69%     -    0s
+     0     0 36716.8467    0   36 37343.0000 36716.8467  1.68%     -    0s
+     0     0 36829.8417    0   38 37343.0000 36829.8417  1.37%     -    0s
+H    0     0                    37071.000000 36832.4290  0.64%     -    0s
+     0     0 36855.9775    0   36 37071.0000 36855.9775  0.58%     -    0s
+     0     0 36861.8608    0   33 37071.0000 36861.8608  0.56%     -    0s
+     0     0 36917.4653    0   32 37071.0000 36917.4653  0.41%     -    0s
+     0     0 36921.1299    0   29 37071.0000 36921.1299  0.40%     -    0s
+     0     0 36947.9283    0   29 37071.0000 36947.9283  0.33%     -    0s
+     0     0 36949.8731    0   29 37071.0000 36949.8731  0.33%     -    0s
+     0     0 36949.8731    0   29 37071.0000 36949.8731  0.33%     -    0s
+H    0     0                    37039.000000 36949.8731  0.24%     -    0s
+     0     2 36949.8731    0   29 37039.0000 36949.8731  0.24%     -    0s
+*   21     4               8    37014.000000 36997.4862  0.04%  22.7    0s
+*   23     4               8    37012.000000 36997.4862  0.04%  21.4    0s
+
+Cutting planes:
+  Implied bound: 176
+  MIR: 146
+  Flow cover: 60
+  Relax-and-lift: 4
+
+Explored 31 nodes (2446 simplex iterations) in 0.41 seconds (0.42 work units)
+Thread count was 32 (of 32 available processors)
+
+Solution count 9: 37012 37014 37039 ... 332247
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 3.701200000000e+04, best bound 3.701200000000e+04, gap 0.0000%

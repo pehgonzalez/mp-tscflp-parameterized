@@ -1,0 +1,737 @@
+\section{Hardness}\label{sec:complexity}
+
+This section locates the intractability of MP-TSCFLP along the four
+dimensions of an instance. We first show that shrinking two of the four sets to a single element
+already forces strong NP-hardness and logarithmic inapproximability, and
+then that the same covering mechanism can be lodged in the products or in
+the second layer of facilities rather than in the customers. The
+cardinality parameter $k$ then inherits W[2]-hardness together with a
+tight ETH lower bound, and finally a purely numeric group of instances,
+in which both demand dimensions are trivial, turns out to be hard as
+well. The reductions grow from the second-stage
+set-cover decision already visible in Section~\ref{sec:prelim}, and the computational checks behind the constructions are reproducible
+from the accompanying software archive. Two conventions hold throughout
+the section. In every construction with a single product the product
+index is suppressed, so the data of that product are written $b_i$,
+$p_j$, $q_k$, $c_{ij}$ and $d_{jk}$. We also impose a nondegeneracy
+convention on the source instances, requiring the universe $U$ of each
+\textsc{Set Cover} instance to be nonempty and the item total $A$ of
+each \textsc{Partition} instance to be positive, for an instance
+violating either requirement is a yes-instance witnessed by the empty
+solution. Three recurring terms organise the section. The covering
+layer, or covering mechanism, is the \textsc{Set Cover} structure a
+construction embeds, and the discriminating layer is the facility side
+whose cost matrix tells the members of the covered dimension apart. The
+numeric layer is the hardness that survives when both demand dimensions
+are trivial.
+
+The constructions of the section share one architecture.
+Theorem~\ref{thm:cover} is the canonical covering reduction,
+Theorem~\ref{thm:products} and Corollary~\ref{cor:mirror} relocate the
+same mechanism to the products and to the factory layer, and
+Corollary~\ref{cor:coverinapprox} and Theorem~\ref{thm:w2} are
+consequences of the canonical reduction rather than new constructions.
+Theorem~\ref{thm:numeric} completes the fourth discrimination pair by a
+different mechanism, the forced saturation of the factories, and
+Table~\ref{tab:reductions} summarises the constructions side by side.
+
+\input{tables/tab_reductions.tex}
+
+\subsection{Two restrictions already suffice}\label{sec:cover}
+
+After the preliminaries the first question is how much of the model can
+be disabled before the difficulty disappears, and the answer is that
+almost all of it can. One product and one factory, no factory charge,
+uniform unit depot charges, and second-stage costs restricted to two
+values leave a subclass that any casual reading would call trivial. The single factory feeds whichever
+depots are open, so the only
+decision left is which depots to install, and choosing them so that every
+customer is reached through a zero-cost arc is a set-cover decision in
+disguise. Figure~\ref{fig:coverage} draws the reduced instance. The
+hypotheses of the next theorem are severe, and the difficulty survives all
+of them at once.
+
+\input{figures/fig_coverage.tex}
+
+\begin{theorem}\label{thm:cover}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is strongly NP-hard even when,
+simultaneously, $|L|=1$ and $|I|=1$, the charges satisfy $f\equiv 0$ and
+$g\equiv 1$, all transport costs lie in $\{0,1\}$, with in fact
+$c\equiv 0$ and $d\in\{0,1\}$, and every number of the instance is bounded
+by $|K|\,(|J|+1)$. In particular the problem is NP-hard already under a
+unary encoding of the data.
+\end{theorem}
+
+We sketch the reduction before giving the formal proof. From an
+instance of \textsc{Set Cover} with universe $U$, family
+$\mathcal S=\{S_1,\dots,S_m\}$ and target $t$ we build one depot per set,
+one customer per element with demand $Q=m+1$, and a single free factory
+of ample capacity. The second-stage cost $d_{ju}$ is zero when
+$u\in S_j$ and one otherwise, so a customer whose element is covered by
+some open depot is served for free, while a customer left uncovered pays
+one unit on every unit of its demand and therefore at least $Q$. Since
+$Q=m+1$ exceeds both the number of depots and the target $t$, a solution can
+stay within budget $B=t$ only if its open depots cover $U$, and then its
+cost is exactly the number of open depots. Deciding whether budget $t$ is
+attainable is thus deciding whether a cover of size $t$ exists. The
+amplifier $Q$ is what makes an uncovered element incompatible with the
+budget, and the per-unit accounting is what keeps
+divisible service from diluting the penalty.
+
+\begin{proof}
+The plan follows the sketch, with the amplifier making the accounting
+exact. We reduce from \textsc{Set Cover}, which is NP-complete
+\citep{Karp1972}, under the harmless convention $1\le t\le m$. The
+remaining values of $t$ are decidable in polynomial time, since an
+instance with $t=0$ is a yes-instance exactly when $U=\emptyset$, while
+an instance with $t>m$ is a yes-instance exactly when
+$\bigcup_j S_j\supseteq U$. The nondegeneracy convention guarantees in
+addition that every cover of $U$ is nonempty.
+
+\emph{Construction.} Put $L=\{1\}$ and $I=\{1\}$ with $f_1=0$ and
+capacity $b_1=n_U Q$, where $n_U=|U|$ and $Q=m+1$. Take one depot per
+set, $J=\{1,\dots,m\}$ with $g_j=1$ and $p_j=n_U Q$, and one customer per
+element, $K=U$ with demand $q_u=Q$. Set $c_{1j}=0$ for every $j$, set
+$d_{ju}=0$ when $u\in S_j$ and $d_{ju}=1$ otherwise, and ask whether
+$\OPT\le B=t$. The construction runs in $O(n_U m)$ time and its largest
+number is $n_U(m+1)\le|K|(|J|+1)$.
+
+\emph{Feasibility.} By Proposition~\ref{prop:feas} a design that opens the
+factory and a depot set $Z$ is feasible if and only if $b_1\ge D_1$ and
+$\sum_{j\in Z}p_j\ge D_1$, where the single product has total demand
+$D_1=\sum_u q_u=n_U Q$. Since $b_1=n_U Q$ and each $p_j=n_U Q$, (F1) holds
+whenever the factory is open and (F2) holds whenever $Z\ne\emptyset$.
+Positive demand, guaranteed by the nondegeneracy convention, forces the
+factory open, so the feasible designs are
+exactly those with $Z\ne\emptyset$, and the empty design is infeasible.
+
+\emph{Correctness.} Let $Z\subseteq J$ be the depots opened by a feasible
+solution. Because $f_1=0$ and $c\equiv 0$, its cost equals
+$|Z|+\sum_{j\in Z}\sum_{u\notin S_j}w_{ju}$, the transport sum ranging
+over open depots because a closed depot forwards nothing
+by~\eqref{eq:C4}. By constraint~\eqref{eq:C1} every unit sent to an
+uncovered customer travels on an arc of cost one, so the cost is at least
+$|Z|+Q\cdot V_Z$, where $V_Z$ counts the elements no open depot covers.
+This lower bound holds for arbitrary divisible flows, since the second
+term is charged one unit per unit of flow and an uncovered customer has
+no cheaper arc available. It is attained by routing each covered
+customer through a covering depot and each uncovered one through any open
+depot, with the first-stage flow $x_{1j}$ set to the outflow of depot
+$j$, a choice that costs nothing since $c\equiv 0$. The capacities
+accommodate this routing, because $b_1=p_j=n_UQ$ equals the total demand
+and so \eqref{eq:C2}--\eqref{eq:C4} hold. Now, if $C$ covers
+$U$ with $|C|\le t$, then $C$ is nonempty by the nondegeneracy
+convention, so opening $Z=C$ is feasible and serves every customer
+for free at cost $|C|\le t$. Conversely a solution of cost at most $t$ cannot leave an
+element uncovered, for that would force cost at least
+$|Z|+Q\ge Q=m+1>m\ge t$, so its open depots form a cover, and
+$\text{cost}\ge|Z|$ gives $|Z|\le t$. Neither direction used any
+restriction beyond the budget, a fact that Theorem~\ref{thm:w2} reuses
+when a cardinality bound is added.
+
+All numbers are bounded by $n_U(m+1)$ and hence polynomial in the input
+size, so the subclass remains NP-hard when its data are written in
+unary, which is strong NP-hardness in the sense of
+\citet{GareyJohnson1979}. A pseudo-polynomial algorithm would run in
+polynomial time on this subclass, whose numbers are polynomially
+bounded, and would therefore give $\Ppoly=\NP$.
+\end{proof}
+
+For coverable instances the value of the reduced instance equals the
+minimum cover size, so the approximation threshold of \textsc{Set Cover} transfers verbatim.
+The only care needed is that a multiplicative factor below one is
+unsatisfiable once the optimum is at least one, which holds here because
+a depot must open, and this is why the factor is stated as a maximum
+with one.
+
+\begin{corollary}\label{cor:coverinapprox}
+For every $\varepsilon>0$, unless $\Ppoly=\NP$, no polynomial-time
+algorithm approximates the optimisation version of MP-TSCFLP within a
+factor $\max\{1,(1-\varepsilon)\ln|K|\}$, even with $|L|=|I|=1$,
+$f\equiv 0$, $g\equiv 1$, $c\equiv 0$, $d\in\{0,1\}$ and all numbers
+polynomially bounded in the instance size. The same conclusion follows under the stronger
+assumption $\NP\not\subseteq\mathrm{DTIME}(n^{O(\log\log n)})$ from the
+earlier bound of \citet{Feige1998}.
+\end{corollary}
+
+\begin{proof}
+Enlarging the amplifier forces even approximately optimal solutions to
+be covering. Rerun the construction with the
+larger amplifier $Q'=n_U m+m+1$, so that $q_u=Q'$ and $b_1=p_j=n_UQ'$,
+whose only effect is to widen the penalty. The cost identity of
+Theorem~\ref{thm:cover}, namely that any feasible solution costs at
+least $|Z|+Q'\,V_Z$ with equality for the routing described there, is
+unchanged. The optimum of a coverable instance therefore equals its
+minimum cover size $t^*$, attained by covering designs, since any
+non-covering design costs at least $Q'$ and $Q'>m\ge t^*$ prevents it
+from being optimal. Write
+$\rho=\max\{1,(1-\varepsilon)\ln n_U\}$ for the claimed factor, and note
+$\rho\le 1+\ln n_U$ and $t^*\le m$, so a $\rho$-approximation returns a
+solution of cost at most $\rho\,t^*\le(1+\ln n_U)\,m$. Since $\ln n_U<n_U$
+this is below $Q'=(n_U+1)m+1$, so the returned design is covering. The
+returned solution costs at least $|Z|$ by the identity, where
+$Z$ denotes its open depots, so $|Z|\le\rho\,t^*$. As
+$|K|=|U|=n_U$, this yields a polynomial-time approximation of factor
+$\rho$ for minimum set cover on the coverable instances. The hardness of
+\citet{DinurSteurer2014} concerns exactly that minimisation problem,
+whose instances are coverable by definition, since a cover is required
+for the objective to exist. On instances with $(1-\varepsilon)\ln n_U<1$ the
+universe has constant size at most $e^{1/(1-\varepsilon)}$, every
+minimal cover has at most $n_U$ sets, and exhaustive search over the
+polynomially many subfamilies of at most $n_U$ sets solves the problem
+exactly in polynomial time. On all remaining instances
+$\rho=(1-\varepsilon)\ln n_U$, so the combined algorithm achieves the
+factor $\max\{1,(1-\varepsilon)\ln|U|\}$ on every instance of minimum
+set cover, exactly on the small universes and within
+$(1-\varepsilon)\ln|U|$ elsewhere. In either regime the combined
+procedure would approximate minimum set cover within a factor smaller
+than the threshold of \citet{DinurSteurer2014} on every instance, and
+that is impossible unless $\Ppoly=\NP$. The
+variant under Feige's assumption is identical.
+\end{proof}
+
+Fixing a set to a single element removes tractability entirely rather
+than merely obstructing efficiency, which is the parameterized reading of the
+same reduction.
+
+\begin{corollary}\label{cor:coverpara}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is para-NP-hard with respect to $|L|$,
+with respect to $|I|$, and with respect to the pair $(|L|,|I|)$. Unless
+$\Ppoly=\NP$, none of these parameters admits an \XP\ algorithm, and a
+fortiori none is \FPT.
+\end{corollary}
+
+\begin{proof}
+The claims follow from the fixed slice. The hard subclass of
+Theorem~\ref{thm:cover} has $|L|=|I|=1$, so a fixed
+slice of each parameter is already NP-hard. A parameterized problem
+NP-hard at a fixed parameter value is para-NP-hard, and an \XP\ algorithm
+would decide that slice in polynomial time \citep{DowneyFellows2013}.
+\end{proof}
+
+Before the covering elements migrate to other dimensions of the model,
+we record what the uniform costs of the construction do and do not imply.
+
+\begin{remark}\label{rem:ufl}
+The uniformity in Theorem~\ref{thm:cover} is deliberate. All of the
+difficulty is already present with $f\equiv 0$, $g\equiv 1$ and binary
+transport, so parameters counting distinct cost values, or bounding the ratio of the
+positive costs, are constant on this hard subclass and help nothing on
+their own. The instance is, in essence, a
+non-metric uncapacitated facility location problem with a free source
+stage attached, and its equivalence with \textsc{Set Cover} traces back
+to \citet{Hochbaum1982}. What the theorem contributes is not the
+technique but the location of the difficulty in the most restricted
+subclass the model contains.
+\end{remark}
+
+\subsection{Products and customers as covering elements}\label{sec:products}
+
+Theorem~\ref{thm:cover} kept the customers as the covering elements and
+let the depots do the discriminating, but nothing forces that assignment.
+If the products carry the elements and the factories discriminate through
+their first-stage costs, the same amplifier argument reaches a group of
+instances that Theorem~\ref{thm:cover} cannot, namely one where the
+customers collapse to a single point. The hypotheses stay just as tight,
+and the difficulty is now carried by the product dimension.
+
+\begin{theorem}\label{thm:products}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is strongly NP-hard even when,
+simultaneously, $|J|=|K|=1$, the charges satisfy $f\equiv 1$ and $g_1=0$,
+first-stage costs lie in $\{0,1\}$ while second-stage costs vanish, and
+every number is bounded by $|I|+1$.
+The difficulty is carried by $|L|$, which remains unrestricted.
+\end{theorem}
+
+The elements have migrated from the customers to the products and
+the discriminating layer from the depots to the factories, which is what
+moves the hard group to $|J|=|K|=1$.
+
+\begin{proof}
+Again the source is \textsc{Set Cover} \citep{Karp1972}, with
+$1\le t\le m$ and $Q=m+1$.
+
+\emph{Construction.} Let $L=U$ and $I=\{1,\dots,m\}$ with $f_i=1$ and
+$b_{il}=Q$ for every $l$. Take one depot with $g_1=0$ and $p_{1l}=Q$, one
+customer with $q_{1l}=Q$, first-stage cost $c_{i1l}=0$ when $l\in S_i$
+and $1$ otherwise, second-stage cost $d\equiv 0$, and budget $B=t$. The
+construction takes $O(n_U m)$ time, since each cost $c_{i1l}$ is a
+membership test. Full
+capacity on every product makes feasibility of a design independent of
+coverage, so coverage is punished only in the cost.
+
+\emph{Correctness.} By Proposition~\ref{prop:feas}, applied per product
+with $b_{il}=p_{1l}=Q$ and $D_l=q_{1l}=Q$, a design $(Y,z_1)$ is feasible
+exactly when $Y\ne\emptyset$ and $z_1=1$. Products exist because
+$L=U\ne\emptyset$ under the nondegeneracy convention, and for each
+product (F1) reads $Q|Y|\ge Q$ and holds precisely when
+$Y\ne\emptyset$, while (F2) reads $Qz_1\ge Q$ and forces $z_1=1$, an
+opening that is free since $g_1=0$.
+A feasible solution with open factories $Y$ and $z_1=1$ costs
+$|Y|+\sum_l\sum_{i\in Y,\,l\notin S_i}x_{i1l}$, where the sum ranges over
+open factories only, by~\eqref{eq:C3}. For each product the depot must receive $Q$ units
+by~\eqref{eq:C1}--\eqref{eq:C2}. If no open factory contains that product
+all $Q$ units travel on cost-one arcs, so the cost is at least
+$|Y|+Q\,V_Y$, where $V_Y$ counts uncovered products. Equality is
+attained by routing each covered product through a containing factory
+and each uncovered product through any open factory, within the
+per-product capacities $b_{il}=Q$, and the second stage forwards the $Q$
+units to the customer at no charge. In
+the forward direction a cover $C$ opens $Y=C$ and $z_1=1$ at cost
+$|C|\le t$. Conversely a solution of cost at most $t<Q$ leaves no product
+uncovered, since one uncovered product would force cost at least
+$|Y|+Q\ge 1+Q>m\ge t$, feasibility having forced $Y\ne\emptyset$, and
+then $\text{cost}\ge|Y|$ gives $|Y|\le t$, a cover. The
+largest number is $Q=m+1$, so the hardness is strong
+\citep{GareyJohnson1979}.
+\end{proof}
+
+The stages of the model are not interchangeable, because the balance
+constraint~\eqref{eq:C2} orients the flow, so the mirror image with
+depots as the discriminating layer needs its own short argument rather
+than a symmetry appeal.
+
+\begin{corollary}\label{cor:mirror}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is strongly NP-hard even when,
+simultaneously, $|I|=|K|=1$, the charges satisfy $f_1=0$ and $g\equiv 1$,
+first-stage costs vanish while second-stage costs lie in $\{0,1\}$, and
+every number is bounded by $|J|+1$.
+\end{corollary}
+
+\begin{proof}
+The construction of Theorem~\ref{thm:products} transfers across the two
+stages, and the proof is the following list of changes. Exchange the
+two facility layers, so the sets become depots $J=\{1,\dots,m\}$ with
+$g_j=1$ and $p_{jl}=Q$, the single free facility becomes a factory with
+$f_1=0$ and $b_{1l}=Q$, and the penalty moves onto the second stage,
+$c\equiv 0$ and $d_{j1l}=0$ when $l\in S_j$ and $1$ otherwise, with
+$L=U$, the demands $q_{1l}=Q$, the budget $B=t$ and the construction
+time unchanged. In the correctness argument the two feasibility tests
+swap parts, (F1) reading $Qy_1\ge Q$ and forcing $y_1=1$ at no charge,
+(F2) reading $Q|Z|\ge Q$, that is $Z\ne\emptyset$. The cost of a
+feasible solution becomes
+$|Z|+\sum_l\sum_{j\in Z,\,l\notin S_j}w_{j1l}$ with the sum over open
+depots by~\eqref{eq:C4}, and the lower bound $|Z|+Q\,V_Z$, with $V_Z$
+the number of uncovered products, holds as before, each product's $Q$
+units reaching the customer by~\eqref{eq:C1}. Equality is attained by
+the routing of Theorem~\ref{thm:products} with each first-stage flow
+$x_{1jl}$ set equal to $w_{j1l}$, at no cost since $c\equiv 0$, within
+$b_{1l}=Q$ and satisfying \eqref{eq:C2} and~\eqref{eq:C3}. The two
+directions of the equivalence then read verbatim with $Y$ replaced by
+$Z$, one uncovered product forcing cost at least $1+Q>m\ge t$. Every
+number of the image is again at most $Q=m+1$, so the reduction is
+unary-robust and strong NP-hardness follows \citep{GareyJohnson1979}.
+\end{proof}
+
+Because these slices are strongly hard, the customer and depot parameters
+already fail at the value one, and unlike the weak slice below the
+difficulty does not vanish under a unary encoding.
+
+\begin{corollary}\label{cor:parak}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is strongly para-NP-hard with respect to
+$|K|$, to $|J|$, and to each of the pairs $(|J|,|K|)$ and $(|I|,|K|)$. No
+\XP\ algorithm exists for any of these parameters unless $\Ppoly=\NP$, and
+every one of these exclusions holds even under a unary encoding.
+\end{corollary}
+
+\begin{proof}
+Two fixed slices supply the claims.
+Theorem~\ref{thm:products} gives a strongly NP-hard slice with
+$|J|=|K|=1$ and $|L|$ free, and Corollary~\ref{cor:mirror} one with
+$|I|=|K|=1$. The parameterized reading is that of
+Corollary~\ref{cor:coverpara}.
+\end{proof}
+
+Where no facility layer sees a demand dimension it can distinguish, the
+covering mechanism becomes inactive and only the numbers remain hard. This
+happens exactly with one depot and one product, and there the difficulty
+drops from strong to weak.
+
+\begin{theorem}\label{thm:partition}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is NP-hard even when $|J|=|L|=|K|=1$,
+$g_1=0$, all transport costs vanish, and $f_i=b_i$ for every factory.
+The hardness is only weak, since this group of instances is solvable in
+pseudo-polynomial time $O(|I|\cdot(D+b_{\max}))$ with $D=q_{11}$ and
+$b_{\max}=\max_i b_i$, and is therefore in $\Ppoly$ under a unary
+encoding, hence not strongly NP-hard unless $\Ppoly=\NP$.
+\end{theorem}
+
+\begin{proof}
+The reduction is from \textsc{Partition}
+\citep{Karp1972}, which asks whether
+integers $a_1,\dots,a_m$ with even sum $A$ admit a subset summing to
+$A/2$, and the matching pseudo-polynomial program follows it.
+
+\emph{Construction.} Take $L=K=\{1\}$ with demand $q=A/2$, one factory
+per item with $f_i=b_i=a_i$, one depot with $g_1=0$ and $p_1=A/2$, all
+transport costs zero, and budget $B=A/2$.
+
+\emph{Correctness.} Every transport coefficient is zero and $g_1=0$, so
+the cost of any feasible solution is $\sum_{i\in S}a_i$ with $S$ the open
+factories. By Proposition~\ref{prop:feas} the design is feasible exactly
+when $z_1=1$ and $\sum_{i\in S}a_i\ge A/2$. The first condition is
+forced by (F2), which reads $p_1z_1=(A/2)z_1\ge A/2$ with $A>0$ by the
+nondegeneracy convention, and the opening carries no charge. The second
+condition is (F1). A partition $S^\ast$ opens a
+feasible solution of cost exactly $A/2$, and a feasible solution of cost
+at most $A/2$ has $\sum_S a_i\ge A/2$ and $\le A/2$, hence a partition. The instance
+numbers are the $a_i$ themselves, written in binary, so the reduction is
+not unary-robust and the hardness is only weak
+\citep{GareyJohnson1979}.
+
+\emph{The matching program.} On the general group of the statement the
+depot capacity $p_1$ is arbitrary, so we first test $p_1\ge D$ in $O(1)$
+time and declare the instance infeasible when the test fails. When it
+holds the depot opens at no charge, the cost of opening $S$
+is $\sum_{i\in S}f_i=\sum_{i\in S}b_i$, and feasibility is
+$\sum_{i\in S}b_i\ge D$ by Proposition~\ref{prop:feas}, so the problem is
+the knapsack-cover of minimising a subset sum subject to reaching $D$.
+Let $T(i,s)\in\{0,1\}$ record whether some subset of the first $i$
+factories has capacity sum exactly $s$, for $0\le s\le D+b_{\max}$. Sums
+beyond $D+b_{\max}$ are irrelevant, for if a feasible $S$ has
+$\sum_{i\in S}b_i\ge D+b_{\max}$ then removing any item of $S$ keeps the
+sum at least $D$, so repeated removal produces a feasible subset of no
+larger cost whose sum lies below $D+b_{\max}$. The recurrence
+$T(i,s)=T(i-1,s)\vee T(i-1,s-b_i)$, with $T(0,0)=1$, with $T(0,s)=0$ for
+$s>0$, and with the convention $T(i-1,s-b_i)=0$ when $s<b_i$, fills the
+table in $O(|I|\cdot(D+b_{\max}))$ time. By induction on $i$ the
+recurrence is sound and complete, every set bit corresponding to a
+genuine subset sum and every subset sum in range setting its bit. The
+optimum is the least $s\ge D$ with $T(|I|,s)=1$, and if no such $s$
+exists the instance is infeasible, since the removal argument above
+would otherwise produce a feasible sum within the range of the table.
+The table
+is pseudo-polynomial, so under a unary encoding this group lies in
+$\Ppoly$ and the weak hardness is best possible.
+\end{proof}
+
+The same weak reduction runs with the two facility layers exchanged, which is
+what closes the last quadrant of the dichotomy, the one that keeps the depots
+free.
+
+\begin{corollary}[depot mirror of the weak group]\label{cor:partitionmirror}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is NP-hard even when $|I|=|L|=|K|=1$, $f_1=0$, all
+transport costs vanish, and $g_j=p_j$ for every depot. The hardness is only weak,
+since this group is solvable in pseudo-polynomial time and hence lies in
+$\Ppoly$ under a unary encoding.
+\end{corollary}
+\begin{proof}
+Exchanging the two facility layers in the construction of
+Theorem~\ref{thm:partition} yields the reduction, and the proof is the
+list of changes. The items become depots with $g_j=p_j=a_j$, the single
+free depot becomes a factory with $f_1=0$ and $b_1=A/2$, and the
+customer, the demand $q=A/2$, the zero transport costs and the budget
+$B=A/2$ are unchanged. In the correctness argument the two feasibility
+tests swap parts, (F1) reading $b_1y_1=(A/2)y_1\ge A/2$ with $A>0$ by
+the nondegeneracy convention, forcing the free factory opening, and
+(F2) supplying the covering test $\sum_{j\in Z}a_j\ge A/2$ over the
+open depots $Z$. The equivalence between solutions of cost at most
+$A/2$ and partitions then reads word for word as in
+Theorem~\ref{thm:partition} with $Z$ in place of $S$. The instance
+numbers are the $a_j$ in binary, so the reduction is not unary-robust.
+The dynamic program of Theorem~\ref{thm:partition}, run with
+$g_j=p_j=a_j$ in place of $f_i=b_i$ after the $O(1)$ test $b_1\ge D$,
+whose failure means infeasibility,
+places the group in $\Ppoly$ under a unary encoding \citep{GareyJohnson1979}.
+\end{proof}
+
+Together the two weak slices delimit the quadrant of the model in which
+the covering layer is silent, and the next observation makes that
+delimitation explicit.
+
+\begin{observation}\label{obs:quadrant}
+With $|J|=|L|=1$ and $|I|,|K|$ free the covering layer is entirely
+inactive. Through a single depot the factories cannot tell customers
+apart, and a single product offers no dimension to discriminate either,
+so the group of instances is at once weakly NP-hard, by
+Theorem~\ref{thm:partition}, and pseudo-polynomially solvable. With one
+product and one depot every unit of every $q_{k}$ crosses the same depot
+to its customer, so the second-stage cost of any trimmed routing is the fixed constant
+$\sum_k d_{1k}q_{k}$, independent of the design. Feasibility further
+requires $p_1\ge\sum_k q_k$, an $O(1)$ test supplied by (F2) whose
+failure means the instance is infeasible, and when the total demand is
+positive the forced opening $z_1=1$ adds the constant charge $g_1$ to
+every solution. What remains is a
+factory-side knapsack-cover with opening charges $f_i$ and per-unit costs
+$c_{i1}$ against demand $\sum_k q_k$, solvable in pseudo-polynomial time
+by the factory half of the dynamic program behind
+Theorem~\ref{thm:separable}, of which the subset-sum of
+Theorem~\ref{thm:partition} is the special case $f_i=b_i$, $c\equiv 0$. This is the only quadrant we identify with such
+a mixed profile, and it witnesses the two-layer picture directly. The
+covering layer becomes active only when a facility layer sees a demand
+dimension that distinguishes its members, and where none does the numeric
+layer alone remains, vanishing under a unary encoding.
+\end{observation}
+
+\subsection{The parameter \texorpdfstring{$k$}{k}}\label{sec:paramk}
+
+The genuine parameter of the study is the number of opened facilities
+$k=\sum_i y_i+\sum_j z_j$ of Definition~\ref{def:Bk}, and the covering
+reductions already say what to expect of it. \textsc{Set Cover}
+parameterized by the cover size is the canonical W[2]-complete problem,
+and the construction of Theorem~\ref{thm:cover} maps that parameter
+almost onto $k$. The only subtlety is that the forced free factory
+consumes one unit of cardinality without consuming budget.
+
+\begin{theorem}\label{thm:w2}
+$\mathrm{MP\text{-}TSCFLP}(B,k)$ parameterized by $k$ is W[2]-hard, even
+on the subclass of Theorem~\ref{thm:cover}. The same reduction shows that
+the budget-only version $\mathrm{MP\text{-}TSCFLP}(B)$ parameterized by
+$B$ is W[2]-hard, and that the variant whose cardinality bound counts only depots, requiring
+$\sum_j z_j\le k_z$, is W[2]-hard with parameter $k_z$, the reduction
+setting $k_z=t$.
+\end{theorem}
+
+The budget parameterization is W[2]-hard here because the slice carries
+unit depot charges, so the budget counts the open depots, and
+parameterization by a budget value is encoding-sensitive in general.
+
+\begin{proof}
+We reduce from \textsc{Set Cover} parameterized
+by $t$, which is W[2]-complete \citep{DowneyFellows2013}. The map is
+that of Theorem~\ref{thm:cover},
+computed in polynomial time, with $k=t+1$ a computable function of the
+source parameter, so it is an \FPT\ reduction
+\citep{DowneyFellows2013,Cygan2015}. For the equivalence, a cover $C$ of
+size at most $t$ yields a feasible solution of cost $|C|\le t$ and
+cardinality $1+|C|\le t+1$, the factory, forced open by the positive
+demand, contributing the extra unit while carrying no charge. Conversely
+any witness of the target side
+satisfies cost at most $t$ and therefore, by the converse direction of
+Theorem~\ref{thm:cover}, opens a cover of size at most $t$. The
+cardinality bound only restricts the witnesses and so cannot break this
+direction.
+
+\emph{Slack.} In the image, cost at most $B$ forces
+$\sum_j z_j\le\sum_j g_j z_j\le\text{cost}\le B$ because $g\equiv 1$ and
+the other charges are nonnegative, while $\sum_i y_i=1$ because (F1)
+with positive demand forces the single factory open. Every feasible
+solution of cost at most $B$ therefore has cardinality at most $B+1$, so
+the cardinality bound with $k=B+1$ is vacuous. For the budget-only version
+the same instance with parameter $B=t$ is already a reduction, for its
+equivalence is verbatim that of Theorem~\ref{thm:cover}, whose two
+directions used only the budget. For the depot-only variant set
+$k_z=t$. A cover $C$ yields a solution with $\sum_j z_j=|C|\le t$, and
+the bound $k_z$ only restricts the witnesses, so the converse direction
+of Theorem~\ref{thm:cover} is unaffected.
+\end{proof}
+
+The exponent of the trivial enumeration is linear in $k$, and under the
+Exponential Time Hypothesis \citep{ImpagliazzoPaturiZane2001} that linear
+exponent cannot be improved,
+which pairs with the \XP\ membership of Observation~\ref{obs:xp} to show
+that \XP\ is the right home for this parameter.
+
+\begin{theorem}\label{thm:eth}
+Assuming the ETH, no algorithm decides
+$\mathrm{MP\text{-}TSCFLP}(B,k)$
+in time $f(k)\cdot N^{o(k)}$, where $N$ is the instance size and $f$ is
+computable, even on the subclass of Theorem~\ref{thm:cover}. Since $N$
+and $n=|I|+|J|$ are polynomially related on the image, the $n^{k+O(1)}$
+enumeration of Observation~\ref{obs:xp} is optimal up to the constant in
+the exponent.
+\end{theorem}
+
+\begin{proof}
+We compose two maps and track the parameter through the composition.
+The first is the closed-neighbourhood embedding of
+\textsc{Dominating Set} into \textsc{Set Cover}, whose universe is
+$V(G)$ and whose sets are the closed neighbourhoods $N[v]$ for
+$v\in V(G)$, so that dominating sets of size $t$ correspond exactly to
+covers of size $t$. A one-vertex instance of \textsc{Dominating Set} is
+decidable in constant time, so we assume $n_G\ge 2$, where $n_G$ is the
+number of vertices. Composing the embedding with the map of
+Theorem~\ref{thm:w2} gives
+$\textsc{Dominating Set}(t)\to\mathrm{MP\text{-}TSCFLP}(B{=}t,k{=}t{+}1)$
+with an image of size $N\le n_G^{c}$ for an absolute constant
+$c$. The size bound follows because the
+embedded \textsc{Set Cover} instance has $n_U=m=n_G$, so the image of
+the map of Theorem~\ref{thm:cover} consists of an $n_G\times n_G$
+second-stage cost table together with numbers bounded by $n_G(n_G+1)$.
+Suppose an algorithm decided the image in
+time $f(k)\cdot N^{o(k)}$. Substituting $k=t+1$ and $N\le n_G^{c}$ with $c$
+constant gives $N^{o(k)}=n_G^{c\cdot o(t+1)}=n_G^{o(t)}$, since a constant
+multiple of a sublinear function is sublinear and $o(t+1)=o(t)$, so the
+composition would decide \textsc{Dominating Set} in time $f'(t)\cdot
+n_G^{o(t)}$ for a computable $f'$, the polynomial cost of the two
+reduction steps being absorbed into the product $f'(t)\cdot n_G^{o(t)}$.
+This contradicts the ETH lower bound of
+\citet{ChenHuangKanjXia2006}, also in \citet[Chapter~14]{Cygan2015}.
+Finally, on the image the instance size $N$ and the
+facility count $n=|I|+|J|$ satisfy $n\le N\le n^{c'}$ for a constant
+$c'$, so an algorithm running in time $f(k)\cdot n^{o(k)}$ would run in
+time $f(k)\cdot N^{o(k)}$ and is excluded by the bound just proved,
+which makes the $n^{k+O(1)}$ enumeration of Observation~\ref{obs:xp}
+optimal up to the constant in the exponent.
+\end{proof}
+
+The quantitative form of the exclusion requires one clarification.
+Running times of the shape $f(k)\cdot N^{O(k)}$
+are not, and could not be, excluded, because the enumeration of
+Observation~\ref{obs:xp} achieves exactly such a bound. The excluded
+class is fixed before the composition. For every computable $f$ and
+every function $h$ with $h(t)/t\to 0$ no algorithm decides the target in
+time $f(t)\,N^{h(t)}$, and the composition maps an algorithm with
+exponent $h(k)=o(k)$ to one with exponent $h'(t)\le c\,h(t+1)+c$, which
+is again $o(t)$. The pair of results thus brackets the parameter from
+both sides, the exponent
+linear in $k$ being attainable and, under the ETH, optimal.
+
+\begin{remark}\label{rem:w2mem}
+Membership in W[2] is left open. A witness is the set of at most $k$
+opened facilities, which has the shape W[2] expects, but the acceptance
+test compares binary sums and, worse, minimises an internal routing flow
+by Proposition~\ref{prop:oracle}, and neither is known to translate into
+bounded weft. In particular the natural verifier must evaluate a
+minimum-cost flow, a computation that is P-complete in general and is
+not known to be expressible by bounded-weft circuits. What can be stated without risk is that
+$\mathrm{MP\text{-}TSCFLP}(B,k)$ lies in $\mathrm{W[P]}$, by guessing the
+$O(k\log n)$ bits of the opening pattern and verifying in polynomial time,
+so the parameter sits between W[2]-hardness and $\mathrm{W[P]}\cap\XP$.
+\end{remark}
+
+\subsection{The numeric layer}\label{sec:numeric}
+
+The covering reductions accounted for three of the four ways a facility
+layer can discriminate a demand dimension, namely depots against
+customers, factories against products, and depots against products. The
+remaining question is the group of instances where both demand dimensions
+are trivial, $|K|=|L|=1$, and only the general transport matrix couples
+the two facility layers. A computational search over small instances and candidate reduction rules,
+recorded with the accompanying code, surfaced no tractable structure for this
+group, and the explanation is that the group carries a fourth
+discrimination pair. Tight capacities turn the factories
+themselves into carriers of demand, and the first-stage matrix then
+distinguishes factories that no open depot covers.
+
+\begin{theorem}\label{thm:numeric}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is strongly NP-hard even when,
+simultaneously, $|K|=|L|=1$, the charges satisfy $f\equiv 0$ and
+$g\equiv 1$, first-stage costs lie in $\{0,1\}$ while second-stage costs
+vanish, capacities are uniform on each side, and every number is bounded
+by $|I|\,(|J|+1)$. Consequently this
+group of instances admits no pseudo-polynomial algorithm unless
+$\Ppoly=\NP$.
+\end{theorem}
+
+The discriminating pair is now the two facility layers, mediated by
+tight capacities that force every feasible solution to open and
+saturate all factories, and both demand dimensions stay fixed at one.
+
+\begin{proof}
+The source problem is once more \textsc{Set Cover} \citep{Karp1972},
+with $1\le t\le m$ and
+$Q=m+1$.
+
+\emph{Construction.} Put $K=L=\{1\}$ with demand $D=n_U Q$, factories
+$I=U$ with $f_i=0$ and $b_i=Q$, depots $J=\{1,\dots,m\}$ with $g_j=1$ and
+$p_j=n_U Q$, first-stage cost $c_{ij}=0$ when $i\in S_j$ and $1$
+otherwise, second-stage cost $d\equiv 0$, and budget $B=t$. As before
+the construction takes $O(n_U m)$ time.
+
+\emph{Correctness.} By Proposition~\ref{prop:feas} a design $(Y,Z)$ is
+feasible exactly when (F1) $\sum_{i\in Y}b_i=Q|Y|\ge D=Qn_U$, that is
+$Y=I$, and (F2) $\sum_{j\in Z}p_j\ge D$, that is $Z\ne\emptyset$, the
+second equivalence using $D>0$, guaranteed by the nondegeneracy
+convention. Fix a
+feasible solution, write $X_j=\sum_i x_{ij}$ for the flow into depot
+$j$, and write $w_j=w_{j11}$ for the flow that depot $j$ forwards to the
+customer. Summing~\eqref{eq:C1} over the single customer gives $\sum_j w_j\ge D$,
+summing~\eqref{eq:C2} over $j$ gives $\sum_j X_j\ge\sum_j w_j$, and
+summing~\eqref{eq:C3} over $i$ gives $\sum_j X_j\le\sum_i b_i y_i=Qn_U=D$.
+The chain $D\le\sum_j w_j\le\sum_j X_j\le D$ collapses to equalities, so
+$\sum_j w_j=\sum_j X_j=D$ and, since each factory ships $\sum_j x_{ij}\le
+b_i=Q$ while the total over the $n_U$ open factories is $Qn_U$, each
+factory ships exactly $Q$. Moreover $\sum_j (X_j-w_j)=0$ with every
+$X_j-w_j\ge 0$ by~\eqref{eq:C2}, so $X_j=w_j$ for all $j$. A closed depot
+has $w_j=0$ by~\eqref{eq:C4}, hence $X_j=0$, so no flow enters a closed
+depot and the cost sum below runs only over $j\in Z$.
+
+The cost is then
+$|Z|+\sum_i\sum_{j\in Z,\,i\notin S_j}x_{ij}$, at least $|Z|+Q\,V_Z$
+with $V_Z$ the number of factories no open depot covers, since a factory
+$i$ that no open depot covers ships its full load $Q$ on cost-one arcs.
+Equality holds by routing each covered factory's load through a covering
+depot and each uncovered factory's load through any open depot, at cost
+$Q$ for the latter, then setting $w_j=X_j$ at no charge since
+$d\equiv 0$, the depot capacities $p_j=n_UQ$ accommodating any inflow.
+A cover $C$ opens $Y=I$, forced by (F1) and free since $f\equiv 0$,
+together with
+$Z=C$ at cost $|C|\le t$. Conversely the amplifier argument of
+Theorem~\ref{thm:cover} again shows that a solution of cost at most $t$
+leaves no factory uncovered and opens at most $t$ depots. The largest
+number is $n_U(m+1)$, polynomial in the input, so the subclass stays
+NP-hard when the data are written in unary \citep{GareyJohnson1979}.
+\end{proof}
+
+What survives the reduction is exactly the structure of the transport
+matrix, and killing that structure restores tractability. When the matrix
+is separable the two facility layers decouple and each becomes a
+pseudo-polynomial knapsack-cover, so the separable matrices form a
+pseudo-polynomially solvable subclass, while
+Theorem~\ref{thm:numeric} makes one explicitly non-separable family
+strongly hard. The classification of the territory between the two,
+including structured non-separable matrices such as low-rank or Monge
+matrices, remains open.
+
+\begin{theorem}\label{thm:separable}
+On the group $|K|=|L|=1$, if the first-stage matrix is separable, that is
+$c_{ij}=\gamma_i+\delta_j$ for integers $\gamma,\delta$ with the arcs
+nonnegative, then the problem is solvable in pseudo-polynomial time
+$O\bigl(|I||J|+(|I|+|J|)\cdot D\cdot\max(b_{\max},p_{\max})\bigr)$.
+Separability is decidable in $O(|I||J|)$ time.
+\end{theorem}
+
+The proof, given in \ref{app:tech}, reduces the routing cost to a
+function of the two load marginals, realises any consistent pair of
+loads by a northwest-corner plan, and solves each facility layer by a
+dynamic program over integer loads, integrality of the split optima
+coming from the vertex structure of the load polytopes. Separability is
+the quadrangle condition $c_{ij}+c_{11}=c_{i1}+c_{1j}$, checked in one
+pass over the matrix.
+
+The separable subclass rounds out the numeric layer, and its
+parameterized reading closes the account of the group with both demand
+dimensions trivial.
+
+\begin{corollary}\label{cor:unary}
+$\mathrm{MP\text{-}TSCFLP}(B)$ is strongly para-NP-hard with respect to
+the pair $(|K|,|L|)$, and unless $\Ppoly=\NP$ no \XP\ algorithm exists
+for it, even under a unary encoding. Under a unary encoding the witness slices of the weak
+groups become polynomial, by Theorem~\ref{thm:partition},
+Observation~\ref{obs:quadrant} and Theorem~\ref{thm:separable},
+while the four covering reductions of
+Theorems~\ref{thm:cover}, \ref{thm:products}, \ref{thm:numeric} and
+Corollary~\ref{cor:mirror} are unary-robust, so the covering layer
+survives unchanged.
+\end{corollary}
+
+\begin{proof}
+The claims assemble the slices already proved. The slice
+$(|K|,|L|)=(1,1)$ is strongly NP-hard by
+Theorem~\ref{thm:numeric}, and the parameterized reading is that of
+Corollary~\ref{cor:coverpara}, now robust under a unary encoding because
+the instance numbers of Theorem~\ref{thm:numeric} are polynomial. For
+the remaining claims of the statement, the three positive results match
+their slices as follows. The dynamic program of
+Theorem~\ref{thm:partition} covers the group $|J|=|L|=|K|=1$, the
+knapsack-cover of Observation~\ref{obs:quadrant} covers the quadrant
+$|J|=|L|=1$, and Theorem~\ref{thm:separable} covers the separable
+part of the group $|K|=|L|=1$. Each of the three runs in
+pseudo-polynomial time and hence in polynomial time once the data are
+written in unary. The images of the four covering reductions, in
+Theorems~\ref{thm:cover}, \ref{thm:products}, \ref{thm:numeric} and
+Corollary~\ref{cor:mirror}, carry numbers bounded by $|K|(|J|+1)$,
+$|I|+1$, $|I|(|J|+1)$ and $|J|+1$ respectively, so all four remain valid
+polynomial-time reductions when their images are encoded in unary.
+\end{proof}
+
+Taken together, the reductions of this section show that every way of
+bounding a
+subset $P\subseteq\{|I|,|J|,|K|,|L|\}$ that fails to retain both facility
+layers, that is with $\{|I|,|J|\}\not\subseteq P$, leaves an NP-hard slice, so unless $\Ppoly=\NP$ a tractable
+parameterization of this kind must retain $|I|$ and $|J|$ together. Section~\ref{sec:algorithms} takes
+up exactly that surviving combination, where the enumeration of
+Observation~\ref{obs:xp} sharpens into fixed-parameter tractability.
+The exponent of the $n^{k+O(1)}$ enumeration itself cannot be lowered
+under the ETH, by Theorem~\ref{thm:eth}.

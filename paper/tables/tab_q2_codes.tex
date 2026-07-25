@@ -1,0 +1,21 @@
+\begin{table}[H]
+\centering
+\caption{The three exact codes on the $400$-instance main grid of the
+controlled family, whose graphs all have $n\ge 40$. Solved means proven
+optimal within the per-code limit. The median time is over solved runs
+only, in seconds. \textsc{Mip} closes every instance the enumeration
+leaves censored, the empirical face of the regime border of Q1. The
+three codes ran on different machines with different budgets, so the
+table supports the solved-versus-censored contrast and no cross-code
+time comparison.}
+\label{tab:q2codes}
+\begin{tabular}{lccc}
+\hline
+code & limit (s) & solved & median time (s) \\
+\hline
+\textsc{Xp} & $60$ & $0/400$ & -- \\
+\textsc{Mip} & $600$ & $400/400$ & 0.55 \\
+\textsc{Bd} & $600$ & $8/400$ & 395.57 \\
+\hline
+\end{tabular}
+\end{table}

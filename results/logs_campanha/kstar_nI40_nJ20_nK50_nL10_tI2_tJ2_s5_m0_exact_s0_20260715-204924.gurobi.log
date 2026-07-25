@@ -1,0 +1,84 @@
+
+Gurobi 13.0.2 (win64) logging started Wed Jul 15 20:49:24 2026
+
+Set parameter LogFile to value "logs/kstar_nI40_nJ20_nK50_nL10_tI2_tJ2_s5_m0_exact_s0_20260715-204924.gurobi.log"
+Set parameter Seed to value 0
+Set parameter TimeLimit to value 599.9764673
+Set parameter NodefileStart to value 4
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0.9999
+Set parameter Cutoff to value 1e+100
+Gurobi Optimizer version 13.0.2 build v13.0.2rc1 (win64 - Windows 11+.0 (26200.2))
+
+CPU model: Intel(R) Core(TM) i9-14900HX, instruction set [SSE2|AVX|AVX2]
+Thread count: 24 physical cores, 32 logical processors, using up to 32 threads
+
+Non-default parameters:
+TimeLimit  599.9764673
+MIPGap  0
+MIPGapAbs  0.9999
+NodefileStart  4
+
+Optimize a model with 1300 rows, 18060 columns and 46600 nonzeros (Min)
+Model fingerprint: 0x56efb786
+Model has 18060 linear objective coefficients
+Variable types: 18000 continuous, 60 integer (60 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 7e+02]
+  Objective range  [1e+00, 5e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [5e+00, 2e+01]
+
+Using branch priorities.
+Found heuristic solution: objective 672079.00000
+Presolve time: 0.03s
+Presolved: 1300 rows, 18060 columns, 46600 nonzeros
+Variable types: 18000 continuous, 60 integer (60 binary)
+
+Root relaxation: objective 5.246032e+04, 909 iterations, 0.00 seconds (0.01 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 52460.3229    0   59 672079.000 52460.3229  92.2%     -    0s
+H    0     0                    66780.577148 52460.3229  21.4%     -    0s
+H    0     0                    66773.695985 52460.3229  21.4%     -    0s
+H    0     0                    66742.543396 52460.3229  21.4%     -    0s
+H    0     0                    66599.192519 52460.3229  21.2%     -    0s
+H    0     0                    66411.375797 57119.4038  14.0%     -    0s
+     0     0 57119.4038    0   39 66411.3758 57119.4038  14.0%     -    0s
+H    0     0                    65461.000000 57377.5728  12.3%     -    0s
+     0     0 57377.5728    0   39 65461.0000 57377.5728  12.3%     -    0s
+     0     0 61914.7560    0   35 65461.0000 61914.7560  5.42%     -    0s
+H    0     0                    64983.000000 61976.3428  4.63%     -    0s
+     0     0 62286.5812    0   36 64983.0000 62286.5812  4.15%     -    0s
+     0     0 62389.2129    0   35 64983.0000 62389.2129  3.99%     -    0s
+     0     0 62394.3428    0   35 64983.0000 62394.3428  3.98%     -    0s
+     0     0 63046.6499    0   21 64983.0000 63046.6499  2.98%     -    0s
+H    0     0                    64024.000000 63075.9089  1.48%     -    0s
+H    0     0                    63870.000000 63075.9089  1.24%     -    0s
+     0     0 63191.2953    0   21 63870.0000 63191.2953  1.06%     -    0s
+     0     0 63235.5801    0   15 63870.0000 63235.5801  0.99%     -    0s
+     0     0 63236.9754    0   12 63870.0000 63236.9754  0.99%     -    0s
+H    0     0                    63726.074199 63236.9754  0.77%     -    0s
+H    0     0                    63523.654545 63287.9371  0.37%     -    0s
+H    0     0                    63346.000000 63287.9371  0.09%     -    0s
+     0     0 63287.9371    0   18 63346.0000 63287.9371  0.09%     -    0s
+     0     0 63288.5831    0   14 63346.0000 63288.5831  0.09%     -    0s
+     0     0 63289.7093    0    4 63346.0000 63289.7093  0.09%     -    0s
+H    0     0                    63296.000000 63289.7093  0.01%     -    0s
+     0     0     cutoff    0      63296.0000 63296.0000  0.00%     -    0s
+
+Cutting planes:
+  Implied bound: 350
+  MIR: 171
+  Flow cover: 122
+  Relax-and-lift: 5
+
+Explored 1 nodes (2000 simplex iterations) in 0.38 seconds (0.37 work units)
+Thread count was 32 (of 32 available processors)
+
+Solution count 10: 63296 63346 63523.7 ... 66599.2
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 6.329600000000e+04, best bound 6.329600000000e+04, gap 0.0000%

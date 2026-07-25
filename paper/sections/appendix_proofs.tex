@@ -1,0 +1,632 @@
+\section{Proofs of the structural propositions}\label{app:proofs}
+
+This appendix collects the full proofs of the three structural
+propositions of Section~\ref{sec:prelim}, which rest on classical
+network-flow and transportation techniques. The body keeps their
+statements, the layered-network construction they build on, and the
+facts that the later sections consume, and the proofs appear here in
+statement order.
+
+\medskip\noindent
+\textbf{Proposition~\ref{prop:oracle} (routing oracle).}
+\emph{Fix $(y,z)\in\{0,1\}^{I}\times\{0,1\}^{J}$. The residual routing problem
+separates over products, and for each product $l$ its optimal cost equals
+the minimum cost $\mu_l$ of an $S$--$T$ flow of value $D_l$ in the layered
+network $N_l(y,z)$ of Section~\ref{sec:prelim}, with $\mu_l=+\infty$ when
+no such flow exists. The finite $\mu_l$ are attained by integral flows and
+are nonnegative integers, and $v(y,z)=\sum_l\mu_l$. Hence $v(y,z)$ is
+computable in strongly polynomial time by $|L|$ minimum-cost flow
+computations \citep{Orlin1993}.}
+
+\begin{proof}[Proof of Proposition~\ref{prop:oracle}]
+We argue through the correspondence between routings and flows. The
+routing splits into independent per-product blocks, each block optimum
+is identified with the minimum cost of a value-$D_l$ flow in the network
+$N_l(y,z)$ constructed in Section~\ref{sec:prelim}, and the claims of the statement all follow
+from that identification.
+
+\emph{Separation.} Each of~\eqref{eq:C1}--\eqref{eq:C4} constrains a
+single product $l$, and the objective is a sum of per-product terms, so
+the feasible set of routings is the product of the per-product feasible
+sets and the objective is separable. The minimum is thus the sum over $l$
+of the per-product minima, and the design is feasible if and only if every
+product admits a routing. In particular, if some product admits no
+routing, then its per-product minimum is $+\infty$, the correspondence
+established below yields $\mu_l=+\infty$ for that product, and both
+$v(y,z)$ and $\sum_l\mu_l$ equal $+\infty$, so the claimed identity holds
+under the stated convention. The correspondence itself needs no
+finiteness assumption, so we now fix a product $l$ and establish it in
+general.
+
+\emph{Routings and flows coincide.} We show the block optimum equals
+$\mu_l$. Take a feasible routing $(x,w)$ of block $l$. First lower the
+flows into each over-served customer until $\sum_j w_{jkl}=q_{kl}$, then
+lower the flows into each depot until $\sum_i x_{ijl}=\sum_k w_{jkl}$.
+Which coordinates are lowered is immaterial, and each stopping rule halts
+exactly at equality, so \eqref{eq:C1} and~\eqref{eq:C2} hold with
+equality afterwards. Feasibility of the routing persists throughout the
+lowering. Each lowering decreases only the tracked left-hand side,
+\eqref{eq:C1} for $w$ and \eqref{eq:C2} for $x$, which stops exactly at
+its target, together with quantities whose decrease merely slackens
+\eqref{eq:C2}, \eqref{eq:C3} and~\eqref{eq:C4}. No variable becomes negative, since each lowering drives a
+nonnegative total down to a nonnegative target. Each lowering removes
+flow from arcs of nonnegative cost, so the cost does not rise.
+By~\eqref{eq:C3} at $y_i=0$ and~\eqref{eq:C4} at $z_j=0$, together with
+nonnegativity, every $x_{ijl}$ with $y_i=0$ and every $w_{jkl}$ with
+$z_j=0$ vanishes, so restricting attention to the open facilities
+discards no flow and no cost. Setting $f(S\!\to\! i)=\sum_j x_{ijl}$,
+$f(i\!\to\! j_{\mathrm{in}})=x_{ijl}$, the split-arc flow
+$=\sum_i x_{ijl}$, $f(j_{\mathrm{out}}\!\to\! k)=w_{jkl}$ and
+$f(k\!\to\! T)=q_{kl}$ then conserves flow at every node and respects
+every capacity. The result is an $S$--$T$ flow whose value, the total
+inflow $\sum_k f(k\!\to\! T)$ at the sink, equals $\sum_k q_{kl}=D_l$,
+and its cost is that of the lowered routing, hence at most that of
+$(x,w)$.
+
+Conversely, given an $S$--$T$ flow $f$ of value $D_l$, set
+$x_{ijl}=f(i\!\to\! j_{\mathrm{in}})$ and
+$w_{jkl}=f(j_{\mathrm{out}}\!\to\! k)$ at the open facilities, and set
+$x_{ijl}=0$ whenever $y_i=0$ and $w_{jkl}=0$ whenever $z_j=0$. At the
+closed facilities \eqref{eq:C3} and~\eqref{eq:C4} read $0\le 0$ and
+hold. Value $D_l$ saturates every arc $k\!\to\! T$. Indeed the value
+equals $\sum_k f(k\!\to\! T)\le\sum_k q_{kl}=D_l$, so the two sums are
+equal, and since each term obeys $f(k\!\to\! T)\le q_{kl}$ every term is
+at capacity. Conservation at $k$ then gives $\sum_j w_{jkl}=q_{kl}$,
+which is~\eqref{eq:C1}, conservation at the split node gives
+$\sum_i x_{ijl}=\sum_k w_{jkl}$, which is~\eqref{eq:C2}, and the split-
+and source-arc capacities give~\eqref{eq:C4} and~\eqref{eq:C3} at the
+open facilities. The routing so obtained is therefore feasible, and its
+cost equals that of the flow because the costs agree arc by arc.
+Assembling the two directions, every feasible routing of block $l$
+yields a value-$D_l$ flow of no greater cost, so $\mu_l$ is at most the
+block optimum, and every value-$D_l$ flow yields a feasible routing of
+equal cost, so the block optimum is at most $\mu_l$. The two inequalities
+together give the equality, and a value-$D_l$ flow exists if and only if
+the block admits a routing, so $\mu_l=+\infty$ exactly when the block is
+infeasible.
+
+\emph{Integrality and complexity.} The node--arc incidence matrix of a
+flow network is totally unimodular \citep{Schrijver1986}, and all finite
+arc capacities $b_{il},p_{jl},q_{kl}$ are integers. Every arc of
+$N_l(y,z)$ belongs to one layer, and each layer is an $S$--$T$ cut that
+every path crosses exactly once and only forwards, so the arc flows
+within a layer sum to the flow value. Since the flows are nonnegative,
+every arc in a flow of value $D_l$ therefore carries at most $D_l$, and
+the polytope of value-$D_l$ flows is bounded. A finite $\mu_l$ is thus
+attained at a vertex of that polytope, since a linear function on a
+nonempty bounded polytope attains its minimum at a vertex
+\citep{Schrijver1986}. The vertex is integral by the Hoffman--Kruskal
+theorem \citep{Schrijver1986}, and the nonnegative integer arc costs
+make $\mu_l$ a nonnegative integer. Each $N_l$ has $O(n+|K|)$ nodes and
+$O(|I||J|+|J||K|+n+|K|)$ arcs, and a minimum-cost flow of prescribed value is
+computed in strongly polynomial time \citep{Orlin1993}. Summing over the
+$|L|$ products gives $v(y,z)=\sum_l\mu_l$ within the stated bound.
+\end{proof}
+
+\medskip\noindent
+\textbf{Proposition~\ref{prop:feas} (feasibility).}
+\emph{A design $(y,z)$ is feasible if and only if, for every product $l$,
+$\sum_{i\in I}b_{il}\,y_i\ge D_l$ (F1) and
+$\sum_{j\in J}p_{jl}\,z_j\ge D_l$ (F2). The test runs in
+$O((n+|K|)\,|L|)$ time, of which $O(|K|\,|L|)$ computes the totals
+$D_l$.}
+
+\begin{proof}[Proof of Proposition~\ref{prop:feas}]
+Necessity will come from aggregating the four constraint groups, and
+sufficiency from exhibiting a flow of value $D_l$ in the layered network
+$N_l(y,z)$. For necessity fix a feasible routing
+and a product $l$.
+Summing~\eqref{eq:C1} over $k$ gives $\sum_{j,k}w_{jkl}\ge D_l$, and
+summing~\eqref{eq:C4} over $j$ gives
+$\sum_{j,k}w_{jkl}\le\sum_j p_{jl}z_j$, so (F2) holds.
+Summing~\eqref{eq:C2} over $j$ gives
+$\sum_{i,j}x_{ijl}\ge\sum_{j,k}w_{jkl}\ge D_l$, and
+summing~\eqref{eq:C3} over $i$ gives
+$\sum_{i,j}x_{ijl}\le\sum_i b_{il}y_i$, so (F1) holds.
+
+For sufficiency we route each product $l$ independently and exhibit a flow
+of value $D_l$ in $N_l(y,z)$. By the flow-to-routing direction of the
+correspondence established for Proposition~\ref{prop:oracle}, any flow of value exactly
+$D_l$ in $N_l(y,z)$ reads back as a feasible routing of block $l$, so such
+flows for all products assemble into a feasible routing for the design.
+The finite-capacity arcs of $N_l(y,z)$ fall into three layers, the source
+arcs $S\!\to\! i$ with total capacity $\sum_i b_{il}y_i$, the depot split
+arcs with total $\sum_j p_{jl}z_j$, and the demand arcs $k\!\to\! T$ with
+total $D_l$. Every $S$--$T$ path crosses each layer exactly once, so each
+layer is an $S$--$T$ cut. Since the value of any flow is at most the
+capacity of any $S$--$T$ cut \citep{Schrijver1986}, the maximum flow is
+at most each of the three totals. We claim it attains the least total,
+and since (F1) and (F2) make that least total equal to $D_l$, a flow of
+value $D_l$ then exists.
+
+Let $F$ be the least of the three totals.
+Because $F$ does not exceed any layer total, one can choose factory loads
+$a_i\le b_{il}y_i$, depot loads $e_j\le p_{jl}z_j$ and customer intakes
+$r_k\le q_{kl}$ each summing to $F$, for instance by scanning the terms
+of each layer in a fixed order and truncating the running sum once it
+reaches $F$. Both bipartite stages are complete and uncapacitated, so for
+any two nonnegative load vectors with equal totals there is a transfer
+between them that meets those loads as its row and column sums. One such
+transfer, the northwest-corner procedure of transportation theory,
+maintains a current supplier and a current receiver, assigns
+them the minimum of the remaining supply and the remaining demand, and
+advances past whichever of the two is exhausted. Every step reduces the
+residual supply total and the residual demand total by the same amount
+and exhausts a supplier or a receiver, so the procedure terminates, and
+since the two totals stay equal it ends with every supply and every
+demand met exactly, which is the required row and column sums. Route $a$
+to $e$ across the first stage and $e$ to $r$ across the second by such
+transfers, and put $a_i$ on the source arc $S\!\to\! i$ and $r_k$ on the
+demand arc $k\!\to\! T$. Flow is conserved at each factory node because
+the first transfer has row sums $a$, and at each customer node because
+the second transfer has column sums $r$. Each depot's inflow and outflow
+both equal $e_j\le p_{jl}z_j$, so flow is conserved at the split arc and
+its capacity is respected. The source and demand arcs carry
+$a_i\le b_{il}y_i$ and $r_k\le q_{kl}$, within their capacities, and the
+result is an $S$--$T$ flow of value $\sum_k r_k=F$. Hence the maximum
+flow equals $F$, and under (F1) and (F2) the least of the three totals is
+$D_l$, so a flow of value $D_l$ exists and the design is feasible.
+Finally we bound the running time. One pass over the demand matrix
+computes every total $D_l$ in $O(|K|\,|L|)$ time, after which the test
+evaluates $2|L|$ sums of at most $n$ terms each, for $O((n+|K|)\,|L|)$
+in total.
+\end{proof}
+
+\medskip\noindent
+\textbf{Proposition~\ref{prop:mono} (monotonicity).}
+\emph{If $(y,z)\le(y',z')$ componentwise then feasibility of $(y,z)$
+implies feasibility of $(y',z')$, and $v(y',z')\le v(y,z)$ always, with
+the convention $v=+\infty$ on infeasible designs. In particular the
+all-open design attains the least routing value among all feasible
+designs.}
+
+\begin{proof}[Proof of Proposition~\ref{prop:mono}]
+Since the data
+satisfy $b_{il}\ge 0$ and $p_{jl}\ge 0$, the left-hand sides
+$\sum_i b_{il}y_i$ and $\sum_j p_{jl}z_j$ of (F1) and (F2) are
+nondecreasing in $(y,z)$. If $(y,z)$ is feasible, the necessity direction
+of Proposition~\ref{prop:feas} gives (F1) and (F2) at $(y,z)$, hence at
+$(y',z')$, and the sufficiency direction then gives feasibility of
+$(y',z')$. If $(y,z)$ is infeasible then $v(y,z)=+\infty$ and the
+inequality is trivial, so assume $(y,z)$ feasible, in which case
+$(y',z')$ is feasible too. Since $(y,z)\le(y',z')$ componentwise, every
+node and arc of $N_l(y,z)$ appears in $N_l(y',z')$ with the same capacity
+and cost, so $N_l(y,z)$ is a subnetwork of $N_l(y',z')$ and the passage
+from one to the other only adds the nodes and arcs of newly opened
+facilities. Every $S$--$T$ flow of value $D_l$ in $N_l(y,z)$ is therefore
+still one in $N_l(y',z')$, carrying zero on the new arcs, at the same
+cost. The feasible set of value-$D_l$ flows only grows and its minimum
+cost cannot increase, so $\mu_l(y',z')\le\mu_l(y,z)$ for every $l$, where
+$\mu_l(\cdot,\cdot)$ denotes the block optimum of
+Proposition~\ref{prop:oracle} viewed as a function of the design. Since
+$v=\sum_l\mu_l$ by that proposition, summing over the products gives
+$v(y',z')\le v(y,z)$. For the final claim, every design satisfies
+$(y,z)\le(\mathbf 1,\mathbf 1)$ componentwise because the variables are
+binary. The feasibility part then makes the all-open design feasible
+whenever some feasible design exists, and the value part gives
+$v(\mathbf 1,\mathbf 1)\le v(y,z)$ for every feasible $(y,z)$, so the
+all-open design attains the least routing value among feasible designs,
+a claim vacuous when none exists.
+\end{proof}
+\section{Technical verifications}\label{app:tech}
+
+This appendix collects the proofs whose methods are standard, invariant
+tracking for the correctness of the branch-and-bound, linear-programming
+duality for the certificates, exchange arguments for the two
+preprocessing reductions, dynamic programming for the separable
+subclass, and the weight-reduction technique of \citet{FrankTardos1987}
+for the compression. The statements remain in the body, each with a
+paragraph naming the route of its proof, and the proofs appear here in
+statement order.
+
+\medskip\noindent
+\textbf{Theorem~\ref{thm:separable} (separable first stage).}
+\emph{On the group $|K|=|L|=1$, if the first-stage matrix is separable, that is
+$c_{ij}=\gamma_i+\delta_j$ for integers $\gamma,\delta$ with the arcs
+nonnegative, then the problem is solvable in pseudo-polynomial time
+$O\bigl(|I||J|+(|I|+|J|)\cdot D\cdot\max(b_{\max},p_{\max})\bigr)$.
+Separability is decidable in $O(|I||J|)$ time.}
+
+\begin{proof}[Proof of Theorem~\ref{thm:separable}]
+The argument reduces the routing cost to a function of its marginals,
+and then each facility layer to a knapsack-cover program. With $|K|=|L|=1$ there is
+one customer and one product. Write $D=q_{11}$,
+$w_j$ for the flow depot $j$ forwards to the customer, and $d_j=d_{j11}$
+for its unit second-stage cost. Fix a feasible design $(Y,Z)$. In an
+optimal solution we may assume that \eqref{eq:C1} and~\eqref{eq:C2} are
+tight, since lowering flow on the nonnegative-cost arcs cannot raise the
+cost. The lowering argument is the one in the proof of
+Proposition~\ref{prop:oracle} in \ref{app:proofs}. Under
+this assumption the depot marginal $e_j=\sum_i x_{ij}=w_j$
+is both the inflow and the outflow of depot $j$, the factory marginal
+$a_i=\sum_j x_{ij}$ is the load of factory $i$, and $\sum_i a_i=\sum_j
+e_j=D$, with $0\le a_i\le b_i$ ($a_i=0$ for $i\notin Y$) and $0\le e_j\le
+p_j$ ($e_j=0$ for $j\notin Z$). The total routing cost is
+\[
+\sum_{ij}c_{ij}x_{ij}+\sum_j d_j w_j
+=\sum_{ij}(\gamma_i+\delta_j)x_{ij}+\sum_j d_j e_j
+=\sum_i\gamma_i a_i+\sum_j(\delta_j+d_j)\,e_j,
+\]
+using $\sum_i x_{ij}=e_j$ and $\sum_j x_{ij}=a_i$. The second-stage cost
+is thus a per-unit depot cost $d_j$ folded into the depot term. The cost
+depends on the transport plan only through the marginals, and on the
+complete uncapacitated bipartite stage any nonnegative $a$ and $e$ with
+$\sum_i a_i=\sum_j e_j$ are realised by some plan, for instance the
+northwest-corner procedure used in the proof of
+Proposition~\ref{prop:feas}. A load $a_i>0$ forces $y_i=1$
+by~\eqref{eq:C3} and a load $e_j>0$ forces $z_j=1$ by~\eqref{eq:C4},
+while an open facility with zero load may be closed at no extra cost
+since $f,g\ge 0$, so we may identify the open facilities with the
+supports of the loads. Conversely any nonnegative loads within the
+capacities and summing to $D$ on each side define a feasible solution
+that opens exactly the supports. Adding the fixed charges, the optimum
+therefore
+splits into two independent problems, one per layer, namely
+\[
+\min_{a}\Bigl(\sum_{i:a_i>0}f_i+\sum_i\gamma_i a_i\Bigr)
+\ \text{ and }\
+\min_{e}\Bigl(\sum_{j:e_j>0}g_j+\sum_j(\delta_j+d_j)e_j\Bigr),
+\]
+each over nonnegative loads bounded by the capacities and summing to $D$.
+The two split problems range over real loads while the dynamic program
+below ranges over integer ones. For a fixed support the fixed charges
+are constant and each problem becomes a linear program over a box
+intersected with a single equality, a polytope whose vertices are
+integral for integer capacities and integer $D$, so the real and the
+integer optima coincide and the restriction to integer loads loses
+nothing.
+Solve the factory problem by the dynamic program
+\[
+V(i,s)=\min\Bigl\{\,V(i-1,s),\ \min_{1\le a\le b_i}V(i-1,s-a)+f_i+\gamma_i
+a\,\Bigr\},
+\]
+with $V(0,0)=0$, with $V(0,s)=+\infty$ for $s>0$, with the convention
+$V(i-1,s-a)=+\infty$ when $s<a$, and with $s$ ranging over
+$0,\dots,D$. The first branch closes factory $i$ and the second opens it
+with load $a$. The optimum of the factory problem is $V(|I|,D)$, the
+value $+\infty$ signalling that no factory loads reach $D$ within the
+capacities, in which case the instance is infeasible. The table is
+computed
+in $O(|I|\cdot D\cdot b_{\max})$ time, since each of the $|I|\cdot(D+1)$
+states scans at most $b_{\max}+1$ values of $a$. The depot problem is the
+same recurrence with $g_j$, $\delta_j+d_j$ and $p_j$, in $O(|J|\cdot
+D\cdot p_{\max})$ time, its value $+\infty$ likewise signalling
+infeasibility. Their sum is the instance optimum, within the
+stated bound. The matrix is separable exactly when
+$c_{ij}+c_{11}=c_{i1}+c_{1j}$ for all $i,j$, the condition being necessary by
+substituting $c_{ij}=\gamma_i+\delta_j$, and sufficient because then
+$\gamma_i=c_{i1}-c_{11}$ and $\delta_j=c_{1j}$ satisfy
+$\gamma_i+\delta_j=c_{i1}+c_{1j}-c_{11}=c_{ij}$, and it is checked in
+$O(|I||J|)$ time. The $O(|I||J|)$ term of the stated running time reads
+the matrix, checks separability and recovers $\gamma$ and $\delta$.
+\end{proof}
+
+\medskip\noindent
+\textbf{Proposition~\ref{prop:bbcorrect} (correctness).}
+\emph{Algorithm~\ref{alg:xpbb} decides $\mathrm{MP\text{-}TSCFLP}(B,k)$, and when
+run with $B=+\infty$ it returns $\mathrm{best}=\OPT_k$.}
+
+\begin{proof}[Proof of Proposition~\ref{prop:bbcorrect}]
+The proof runs in three steps, justifying the early return of line 3,
+bounding $\mathrm{best}$ from below by soundness, and bounding it from
+above by tracking one distinguished optimum through the search.
+
+\emph{The early return.} Line 3 is the root instance of P1. If some
+feasible design $O$ opens at most $k$ facilities, then for every product
+$l$ the factories of $O$ satisfy (F1), so Lemma~\ref{lem:cover} gives
+$k^\ast_I(l)\le|O\cap I|$, and likewise $k^\ast_J(l)\le|O\cap J|$, whence
+$\max_l k^\ast_I(l)+\max_l k^\ast_J(l)\le|O|\le k$ and the return does
+not fire. When it fires, therefore, no feasible design opens at most $k$
+facilities, so $\OPT_k=+\infty$ and the answer \textsc{no} is correct.
+
+\emph{Soundness.} $\mathrm{best}$ is assigned only at a leaf, to
+$LB(O,C)=\mathrm{cost}(O)$. Such a leaf survived P2, so
+$v^{\uparrow}=v(O\cup\emptyset)=v(O)<+\infty$ and $O$ is feasible, and it
+survived the cardinality test of line 6, so $r=k-|O|\ge 0$ and
+$|O|\le k$. Hence $\mathrm{best}\ge\OPT_k$ throughout, where
+$\OPT_k=+\infty$ if no feasible design opens at most $k$ facilities.
+
+\emph{Completeness under $\OPT_k\le B$.} Suppose $\OPT_k\le B$ and fix
+$O^\ast$, a feasible design with
+$|O^\ast|\le k$ and $\mathrm{cost}(O^\ast)=\OPT_k$, of least cardinality
+among such. Call a stack node $(O,C)$ \emph{live} if $O\subseteq O^\ast$
+and $O^\ast\cap C=\emptyset$, in which case $O^\ast\subseteq O\cup F$,
+since $O^\ast$ avoids $C$ and every facility lies in $O\cup C\cup F$. A
+step of the search is one iteration of the while loop, and we show by
+induction over steps that either $\mathrm{best}=\OPT_k$ or the stack
+holds a live node. Before the first step the stack holds the root, which
+is live. Once $\mathrm{best}=\OPT_k$ holds it holds forever, since
+$\mathrm{best}$ never increases and soundness bounds it below by
+$\OPT_k$. When a step pops a node that is not live while a live node is
+on the stack, the live node stays there untouched and the invariant
+survives, so assume the popped node $(O,C)$ is live and
+$\mathrm{best}>\OPT_k$.
+
+We first check that no test removes the live node. It has
+$|O|\le|O^\ast|\le k$, so $r\ge 0$ and line 6 keeps it. Beyond $O$ the
+design $O^\ast$ opens only free facilities, and for every product $l$
+the added factories $(O^\ast\setminus O)\cap I$ supply the residual
+demand of (F1), so Lemma~\ref{lem:cover} gives
+$s_I(l;O,C)\le|(O^\ast\setminus O)\cap I|$ and likewise
+$s_J(l;O,C)\le|(O^\ast\setminus O)\cap J|$. Hence
+\[
+\max_l s_I(l;O,C)+\max_l s_J(l;O,C)\ \le\ |O^\ast\setminus O|
+\ =\ |O^\ast|-|O|\ \le\ k-|O|\ =\ r,
+\]
+and P1 spares the node. Monotonicity along $O^\ast\subseteq O\cup F$
+gives $v^{\uparrow}=v(O\cup F)\le v(O^\ast)<+\infty$
+(Proposition~\ref{prop:mono}), so the infeasibility branch of P2 does
+not fire, and $O^\ast$ is a completion of $(O,C)$, so
+$LB(O,C)\le\mathrm{cost}(O^\ast)=\OPT_k<\mathrm{best}$, which with
+$\OPT_k\le B$ gives $LB(O,C)<\min(\mathrm{best},B+1)$ and the bound
+branch of P2 spares it as well.
+
+If the live node is internal it is expanded on a free facility $e$, and
+the child that records the status of $e$ in $O^\ast$, namely
+$(O\cup\{e\},C)$ when $e\in O^\ast$ and $(O,C\cup\{e\})$ otherwise, is
+live, so the invariant survives. If the live node is a leaf then
+$F=\emptyset$, so $O^\ast\subseteq O\cup F=O$, and $O\subseteq O^\ast$
+forces $O=O^\ast$. The oracle solution returned at the leaf is an
+optimal flow of $O^\ast$ and leaves no open facility
+unused, since closing an unused facility would give a feasible design
+opening at most $k$ facilities at cost at most $\OPT_k$, hence an
+optimum of smaller cardinality than $O^\ast$, against its choice. P3
+therefore does not fire, and the leaf sets $\mathrm{best}$ to
+$LB(O^\ast,C)=\mathrm{cost}(O^\ast)=\OPT_k$, after which the invariant
+persists in its first form. Each child carries one fewer free facility
+than its parent, so the search tree has depth at most $n$ and finitely
+many nodes, and the loop terminates. At termination the stack is empty,
+so the invariant leaves only $\mathrm{best}=\OPT_k$.
+
+\emph{Conclusion.} If $\OPT_k\le B$ then $\mathrm{best}=\OPT_k\le B$ and
+the algorithm returns \textsc{yes}. If $\OPT_k>B$ then
+$\mathrm{best}\ge\OPT_k>B$ by soundness and it returns \textsc{no}, and
+the answer \textsc{no} of line 3, when that return fires instead, is
+correct by the early-return argument. Either
+way the algorithm decides $\mathrm{MP\text{-}TSCFLP}(B,k)$. Running with
+$B=+\infty$ makes $\OPT_k\le B$ hold whenever $\OPT_k$ is finite, so
+completeness gives $\mathrm{best}=\OPT_k$ in the finite case. When
+$\OPT_k=+\infty$ soundness keeps $\mathrm{best}$ unassigned, so it
+retains its initial value $+\infty=\OPT_k$, and when the early return
+fires instead line 3 reports the same infinite optimum.
+\end{proof}
+
+\medskip\noindent
+\textbf{Proposition~\ref{prop:duals} (routing certificate and Benders cuts).}
+\emph{Fix a product $l$ and let $\Delta_l$ be the dual polyhedron of its
+transportation block, which is independent of $(y,z)$. If the block is
+feasible then some $u^\ast\in\Delta_l$ attains the dual value
+$\mu_l(y,z)$, and the pair of an optimal flow and $u^\ast$ certifies
+$\mu_l(y,z)$ in time $O(|I||J|+|J||K|)$. Moreover, writing $\theta_l$ for
+a variable through which a master problem represents the block value, for
+every $u=(\alpha,\beta,\sigma,\pi)\in\Delta_l$ the inequality
+\[
+\theta_l\ \ge\ \sum_k q_{kl}\,\alpha_k
+      -\sum_i b_{il}\,\sigma_i\,y_i-\sum_j p_{jl}\,\pi_j\,z_j
+\]
+is valid for every design whose block $l$ is feasible, and it holds with
+equality at the design that generated $u^\ast$. Two explicit recession
+rays of $\Delta_l$ certify infeasibility, and their objectives are
+positive exactly when (F1), respectively (F2), of
+Proposition~\ref{prop:feas} fails.}
+
+\begin{proof}[Proof of Proposition~\ref{prop:duals}]
+The block dual, once written explicitly, yields the certificate, the
+cuts and the rays. Write the block primal as the minimisation
+of
+$\sum_{ij}c_{ijl}x_{ijl}+\sum_{jk}d_{jkl}w_{jkl}$ over nonnegative flows
+subject to the demand rows~\eqref{eq:C1}, the balance
+rows~\eqref{eq:C2}, oriented as $\sum_i x_{ijl}-\sum_k w_{jkl}\ge 0$,
+the factory rows~\eqref{eq:C3} with right-hand side $b_{il}y_i$, and the
+depot rows~\eqref{eq:C4} with right-hand side $p_{jl}z_j$. The trimming
+step in the proof of Proposition~\ref{prop:oracle}, given in
+\ref{app:proofs}, lowers flows at no
+cost increase until~\eqref{eq:C2} is tight, so replacing~\eqref{eq:C2}
+by the equality $\sum_i x_{ijl}=\sum_k w_{jkl}$ changes neither the
+feasibility nor the optimal value of the block, and we dualise it in
+that equality form, which is what licenses a free multiplier on the
+balance rows. Assign dual
+multipliers $\alpha_k\ge 0$ to the demand rows, a free $\beta_j$ to the
+balance equalities, and $\sigma_i\ge 0$ and
+$\pi_j\ge 0$ to the two capacity groups. The dual constraints, one per primal
+variable, read $\beta_j-\sigma_i\le c_{ijl}$ for $x_{ijl}$ and
+$\alpha_k-\beta_j-\pi_j\le d_{jkl}$ for $w_{jkl}$, and none of them
+mentions the design, so the dual feasible set $\Delta_l$ is indeed
+independent of $(y,z)$. The dual objective is
+$\sum_k q_{kl}\alpha_k-\sum_i b_{il}y_i\sigma_i-\sum_j p_{jl}z_j\pi_j$,
+so weak duality gives, for every $u\in\Delta_l$, the displayed lower
+bound on the block value $\theta_l$, valid across all designs whose block
+is feasible precisely because $\Delta_l$ carries no design. When the block
+is feasible its primal is bounded below by $0$ through the nonnegative
+costs, so the finite optimum makes linear-programming strong duality
+supply a $u^\ast\in\Delta_l$ attaining $\mu_l(y,z)$, giving equality
+there. Checking a certificate pair is verifying primal and dual
+feasibility and equal objectives, which certifies optimality by weak
+duality, in one pass over the $O(|I||J|+|J||K|)$ coefficients. When
+the block is infeasible the primal is empty, and $\Delta_l$ contains the
+point $u=0$ by nonnegativity of the costs $c$ and $d$, so the dual is
+feasible and therefore unbounded
+along a recession ray of $\Delta_l$, whose cone is $\beta_j-\sigma_i\le
+0$, $\alpha_k-\beta_j-\pi_j\le 0$ with $\alpha,\sigma,\pi\ge 0$. Two
+rays realise the feasibility cuts. The ray $\alpha\equiv 1$, $\beta\equiv
+1$, $\sigma\equiv 1$, $\pi\equiv 0$ lies in the cone, since its constraint
+values are $\beta_j-\sigma_i=1-1=0\le 0$ and
+$\alpha_k-\beta_j-\pi_j=1-1-0=0\le 0$, and it has objective
+$\sum_k q_{kl}-\sum_i b_{il}y_i=D_l-\sum_i b_{il}y_i$, positive exactly
+when (F1) fails. The ray $\alpha\equiv 1$, $\beta\equiv 0$, $\sigma\equiv
+0$, $\pi\equiv 1$ lies in the cone through $\beta_j-\sigma_i=0\le 0$
+and $\alpha_k-\beta_j-\pi_j=1-0-1=0\le 0$, and has objective
+$D_l-\sum_j p_{jl}z_j$, positive exactly
+when (F2) fails. For the concluding equivalence note that block $l$ is
+feasible exactly when (F1) and (F2) hold for $l$, since both the
+aggregation argument for necessity and the flow construction for
+sufficiency in the proof of Proposition~\ref{prop:feas} treat each
+product on its own. A design's block is therefore infeasible if and only
+if (F1) or (F2) fails for $l$, which happens if and only if one of
+these two rays has positive objective, recovering the aggregate test of
+Proposition~\ref{prop:feas}.
+\end{proof}
+
+\medskip\noindent
+\textbf{Proposition~\ref{prop:aggregation} (customer aggregation).}
+\emph{If customers $k\ne k'$ have identical cost columns, that is
+$d_{jkl}=d_{jk'l}$ for all $j,l$, then merging $k'$ into $k$ and adding
+their demands preserves feasibility, routing value and cost of every
+design, hence the optimal value, the set of optimal designs and the
+answers of both decision versions, while complete solutions correspond
+under the explicit merge and split maps of the proof. Consequently one
+may assume $|K|\le\tau$, where $\tau$
+is the number of distinct second-stage cost columns, computable in
+polynomial time.}
+
+\begin{proof}[Proof of Proposition~\ref{prop:aggregation}]
+Fix a design and a product $l$. The first stage and the fixed
+charges are
+untouched, so only the second-stage cost of serving $k$ and $k'$ against
+the merged customer $\hat k$ with demand $q_{kl}+q_{k'l}$ is at issue,
+and the two customers share the cost column $d_{j\bullet l}$. Given a
+routing serving both, the merge map sets
+$w_{j\hat kl}=w_{jkl}+w_{jk'l}$. This serves
+the merged demand, leaves every depot total unchanged, so~\eqref{eq:C2}
+and~\eqref{eq:C4} still hold, and costs
+$\sum_j d_{j\bullet l}(w_{jkl}+w_{jk'l})$, exactly the original cost.
+Conversely, given a routing serving $\hat k$, trim any surplus so that
+$\sum_j w_{j\hat kl}=q_{kl}+q_{k'l}$, which only slackens~\eqref{eq:C2}
+and~\eqref{eq:C4} and, by nonnegativity of $d$, does not raise the cost,
+then apply the split map, a
+northwest-corner expansion of each $w_{j\hat kl}$ into $w_{jkl}+w_{jk'l}$ with
+$\sum_j w_{jkl}=q_{kl}$ and $\sum_j w_{jk'l}=q_{k'l}$, which is possible
+because only the totals are constrained. The cost is again unchanged.
+The two instances therefore have the same feasible designs with the same
+routing values and costs, hence the same optimal value, the same
+optimal designs and the same decision answers, and the merge and split
+maps just exhibited carry the complete solutions across. Iterating over
+equal columns leaves at most one customer per
+distinct column, so $|K|\le\tau$.
+\end{proof}
+
+\medskip\noindent
+\textbf{Observation~\ref{obs:capping} (capacity capping).}
+\emph{Replacing every capacity $b_{il}$ by $\min(b_{il},D_l)$ and every
+$p_{jl}$ by $\min(p_{jl},D_l)$ preserves feasibility, routing value and
+cost of every design, hence the optimum and both decision answers.}
+
+\begin{proof}[Proof of Observation~\ref{obs:capping}]
+Fix a design of
+the original instance. Any routing of it can be trimmed, as in
+the proof of Proposition~\ref{prop:oracle} in \ref{app:proofs}, until each product's total
+flow across each stage equals $D_l$, at no increase in cost. A
+trimmed routing sends at most $D_l$ units of product $l$ through any
+single factory or depot, so it respects the capped capacities and is a
+routing of the capped instance at the same cost. Conversely every
+routing of the capped instance is one of the original, because capping
+only lowers capacities, so the two instances give every design the same
+routing value. Feasibility is also unchanged, since
+$\sum_i\min(b_{il},D_l)\,y_i\ge D_l$ holds if and only if
+$\sum_i b_{il}\,y_i\ge D_l$, either because some open factory alone
+reaches $D_l$ or because no cap binds, and the depot side is identical.
+The two instances therefore share feasible designs, routing values and
+costs, hence the optimum and both decision answers.
+\end{proof}
+
+\medskip\noindent
+\textbf{Proposition~\ref{prop:ftcompress} (one-sided compression).}
+\emph{Fix $c^\star$ and let $\kappa=|I|+|J|+|L|+\tau$. The subclass of
+$\mathrm{MP\text{-}TSCFLP}(B)$ whose opening and transport costs
+$f,g,c,d$ and whose total demands $D_1,\dots,D_{|L|}$ are integers at
+most $\kappa^{c^\star}$, with capacities unrestricted, admits a
+polynomial compression in $\kappa$ into a fixed sign-condition
+language, which is not itself a location problem, and so does the
+subclass with $\max(f,g,c,d,B)\le\kappa^{c^\star}$. The first subclass is nontrivial.
+The strongly hard slice with $|K|=|L|=1$ of Theorem~\ref{thm:numeric}
+has costs in $\{0,1\}$ and a single customer whose demand, the only
+product total, is $|I|\,(|J|+1)\le\kappa^{2}$, so the slice lies in the
+subclass for every $c^\star\ge 2$.}
+
+\begin{proof}[Proof of Proposition~\ref{prop:ftcompress}]
+Consider the first subclass, in which the opening and transport costs
+and the totals $D_l$ are integers at most $\kappa^{c^\star}$ while the
+capacities and the budget carry no bound.
+Proposition~\ref{prop:aggregation} leaves $|K|\le\tau$ customers, each
+merged demand entry is a sum of original entries of the same product
+and hence at most $D_l\le\kappa^{c^\star}$, and the totals $D_l$
+themselves survive the merge unchanged. The capping of
+Observation~\ref{obs:capping} then bounds every capacity by
+$\max_l D_l\le\kappa^{c^\star}$. After these two reductions the
+entities number $\mathrm{poly}(\kappa)$, every capacity and demand
+entry is an integer at most $\kappa^{c^\star}$, and within the cost
+vector $\Phi=(f,g,c,d,B)$ only the budget escapes the bound. The
+compression treats the whole of $\Phi$ at once.
+
+For any fixed design $S$ the routing value is the sum over products $l$
+of a minimum-cost flow in the
+network $N_l(S)$ of Proposition~\ref{prop:oracle}, each per-product
+minimum is attained at a basic (vertex) flow, and a basic flow of the
+design means one basic flow per product, each of value $D_l$. The
+node--arc incidence matrix of each $N_l(S)$ is totally unimodular
+\citep{Schrijver1986}, so every subdeterminant lies in $\{-1,0,1\}$, a
+nonsingular basis matrix $M$ has determinant $\pm 1$, and by Cramer's
+rule each entry of $M^{-1}$, a cofactor divided by that determinant,
+lies in $\{-1,0,1\}$ as well. Each basic-flow value is therefore a
+$\{-1,0,1\}$-combination of the right-hand sides of its network. After
+the two reductions that network carries at most a fixed multiple of
+$\kappa^{2}$ rows and arc bounds, every right-hand side is at most
+$\max_l D_l\le\kappa^{c^\star}$, and every basic-flow value is an
+integer of magnitude at most a fixed multiple of $\kappa^{c^\star+2}$.
+
+The instance is a yes-instance if and only if some pair of a design and a
+basic flow of its network has total cost at most $B$. Each such test
+reads $a\cdot\Phi\le 0$, where the coefficient vector $a$ collects the
+design bits on the entries $f,g$, the basic-flow
+values on the entries $c,d$, and the entry $-1$ on the budget $B$. These
+coefficients are integers of magnitude at most a bound
+$\Delta_{\max}$ that is a fixed multiple of $\kappa^{c^\star+2}$, and
+they are fixed independently of $\Phi$ once the design and basis are
+fixed, so acceptance is a Boolean combination of sign conditions on
+integer linear forms in $\Phi$ of dimension $\nu=\mathrm{poly}(\kappa)$
+with coefficients bounded by $\Delta_{\max}$. The Frank--Tardos theorem
+\citep{FrankTardos1987,EtscheidKratschMnichRoeglin2017} produces, for
+any prescribed bound $N_0$, in time
+polynomial in $\nu$ and $\log N_0$, an integer vector $\Phi'$ of
+$\mathrm{poly}(\nu,\log N_0)$ bits such that
+$\operatorname{sign}(a\cdot\Phi')=\operatorname{sign}(a\cdot\Phi)$ for
+every integer vector $a$ whose $\ell_1$-norm is strictly below $N_0$.
+We invoke it with $N_0=\nu\,\Delta_{\max}+1$. Every acceptance form has
+$\lVert a\rVert_{\infty}\le\Delta_{\max}$ and hence
+$\lVert a\rVert_{1}\le\nu\,\Delta_{\max}=N_0-1$, so every form is
+strictly covered, and $\log N_0=O(\log\kappa)$ for fixed $c^\star$, so
+$\Phi'$ has $\mathrm{poly}(\kappa)$ bits. Replacing $\Phi$ by $\Phi'$
+preserves the sign of every acceptance form at once and thus the
+answer. The output couples the reduced numeric data with $\Phi'$, and
+it is a compression onto the fixed language of these sign conditions
+rather than a well-formed instance of $\mathrm{MP\text{-}TSCFLP}(B)$,
+because entries of $\Phi'$ may be negative, while its encoding length
+is $\mathrm{poly}(\kappa)$. For each fixed $c^\star$ that target
+language is a fixed problem, and the compression framework places no
+requirement that it lie in \NP.
+
+In the second subclass the costs and the budget are at most
+$\kappa^{c^\star}$ and the large numbers are the capacities and
+demands, so the theorem applies instead to the extended vector
+$\Psi=(b,p,q,1)$, whose final coordinate absorbs the additive constants
+below. Customer aggregation again brings the dimension of $\Psi$ down
+to $\mathrm{poly}(\kappa)$. For a fixed design and a fixed basis of each
+product's network, every basic-flow value is again a
+$\{-1,0,1\}$-combination of right-hand sides drawn from $\Psi$, so the
+nonnegativity of a basic flow and the comparison of its routing cost
+against the budget $B$ minus the fixed charge of the design are sign
+conditions on integer linear forms in $\Psi$. The coefficients of these
+forms on the capacity--demand entries are signed sums of the small cost
+entries, of magnitude $\mathrm{poly}(\kappa)$, the coefficient on the
+final entry is an integer of magnitude at most $B$ plus the total fixed
+charge, again $\mathrm{poly}(\kappa)$, and the tests (F1) and (F2)
+contribute further forms with coefficients in $\{-1,0,1\}$. Invoked as
+above, the theorem compresses $\Psi$ to $\mathrm{poly}(\kappa)$ bits
+while preserving every sign at once. The output pairs the unchanged
+small data with the compressed vector, the Boolean combination of sign
+conditions still decides acceptance, and the map is again a polynomial
+compression onto such a sign-condition language. With
+both sides free the acceptance condition compares products of a large cost
+with a large capacity, the forms become bilinear, and the tool no longer
+applies.
+\end{proof}

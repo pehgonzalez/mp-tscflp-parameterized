@@ -1,0 +1,148 @@
+\section{Introduction}\label{sec:intro}
+
+A manufacturer that supplies many markets rarely ships from the factory
+gate to the customer in a single leg. Goods leave a small number of
+production sites, pass through intermediate depots that consolidate and
+break bulk, and only then reach the retailers. Deciding which factories
+and which depots to operate, and how to route several products through
+the two stages so that every demand is met at least total cost, is among
+the oldest planning questions in distribution logistics
+\citep{KloseDrexl2005,OrtizAstorquizaEtAl2018}, and it remains
+a daily one wherever a supply chain is redesigned or a distribution
+network is sized. The two layers interact from the start, because a depot
+is worth opening only if some open factory can feed it and some customer
+needs what it holds, so the fixed decisions and the transport decisions
+cannot be taken apart, and it is this coupling that makes the problem more
+than the sum of its two stages.
+
+This interaction is captured by the multiproduct two-stage capacitated
+facility location problem, which we abbreviate MP-TSCFLP. Several
+products flow from candidate factories to candidate depots and on to
+customers. Opening a factory or a depot costs a fixed charge, each unit
+shipped on a stage carries a per-product transport cost, and every
+factory and depot has a per-product capacity, while each customer has a
+per-product demand that must be satisfied. Both stages are complete
+bipartite, so any open factory may serve any depot and any open depot may
+serve any customer. The uncapacitated single-product ancestor of the
+model is the classical facility location problem, and the two-stage
+capacitated multiproduct form was already observed to be \NP-hard by
+\citet{PirkulJayaraman1998}. The benchmark and the solution methods we
+build on are those of \citet{MauriEtAl2021}, who introduced the
+hundred-instance benchmark and proposed two hybrid metaheuristics for the
+problem, a clustering search matheuristic and a biased random-key genetic
+algorithm with local search. \citet{MoraisEtAl2022} later combined a
+biased random-key genetic algorithm with local branching for the same
+multiproduct problem, extending a single-product hybrid from the same
+group.
+
+Two facts recur in this literature, and both concern difficulty rather
+than modelling. First, the instances resist exact solution. On the
+hundred instances assembled by \citet{MauriEtAl2021} a commercial
+mixed-integer solver closed none to proven optimality within a one-hour
+budget per instance, which is why the authors turned to heuristics in the first place.
+Second, this difficulty has no theoretical counterpart. Beyond the
+inherited statement that the problem is \NP-hard
+\citep{PirkulJayaraman1998}, no finer-grained account exists of \emph{where}
+the hardness sits, which structural features drive it, or which of them could
+be exploited to solve the problem faster.
+
+This paper takes the empirical hardness as the phenomenon to be
+explained. Facility location as such has a parameterized literature,
+whose closest antecedent here is the parameterized view of
+\citet{FellowsFernau2011}, a map of uncapacitated single-stage variants,
+but no parameterized analysis covers the two-stage capacitated
+multiproduct model, and we give what is, to our knowledge, the first. We
+work throughout with the cardinality-constrained decision version, in which
+a solution may open at most $k$ facilities, counting factories and depots
+together, and $k$ is
+the parameter that measures how lean a viable design is allowed to be.
+Alongside $k$ we study the four size parameters of an instance, the numbers
+$|I|$ of factories, $|J|$ of depots, $|K|$ of customers and $|L|$ of
+products, both singly and in every combination. The guiding question is
+which of these quantities, when held small, tames the exponential behaviour
+of the problem, and which leave it intractable even when fixed. An
+answer matters beyond taxonomy, because each tractable combination names
+a regime in which exact solution scales, and each hard combination names
+a feature whose cost no exact method avoids. The
+analysis is a classification, so the algorithms it produces are devices for
+locating the difficulty rather than candidates to beat a commercial solver,
+and its practical residue is a covering bound that annotates an instance
+before any optimisation is run.
+
+Our findings fall into three groups, one locating the hardness along
+the four dimensions, one drawing the tractability border together with
+its preprocessing limits, and one certifying the map computationally and
+confronting it with a solver. The hardness comes first because its
+slices are the material from which the border is proved.
+
+First, we locate the hardness. The problem collapses when all fixed
+charges vanish and when a single factory faces a single depot
+(Propositions~\ref{prop:fzero} and~\ref{prop:onebyone}), and hardness
+begins one step above. With one product and one factory the problem is
+already strongly \NP-hard, the depot-to-customer stage alone encoding a
+covering problem, and no approximation beats the logarithmic Set Cover
+threshold unless \Ppoly${}={}$\NP\ (Theorem~\ref{thm:cover},
+Corollary~\ref{cor:coverinapprox}). Fixing any single size parameter to
+a constant leaves the problem \NP-hard, which we prove through four
+hard groups, each fixing two of the four dimensions to one. Behind the
+groups sit four discrimination pairs, pairs in which one facility side
+tells the members of another dimension apart through its cost matrix, a
+notion Section~\ref{sec:complexity} fixes precisely, so hardness
+survives every single restriction.
+
+Second, we draw the tractability border. Parameterizing by any subset
+$P$ of the four size parameters, the problem is fixed-parameter
+tractable whenever $P$ contains both $|I|$ and $|J|$, through a single
+$2^{|I|+|J|}\cdot\mathrm{poly}$ algorithm, and para-\NP-hard for every
+other $P$, so under $\Ppoly\neq\NP$ the tractable subsets are exactly
+those containing both (Theorem~\ref{thm:dichotomy}). MP-TSCFLP is
+$\mathrm{W}[2]$-hard in the cardinality parameter $k$, already with one
+product and one factory and already when only the depots are counted
+(Theorem~\ref{thm:w2}), and under the Exponential Time Hypothesis the
+naive $n^{k}$ enumeration is essentially optimal
+(Theorem~\ref{thm:eth}). A separate numeric layer, our label for
+hardness that persists after the combinatorial dimensions are
+trivialised, governs the smallest instances. With a single customer and
+a single product the problem is \NP-hard, separability of the
+first-stage cost delimits a pseudo-polynomially solvable part, and an
+explicit non-separable family is strongly hard, the general boundary
+remaining open (Theorem~\ref{thm:numeric} and
+Theorem~\ref{thm:separable}). On the preprocessing side, the problem
+admits no polynomial kernel in $|I|+|J|$ unless
+\NP${}\subseteq{}$coNP/poly (Theorem~\ref{thm:nokernel}), and over the
+incidence representation we analyse the obstruction is numeric rather
+than structural, for that incidence graph always has clique-width at
+most two (Observation~\ref{obs:cliquewidth}). Several further positive
+results, the pseudo-polynomial regimes and the
+customer aggregation among them, are stated and classified but kept
+outside the algorithmic core, since our aim is the map and not the
+tuning of any one route through it.
+
+Third, every construction behind the map is checked computationally.
+Each gadget was validated by a battery of on the order of nine hundred
+thousand individual checks with no failure, and the enumeration algorithm agrees
+with an independent brute-force solver across all $1{,}381$
+comparisons. The computational study asks in what regime the
+enumeration is practical, how it stands against Gurobi, the
+mixed-integer baseline of Section~\ref{sec:experiments}, and whether
+the pruning threshold $k^{\ast}$ that our branch-and-bound derives,
+computed by one sort and one prefix scan before any optimisation,
+tracks the empirical difficulty of an instance, and through which
+mechanism. The protocol, instances and seeds are fixed in advance so
+that every figure can be regenerated.
+
+The remainder of this paper is organised as follows.
+Section~\ref{sec:literature} places the model in the exact, heuristic and
+parameterized literatures and closes with a positioning table.
+Section~\ref{sec:prelim} fixes the model, proves the routing oracle,
+that is the subroutine that, given a design, computes its optimal
+routing cost, together with the
+feasibility test and the monotonicity on which every later argument
+rests, and maps the polynomial cases. Section~\ref{sec:complexity}
+develops the four covering reductions, the numeric layer and the lower
+bounds for the parameter $k$. Section~\ref{sec:algorithms} gives the
+enumeration algorithm with its branch-and-bound, the dichotomy theorem
+and the two sides of the kernelization question, and
+Section~\ref{sec:experiments} reports the computational study built on
+them. Section~\ref{sec:conclusion} states the two-layer synthesis and
+five open problems.

@@ -1,0 +1,75 @@
+
+Gurobi 13.0.2 (win64) logging started Wed Jul 15 20:47:35 2026
+
+Set parameter LogFile to value "logs/kstar_nI20_nJ40_nK100_nL10_tI3_tJ3_s2_m0_exact_s0_20260715-204735.gurobi.log"
+Set parameter Seed to value 0
+Set parameter TimeLimit to value 599.9388297
+Set parameter NodefileStart to value 4
+Set parameter MIPGap to value 0
+Set parameter MIPGapAbs to value 0.9999
+Set parameter Cutoff to value 1e+100
+Gurobi Optimizer version 13.0.2 build v13.0.2rc1 (win64 - Windows 11+.0 (26200.2))
+
+CPU model: Intel(R) Core(TM) i9-14900HX, instruction set [SSE2|AVX|AVX2]
+Thread count: 24 physical cores, 32 logical processors, using up to 32 threads
+
+Non-default parameters:
+TimeLimit  599.9388297
+MIPGap  0
+MIPGapAbs  0.9999
+NodefileStart  4
+
+Optimize a model with 2000 rows, 48060 columns and 136600 nonzeros (Min)
+Model fingerprint: 0x50181316
+Model has 48060 linear objective coefficients
+Variable types: 48000 continuous, 60 integer (60 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+03]
+  Objective range  [1e+00, 5e+02]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [5e+00, 2e+01]
+
+Using branch priorities.
+Found heuristic solution: objective 1280684.0000
+Presolve time: 0.10s
+Presolved: 2000 rows, 48060 columns, 136600 nonzeros
+Variable types: 48000 continuous, 60 integer (60 binary)
+Deterministic concurrent LP optimizer: primal and dual simplex
+Showing primal log only...
+
+Concurrent spin time: 0.00s
+
+Solved with dual simplex
+
+Root relaxation: objective 8.706916e+04, 1988 iterations, 0.05 seconds (0.07 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 87069.1567    0   60 1280684.00 87069.1567  93.2%     -    0s
+H    0     0                    102309.81510 87069.1567  14.9%     -    0s
+H    0     0                    102297.81510 87069.1567  14.9%     -    0s
+H    0     0                    102212.98232 87069.1567  14.8%     -    0s
+H    0     0                    102127.85600 99973.8390  2.11%     -    0s
+     0     0 99973.8390    0   13 102127.856 99973.8390  2.11%     -    0s
+     0     0 101425.124    0    3 102127.856 101425.124  0.69%     -    0s
+     0     0 101608.235    0    1 102127.856 101608.235  0.51%     -    0s
+H    0     0                    101806.23536 101613.000  0.19%     -    0s
+     0     0 101615.538    0    1 101806.235 101615.538  0.19%     -    0s
+H    0     0                    101804.68442 101615.538  0.19%     -    0s
+H    0     0                    101728.00000 101615.538  0.11%     -    0s
+*    0     0               0    101647.00000 101647.000  0.00%     -    0s
+
+Cutting planes:
+  Implied bound: 895
+  MIR: 14
+  Flow cover: 279
+  Relax-and-lift: 19
+
+Explored 1 nodes (2920 simplex iterations) in 0.73 seconds (0.76 work units)
+Thread count was 32 (of 32 available processors)
+
+Solution count 2: 101647 101728 
+
+Optimal solution found (tolerance 0.00e+00)
+Best objective 1.016470000000e+05, best bound 1.016470000000e+05, gap 0.0000%

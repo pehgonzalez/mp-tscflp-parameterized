@@ -1,0 +1,113 @@
+The results of Sections~\ref{sec:complexity} and~\ref{sec:algorithms}
+assemble into a single map, and Table~\ref{tab:landscape} records it.
+Figure~\ref{fig:resultsmap} shows which result feeds which before the
+table lists them row by row. Each
+row names a parameter or a structural restriction, states the encoding
+under which the entry holds, gives the status, and traces it to the
+theorem that establishes it. The rows descend from the polynomial base
+through the coverage layer, the size-parameter dichotomy, the parameter
+$k$ and the numeric layer to the kernelization and width entries. The
+table and the figure carry the detail row by row.
+
+\input{figures/fig_results_map.tex}
+
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{p{4.2cm}p{1.7cm}p{3.6cm}p{2.1cm}}
+\caption{The parameterized complexity landscape of MP-TSCFLP. Each row
+is a parameterization, a restriction, or a preprocessing guarantee, and
+hard rows either name a witness slice or cite the witnessing
+construction in their source cell. Sources refer to results of
+Sections~\ref{sec:complexity} and~\ref{sec:algorithms}.}
+\label{tab:landscape}\\
+\toprule
+Parameter / restriction & Encoding & Status & Source \\
+\midrule
+\endfirsthead
+\multicolumn{4}{l}{\footnotesize\emph{Table~\ref{tab:landscape} (continued)}}\\
+\toprule
+Parameter / restriction & Encoding & Status & Source \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\footnotesize\emph{continued on the next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{4}{l}{\emph{Polynomial base}}\\
+$f\equiv 0$ and $g\equiv 0$ & both & \Ppoly & Prop.~\ref{prop:fzero}\\
+$|I|=|J|=1$ & both & \Ppoly & Prop.~\ref{prop:onebyone}\\
+\midrule
+\multicolumn{4}{l}{\emph{Coverage layer}}\\
+classical, no parameter, witness slice $|I|=|L|=1$ & both, unary-robust
+& strongly \NP-hard &
+Thm.~\ref{thm:cover}\\
+approximation, witness $|I|=|L|=1$ & both, unary-robust & no
+$\max\{1,(1-\varepsilon)\ln|K|\}$ factor unless $\Ppoly=\NP$ &
+Cor.~\ref{cor:coverinapprox}\\
+$|K|=1$, products carry the universe, witness slices $|J|=1$ and
+$|I|=1$ & both, unary-robust & strongly \NP-hard &
+Thm.~\ref{thm:products}, Cor.~\ref{cor:mirror}\\
+\midrule
+\multicolumn{4}{l}{\emph{Size-parameter dichotomy (under
+$\Ppoly\neq\NP$, \FPT\ iff $\{|I|,|J|\}\subseteq P$)}}\\
+$P\supseteq\{|I|,|J|\}$ (4 sets) & both & \FPT,
+$2^{|I|+|J|}\,\mathrm{poly}(N)$ & Thm.~\ref{thm:fpt}\\
+$\emptyset$, $\{|I|\}$, $\{|J|\}$, $\{|K|\}$, $\{|L|\}$,
+$\{|I|,|K|\}$, $\{|I|,|L|\}$, $\{|J|,|K|\}$, $\{|K|,|L|\}$ & both &
+para-\NP-hard, strong slice & Thm.~\ref{thm:dichotomy},
+Cor.~\ref{cor:parak}, Cor.~\ref{cor:unary}\\
+$\{|J|,|L|\}$, $\{|I|,|K|,|L|\}$, $\{|J|,|K|,|L|\}$ & binary &
+para-\NP-hard, weak slice & Thm.~\ref{thm:dichotomy},
+Thm.~\ref{thm:partition}, Cor.~\ref{cor:partitionmirror}\\
+$\{|J|,|L|\}$, $\{|I|,|K|,|L|\}$, $\{|J|,|K|,|L|\}$ & unary & open &
+Cor.~\ref{cor:unary}\\
+\midrule
+\multicolumn{4}{l}{\emph{The parameter $k$}}\\
+$k$, lower bound, already at $|I|=|L|=1$, also budget $B$ alone and
+depot count $k_z$ & both & $\mathrm W[2]$-hard & Thm.~\ref{thm:w2}\\
+$k$, membership & both & in $\mathrm W[\mathrm P]\cap\XP$ &
+Rem.~\ref{rem:w2mem}, Thm.~\ref{thm:xp}\\
+$k$, algorithm & both & \XP, $O(n^{k}\,T_{\mathrm{orac}})$ &
+Thm.~\ref{thm:xp}\\
+$k$, fine bound & both & no $f(k)N^{o(k)}$ under ETH &
+Thm.~\ref{thm:eth}\\
+a priori bound $k^\ast$ & both & exact lower bound on the opening
+count, $O(m\log m)$ & Lem.~\ref{lem:cover}\\
+\midrule
+\multicolumn{4}{l}{\emph{Numeric layer}}\\
+$|K|=|L|=1$, general transport & both, unary-robust & strongly \NP-hard &
+Thm.~\ref{thm:numeric}\\
+$|K|=|L|=1$, separable $c_{ij}=\gamma_i+\delta_j$ & binary &
+pseudo-polynomial & Thm.~\ref{thm:separable}\\
+$|J|=|L|=1$ ($|I|,|K|$ free), hard already at $|K|=1$ & binary &
+weakly \NP-hard, pseudo-polynomial &
+Thm.~\ref{thm:partition}, Obs.~\ref{obs:quadrant},
+Thm.~\ref{thm:separable}\\
+$|I|=|K|=|L|=1$, depot mirror & binary & weakly \NP-hard,
+pseudo-polynomial & Cor.~\ref{cor:partitionmirror}\\
+\midrule
+\multicolumn{4}{l}{\emph{Kernelization and width}}\\
+customer aggregation, identical columns & both & exact,
+$|K|\le\tau$ & Prop.~\ref{prop:aggregation}\\
+capping $b_{il},p_{jl}\le D_l$ & both & exact & Obs.~\ref{obs:capping}\\
+kernel in $|I|+|J|$ & both & exponential (standard equivalence) &
+Thm.~\ref{thm:fpt}\\
+polynomial kernel in $|I|+|J|$ ($+|K|$, $+|L|$, and the cardinality
+version), already at $|I|=|L|=1$ and at $|K|=1$ & both, unary-robust &
+none unless $\NP\subseteq\mathrm{coNP}/\mathrm{poly}$ &
+Thm.~\ref{thm:nokernel}\\
+compression in $\kappa=|I|+|J|+|L|+\tau$, costs and total demands
+bounded by $\kappa^{c^\star}$ (capacities free), likewise costs and
+$B$ bounded (capacities and demands free) & binary &
+polynomial compression & Prop.~\ref{prop:ftcompress}\\
+polynomial kernel in $|I|+|J|+|K|+|L|$, general numbers & binary & open &
+Sec.~\ref{sec:kernel}\\
+$\mathrm{cwd}(G_{\mathrm{inc}})$ & --- & $\le 2$, uninformative &
+Obs.~\ref{obs:cliquewidth}\\
+$\mathrm{tw}(G_{\mathrm{inc}})$ & --- & unbounded, slice $\mathrm{tw}=1$
+strongly hard & Obs.~\ref{obs:cliquewidth},
+Thm.~\ref{thm:products}\\
+\end{longtable}
+\endgroup

@@ -1,0 +1,699 @@
+\section{Parameterized algorithms and kernels}\label{sec:algorithms}
+
+The hardness map of Section~\ref{sec:complexity} is dense, yet it leaves
+positive windows, and this section fills them. We give an \XP\ algorithm
+in the number of opened facilities together with the branch-and-bound
+refinement we implement, the fixed-parameter algorithm that pins down the
+size-parameter dichotomy, the routing certificates that bridge the
+enumeration to the exact formulation, and the two sides of the
+kernelization question. A short remark on width parameters closes the
+account, and Table~\ref{tab:landscape} then collects the whole landscape.
+
+\subsection{An \XP\ algorithm in the number of opened
+facilities}\label{sec:xp}
+
+Once a design is fixed the cost is determined by the routing oracle of
+Proposition~\ref{prop:oracle}, so the only combinatorial freedom left is
+which facilities to open. Bounding that freedom by $k$ leaves at most
+$e\,n^{k}$ candidate supports, and each is priced by one oracle call.
+The next theorem promotes the brute-force membership of
+Observation~\ref{obs:xp} to a running time whose exponent is linear in
+$k$, and the branch-and-bound that follows keeps the same worst case
+while pruning aggressively in practice.
+
+The \emph{support} of a design is the set of facilities it opens. We
+identify each set $S\subseteq I\cup J$ with the design that opens exactly
+the facilities of $S$, and under this identification we write $v(S)$ for
+its routing value, $f(S)=\sum_{i\in S\cap I}f_i$ and
+$g(S)=\sum_{j\in S\cap J}g_j$ for its two fixed charges, and
+$\mathrm{cost}(S)=f(S)+g(S)+v(S)$ for its total cost. On an infeasible
+support the convention $v(S)=+\infty$ of Section~\ref{sec:prelim}
+gives $\mathrm{cost}(S)=+\infty$.
+
+\begin{theorem}\label{thm:xp}
+Write $T_{\mathrm{orac}}$ for the time of one routing-oracle call and
+normalise $k\le n$. Then $\mathrm{MP\text{-}TSCFLP}(B,k)$ is decidable,
+and the least cost $\OPT_k$ over feasible designs opening at most $k$
+facilities is computable, in time $O\bigl(n^{k}\cdot
+T_{\mathrm{orac}}\bigr)$ for $k\ge 1$, and in time $O(T_{\mathrm{orac}})$
+for $k=0$. In particular the problem lies in \XP\ in the parameter $k$.
+\end{theorem}
+\begin{proof}
+A feasible design opening at most $k$ facilities has a
+support
+$S\subseteq I\cup J$ with $|S|\le k$, its cost is the fixed charge of $S$
+plus the routing value $v(S)$, and by Proposition~\ref{prop:oracle} the
+routing value is attained, so each feasible support realises exactly its
+cost and $\OPT_k$ is the minimum of $\mathrm{cost}(S)$ over feasible
+supports of size at most $k$. When no such support is feasible we put
+$\OPT_k=+\infty$, and the correct answer is then \textsc{no}. Enumerate
+every such $S$, test feasibility
+by Proposition~\ref{prop:feas} in $O(n|L|)$ time, and price the feasible
+ones by one oracle call. The number of supports is
+$\sum_{t=0}^{k}\binom{n}{t}\le\sum_{t=0}^{k}\frac{n^{t}}{t!}
+\le n^{k}\sum_{t\ge 0}\frac{1}{t!}=e\,n^{k}$
+for $k\le n$ and $k\ge 1$. The middle inequality uses $n^{t}\le n^{k}$
+for $t\le k$, valid since $n\ge 1$, and extending the sum adds
+nonnegative terms. The case $n=0$ needs no counting, since it leaves
+only the empty design and is decided by one oracle call. Each support costs $O(T_{\mathrm{orac}})$, and
+one oracle call already reads the $n|L|$ capacities, so
+$T_{\mathrm{orac}}=\Omega(n|L|)$ and the oracle time dominates the
+feasibility test, giving $O(n^{k}\,T_{\mathrm{orac}})$ in total. For
+$k=0$ only the empty design is priced. That design is feasible exactly
+when every $D_l=0$, since for it the left-hand sums of (F1) and (F2) are
+empty, so one feasibility test and at most one oracle call suffice,
+within $O(T_{\mathrm{orac}})$. Comparing the minimum
+against $B$ decides $\mathrm{MP\text{-}TSCFLP}(B,k)$.
+\end{proof}
+
+The enumeration is wasteful whenever a partial design already cannot be
+completed within the budget, and the branch-and-bound of
+Algorithm~\ref{alg:xpbb} closes such subtrees early. Its principal device
+is a covering count. Because both stages are complete, feasibility of a
+product needs only enough open capacity on each side, and a sorted prefix
+determines the fewest facilities that supply a demand from a nonnegative
+capacity vector.
+
+\begin{lemma}[covering count]\label{lem:cover}
+Let $a_1,\dots,a_m\ge 0$ and $D\ge 0$, and let
+$a_{(1)}\ge\cdots\ge a_{(m)}$ be the decreasing order. Some $S$ with
+$|S|\le s$ has $\sum_{i\in S}a_i\ge D$ if and only if
+$\sum_{r\le s}a_{(r)}\ge D$. When $\sum_{r\le m}a_{(r)}<D$ no such $s$
+exists and we set $k^\ast(a;D)=+\infty$. Otherwise the least such $s$,
+written $k^\ast(a;D)$, is computable by one sort and one prefix scan in
+$O(m\log m)$ time, the same scan detecting the infinite case.
+\end{lemma}
+\begin{proof}
+Both directions follow from majorisation by the sorted prefix. If
+$\sum_{r\le s}a_{(r)}\ge D$ the set of the $s$ largest entries witnesses
+the forward direction. Conversely, order any $S$ decreasingly. Its $r$th
+element is at most $a_{(r)}$, because the $r$ largest elements of $S$ are
+$r$ distinct entries of $a$, each at least that element, so $a$ has at
+least $r$ entries at least as large. Summing gives
+$\sum_{i\in S}a_i\le\sum_{r\le|S|}a_{(r)}$.
+Hence if some $S$ with $|S|\le s$ has $\sum_{i\in S}a_i\ge D$ then
+$D\le\sum_{i\in S}a_i\le\sum_{r\le|S|}a_{(r)}\le\sum_{r\le s}a_{(r)}$, the
+last step by $a\ge 0$. The prefix sums are nondecreasing in $s$, so the
+least $s$ with $\sum_{r\le s}a_{(r)}\ge D$ is found by one sort and one
+scan.
+\end{proof}
+
+Algorithm~\ref{alg:xpbb} searches over partial designs, and we name the
+quantities its nodes carry before giving the listing. A node is a pair
+$(O,C)$ in which $O$ is the set of facilities forced open and $C$ the set
+forced closed, so that $F=(I\cup J)\setminus(O\cup C)$ collects the free
+facilities and $r=k-|O|$ is the remaining cardinality. For a product $l$
+let
+\[
+s_I(l;O,C)=k^\ast\!\Bigl((b_{il})_{i\in F\cap I};\,\max\bigl(0,\,D_l-\textstyle
+\sum_{i\in O\cap I}b_{il}\bigr)\Bigr),
+\]
+the covering count of Lemma~\ref{lem:cover} over the free factory
+capacities against the demand left after crediting the already-open
+factories, and let
+\[
+s_J(l;O,C)=k^\ast\!\Bigl((p_{jl})_{j\in F\cap J};\,\max\bigl(0,\,D_l-\textstyle
+\sum_{j\in O\cap J}p_{jl}\bigr)\Bigr)
+\]
+be the analogous count for (F2) over the free depot capacities. The
+quantities of line 2 are the root specialisations
+$k^\ast_I(l)=k^\ast\bigl((b_{il})_{i\in I};D_l\bigr)=s_I(l;\emptyset,\emptyset)$
+and
+$k^\ast_J(l)=k^\ast\bigl((p_{jl})_{j\in J};D_l\bigr)=s_J(l;\emptyset,\emptyset)$.
+Let $v^{\uparrow}=v(O\cup F)$ be the routing value of the all-open
+completion, with the convention $v=+\infty$ of
+Section~\ref{sec:prelim}, and let $LB(O,C)=f(O)+g(O)+v^{\uparrow}$.
+Finally, a facility of $O$ is \emph{unused} by a flow when the flow
+carries zero on every arc incident to that facility in every product's
+network. Three prunes act on these quantities, and after the listing we
+show each is sound and then that the search returns $\OPT_k$.
+Figure~\ref{fig:bbtree} places the three prunes on a single branching
+step.
+
+\input{figures/fig_bb_tree.tex}
+
+\begin{algorithm}[H]
+\caption{Branch-and-bound for $\mathrm{MP\text{-}TSCFLP}(B,k)$
+(Theorem~\ref{thm:xp}).}
+\label{alg:xpbb}
+\begin{pseudolines}
+\item $k\gets\min(k,n)$ \algcomment{normalisation, no design opens more}
+\item \kw{for each} product $l$ sort $(b_{il})_i$ and $(p_{jl})_j$ and
+  compute $k^\ast_I(l),k^\ast_J(l)$ \algcomment{Lemma~\ref{lem:cover}}
+\item \kw{if}
+  $\max_l k^\ast_I(l)+\max_l k^\ast_J(l)>k$ \kw{then} \kw{return}
+  \textsc{no} with $\OPT_k=+\infty$
+  \algcomment{a priori bound $k^\ast$}
+\item $\mathrm{best}\gets+\infty$; push the root $(O,C)=(\emptyset,\emptyset)$
+\item \kw{while} the stack is nonempty \kw{do}
+\item \algin pop $(O,C)$; let $F$ be the free facilities and
+  $r\gets k-|O|$; \kw{if} $r<0$ \kw{then} continue
+\item \algin \kw{if}
+  $\max_l s_I(l;O,C)+\max_l s_J(l;O,C)>r$ \kw{then} continue
+  \algcomment{prune P1, Lemma~\ref{lem:cover}}
+\item \algin evaluate the all-open completion by the oracle to get
+  $v^{\uparrow}$ and $LB(O,C)$
+\item \algin \kw{if} $v^{\uparrow}=+\infty$ \kw{or}
+  $LB(O,C)\ge\min(\mathrm{best},B+1)$ \kw{then} continue
+  \algcomment{prune P2}
+\item \algin \kw{if} $F=\emptyset$ \kw{then}
+  \algcomment{leaf, the design is $S=O$}
+\item \algin\algin \kw{if} the oracle solution returned at the leaf
+  leaves some facility of $O$ unused \kw{then} continue
+  \algcomment{prune P3}
+\item \algin\algin $\mathrm{best}\gets\min(\mathrm{best},LB(O,C))$
+\item \algin \kw{else} pick $e\in F$ of least index and push
+  $(O\cup\{e\},C)$ and $(O,C\cup\{e\})$
+\item \kw{if} $\mathrm{best}\le B$ \kw{then} \kw{return} \textsc{yes} with
+  $\OPT_k=\mathrm{best}$ \kw{else} \kw{return} \textsc{no}
+  \algcomment{run with $B=\infty$ to return $\OPT_k$ unconditionally}
+\end{pseudolines}
+\end{algorithm}
+
+\emph{P1, covering.} Every completion of $(O,C)$ opens $O$ together with
+some free facilities. For such a completion $S$ and a product $l$, (F1)
+reads $\sum_{i\in S\cap I}b_{il}\ge D_l$, which states that the free
+factories of $S$ supply at least the residual demand
+$\max(0,D_l-\sum_{i\in O\cap I}b_{il})$, so Lemma~\ref{lem:cover},
+applied to $(b_{il})_{i\in F\cap I}$ against that residual demand, shows
+that $S$ adds at least $s_I(l;O,C)$ free factories. One open set must
+satisfy (F1) for all
+products at once, so it adds at least $\max_l s_I(l;O,C)$ free factories,
+and likewise at least $\max_l s_J(l;O,C)$ free depots. Factories and depots
+are disjoint, so the two increments add, and when their sum exceeds $r$ no
+completion has cardinality at most $k$, so P1 discards $(O,C)$ soundly.
+An infinite count falls under the same reading, since
+$s_I(l;O,C)=+\infty$ means that even opening every free factory leaves
+(F1) violated for $l$, so no completion is feasible and the prune fires
+for every finite $r$.
+
+\emph{P2, bound.} Any completion opens a set $S$ with $O\subseteq
+S\subseteq O\cup F$. Its fixed charge is at least $f(O)+g(O)$ by
+nonnegativity of the charges, and its routing
+value is at least $v(O\cup F)=v^{\uparrow}$ because $S\le O\cup F$
+componentwise and $v$ is monotone (Proposition~\ref{prop:mono}). Hence
+$LB(O,C)$ is a lower bound on the cost of \emph{every} completion, even one
+opening more than $k$ facilities, which is all the bound needs. P2 discards
+$(O,C)$ when $LB(O,C)\ge\min(\mathrm{best},B+1)$, and either threshold
+justifies the discard. If $LB(O,C)\ge\mathrm{best}$ then no completion
+improves the incumbent. If $LB(O,C)\ge B+1$ then no completion meets the
+budget, because the data are nonnegative integers and the routing values
+are integers by Proposition~\ref{prop:oracle}, so every cost is an
+integer and a cost at most $B$ is a cost strictly below $B+1$. When
+$v^{\uparrow}=+\infty$ the same monotonicity gives
+$v(S)\ge v(O\cup F)=+\infty$ for every completion $S$, so every
+completion is infeasible under the convention of
+Section~\ref{sec:prelim} and discarding is again sound. At a
+leaf, where $F=\emptyset$, one has $LB(O,C)=\mathrm{cost}(O)$.
+
+\emph{P3, dominance.} When the oracle solution returned at the leaf
+leaves an open facility of $O$ unused, closing that facility gives a
+design of strictly smaller cardinality. The oracle solution returned at
+the leaf carries nothing on any arc of the
+closed facility, so it remains a feasible routing of the smaller design,
+whence the routing value does not increase, and the fixed charge drops
+by the nonnegative charge of that facility. The smaller design is
+therefore feasible at no greater cost, so $O$ is dominated and P3
+discards it.
+
+With the three prunes justified, the remaining question is whether the
+surviving search still reaches an optimum.
+
+\begin{proposition}[correctness]\label{prop:bbcorrect}
+Algorithm~\ref{alg:xpbb} decides $\mathrm{MP\text{-}TSCFLP}(B,k)$, and when
+run with $B=+\infty$ it returns $\mathrm{best}=\OPT_k$.
+\end{proposition}
+The full argument appears in \ref{app:tech}. Its three steps justify
+the early return of line 3 through Lemma~\ref{lem:cover}, bound
+$\mathrm{best}$ below by $\OPT_k$ because only feasible designs within
+the cardinality budget ever reach a leaf, and bound it above by tracking
+a minimum-cardinality optimum down the tree, checking that no prune ever
+discards the node carrying it.
+
+None of the prunes changes the worst case. On the seeded validation suite
+recorded in the accompanying code, the reference implementation visited
+roughly ninety per cent fewer nodes than the plain enumeration and returned
+the brute-force optimum on every instance. The
+linear exponent is essentially the best one can hope for, since under the
+Exponential Time Hypothesis no algorithm decides the problem in time
+$f(k)\cdot N^{o(k)}$ (Theorem~\ref{thm:eth}), so the enumeration of
+supports is tight up to the constant in the exponent.
+
+\subsection{Fixed-parameter tractability and the size-parameter
+dichotomy}\label{sec:fpt}
+
+The parameter $k$ counts openings, whereas the four dimensions
+$|I|,|J|,|K|,|L|$ measure the instance itself, and only the two facility
+sides carry tractability. Enumerating designs rather than supports gives a
+fixed-parameter algorithm in $|I|+|J|$, and coupling it with the hardness
+slices of Section~\ref{sec:complexity} pins the exact border that
+Figure~\ref{fig:dichotomy} maps over the sixteen subsets.
+
+\input{figures/fig_dichotomy.tex}
+
+\begin{theorem}[fixed-parameter tractability]\label{thm:fpt}
+$\mathrm{MP\text{-}TSCFLP}(B)$, its optimisation form and its cardinality
+version are solvable in time $2^{|I|+|J|}\cdot\mathrm{poly}(N)$, where $N$
+is the input size. Hence the problem is \FPT\ in the combined parameter
+$(|I|,|J|)$, and a fortiori under any parameter set containing both.
+\end{theorem}
+\begin{proof}
+Enumerate all $2^{|I|+|J|}$ designs, test each by
+Proposition~\ref{prop:feas}, price the feasible ones by
+Proposition~\ref{prop:oracle}, filter by $\sum y+\sum z\le k$ when the
+cardinality bound is present, and return the least cost, compared
+against $B$ for the decision versions, reporting infeasibility through
+the value $+\infty$ when no design passes the test. Correctness is immediate from the
+attainment in Proposition~\ref{prop:oracle}, each step per design runs
+in time polynomial in $N$, and the function $2^{|I|+|J|}$ reads only the
+two facility counts, which is the definition of \FPT\ in the combined
+parameter. The a fortiori clause follows because $2^{|I|+|J|}$ is also a
+computable function of any parameter set that contains both facility
+counts.
+\end{proof}
+
+The synthesis theorem states the border cleanly. For a parameter set $P$
+drawn from the four dimensions the problem is fixed-parameter tractable
+exactly when $P$ contains both facility sides, and otherwise it is hard
+already at a fixed slice.
+
+\begin{theorem}[dichotomy]\label{thm:dichotomy}
+Let $P\subseteq\{|I|,|J|,|K|,|L|\}$ parameterize
+$\mathrm{MP\text{-}TSCFLP}(B)$. If $\{|I|,|J|\}\subseteq P$ the problem is
+\FPT, unconditionally. If $\{|I|,|J|\}\not\subseteq P$ it is
+para-\NP-hard, unconditionally, because some assignment of fixed values to
+the parameters of $P$ gives an \NP-hard slice, and then no \XP\ algorithm
+exists unless $\Ppoly=\NP$. Assuming $\Ppoly\ne\NP$, therefore, the
+problem is \FPT\ if and only if $\{|I|,|J|\}\subseteq P$. The same
+statement transfers verbatim to $\mathrm{MP\text{-}TSCFLP}(B,k)$ by
+appending $k:=n$.
+\end{theorem}
+\begin{proof}
+The positive half is Theorem~\ref{thm:fpt}. For the negative half it
+suffices to exhibit, for each of the twelve subsets $P$ with
+$\{|I|,|J|\}\not\subseteq P$, an \NP-hard slice that fixes every parameter
+of $P$ to the constant one, since a problem \NP-hard at a fixed parameter
+value is para-\NP-hard and an \XP\ algorithm would decide that slice in
+polynomial time. Six slices from Section~\ref{sec:complexity} cover all
+twelve. The slice of Theorem~\ref{thm:cover} fixes $|I|=|L|=1$ and
+witnesses $\emptyset$, $\{|I|\}$, $\{|L|\}$ and $\{|I|,|L|\}$. The slice of
+Theorem~\ref{thm:products} fixes $|J|=|K|=1$ and witnesses $\{|J|\}$,
+$\{|K|\}$ and $\{|J|,|K|\}$, while its mirror, Corollary~\ref{cor:mirror},
+fixes $|I|=|K|=1$ and witnesses $\{|I|,|K|\}$. The slice of
+Theorem~\ref{thm:numeric} fixes $|K|=|L|=1$ and witnesses $\{|K|,|L|\}$.
+The weak slice of Theorem~\ref{thm:partition} fixes $|J|=|K|=|L|=1$ and
+witnesses $\{|J|,|L|\}$ and the triple $\{|J|,|K|,|L|\}$, and its depot
+mirror, Corollary~\ref{cor:partitionmirror}, fixes $|I|=|K|=|L|=1$ and
+witnesses the remaining triple $\{|I|,|K|,|L|\}$. Each of the twelve
+subsets with $\{|I|,|J|\}\not\subseteq P$ is contained in one of the six
+fixed sets $\{|I|,|L|\}$, $\{|J|,|K|\}$, $\{|I|,|K|\}$, $\{|K|,|L|\}$,
+$\{|J|,|K|,|L|\}$, $\{|I|,|K|,|L|\}$, and fixing a superset of $P$ to
+constants fixes $P$, so the case analysis is complete. Appending $k:=n$
+preserves the answer, because no design opens more than $n$ facilities,
+so the appended bound is vacuous and the two problems coincide instance
+by instance, and it leaves the fixed values of $P$ untouched.
+\end{proof}
+
+Two qualifications attach to the negative half. Para-\NP-hardness
+asks only for \NP-hardness of a slice under the standard binary encoding,
+and weak hardness already is \NP-hardness, so the weakly hard slices count
+towards the dichotomy exactly as the strongly hard ones do. The encoding
+matters only when we ask whether the border survives unary numbers. There
+the positive half is untouched, and the negative half survives for the
+nine parameter sets whose witnessing slices are strongly \NP-hard, while
+for $\{|J|,|L|\}$ and the two triples $\{|I|,|K|,|L|\}$ and
+$\{|J|,|K|,|L|\}$ the witnessing slices turn polynomial under unary data,
+through the pseudo-polynomial programs of Theorem~\ref{thm:partition}
+and Corollary~\ref{cor:partitionmirror},
+and no other hard slice is known, so their unary status stays open.
+
+\subsection{Certificates and a bridge to the exact
+formulation}\label{sec:certificates}
+
+The dichotomy settles what the parameters buy, and this subsection
+turns the same oracle into certificates a mixed-integer solver can
+consume. Each oracle call solves one transportation problem per product, and its
+linear-programming dual both certifies the routing value and supplies a
+cut that a Benders master can reuse. The fact that carries the
+subsection is that the dual polyhedron depends only on the data, never
+on the design, so a single dual point
+yields an inequality valid across the whole hypercube of designs.
+Figure~\ref{fig:bendersflow} traces the pipeline the proposition
+formalises.
+
+\input{figures/fig_benders_flow.tex}
+
+\begin{proposition}[routing certificate and Benders cuts]\label{prop:duals}
+Fix a product $l$ and let $\Delta_l$ be the dual polyhedron of its
+transportation block, which is independent of $(y,z)$. If the block is
+feasible then some $u^\ast\in\Delta_l$ attains the dual value
+$\mu_l(y,z)$, and the pair of an optimal flow and $u^\ast$ certifies
+$\mu_l(y,z)$ in time $O(|I||J|+|J||K|)$. Moreover, writing $\theta_l$ for
+a variable through which a master problem represents the block value, for
+every $u=(\alpha,\beta,\sigma,\pi)\in\Delta_l$ the inequality
+\[
+\theta_l\ \ge\ \sum_k q_{kl}\,\alpha_k
+      -\sum_i b_{il}\,\sigma_i\,y_i-\sum_j p_{jl}\,\pi_j\,z_j
+\]
+is valid for every design whose block $l$ is feasible, and it holds with
+equality at the design that generated $u^\ast$. Two explicit recession
+rays of $\Delta_l$ certify infeasibility, and their objectives are
+positive exactly when (F1), respectively (F2), of
+Proposition~\ref{prop:feas} fails.
+\end{proposition}
+The proof, given in \ref{app:tech}, writes the block dual explicitly.
+No dual constraint mentions the design, which yields the independence of
+$\Delta_l$, weak duality yields the displayed inequality, strong duality
+supplies the attaining point $u^\ast$, and the two recession rays are
+exhibited coordinate by coordinate and matched to the failures of (F1)
+and (F2).
+
+These are precisely the per-product optimality cuts of a disaggregated
+Benders decomposition, and the recession rays are its feasibility cuts.
+The certificates the enumeration consumes are the objects the Benders
+decomposition emits, so each oracle call in Algorithm~\ref{alg:xpbb} can
+return, beside its value, the very cut that a branch-and-Benders-cut
+master would add at that design. The proposition certifies the routing
+value and the validity of the cuts, not the global optimum, which still
+needs the master's own bounds.
+
+\subsection{Kernelization}\label{sec:kernel}
+
+Preprocessing is the last algorithmic question, and it divides cleanly.
+Customers with identical cost columns aggregate exactly, products do not, a partial bound on the data admits a polynomial
+compression through the weight-reduction technique of
+\citet{FrankTardos1987}, and yet no polynomial kernel exists in
+the winning parameter unless the polynomial hierarchy collapses. The first
+reduction is safe and cheap.
+
+\begin{proposition}[customer aggregation]\label{prop:aggregation}
+If customers $k\ne k'$ have identical cost columns, that is
+$d_{jkl}=d_{jk'l}$ for all $j,l$, then merging $k'$ into $k$ and adding
+their demands preserves feasibility, routing value and cost of every
+design, hence the optimal value, the set of optimal designs and the
+answers of both decision versions, while complete solutions correspond
+under the explicit merge and split maps of the proof. Consequently one
+may assume $|K|\le\tau$, where $\tau$
+is the number of distinct second-stage cost columns, computable in
+polynomial time.
+\end{proposition}
+The proof, given in \ref{app:tech}, exhibits the two maps directly. The
+merge adds the flow rows of the two customers, the split expands the
+merged row by the northwest-corner procedure, and both preserve every
+constraint and every cost term, so the two instances agree design by
+design.
+
+A companion reduction bounds the capacities without touching any design.
+
+\begin{observation}[capacity capping]\label{obs:capping}
+Replacing every capacity $b_{il}$ by $\min(b_{il},D_l)$ and every
+$p_{jl}$ by $\min(p_{jl},D_l)$ preserves feasibility, routing value and
+cost of every design, hence the optimum and both decision answers.
+\end{observation}
+The proof, given in \ref{app:tech}, trims any routing until every
+product moves exactly $D_l$ across each stage, at no cost increase,
+after which no capacity beyond $D_l$ can carry flow and the cap changes
+nothing.
+
+The symmetric move on products is unsound. In analogy with
+Proposition~\ref{prop:aggregation}, merging two products with identical
+cost columns would add their demands and add their capacity columns
+entrywise while keeping the shared cost columns, and that operation lets
+the instance transfer capacity between the merged products. Take two
+factories with charges $f=(0,10)$, one free depot of ample
+capacity, one customer, all transport costs zero, and two products of unit
+demand with capacities $b_{\cdot l}=(2,0)$ and $b_{\cdot l'}=(0,2)$.
+In the original instance (F1) for $l'$ forces the second factory open at
+charge $10$, while every other charge and every transport cost vanishes, so
+the optimum $10$ is both forced and attained. The merged product has
+demand $2$ against capacities $(2,2)$ and the
+first factory alone serves it at cost $0$, so the merge can lower
+the value. A variant shows the merge can also repair infeasibility. In
+the same setting give the two products the capacity columns
+$b_{\cdot l}=(2,0)$ and $b_{\cdot l'}=(0,0)$, so that the original
+instance is infeasible, (F1) failing for $l'$ at every design, while the
+merged product has demand $2$ against the column $(2,0)$ and the first
+factory serves it. The natural rule that adds demands and capacity
+columns is therefore unsound, and the paper advances no product-side
+aggregation. A partial bound on the data still buys
+a genuine compression, along the route that
+Figure~\ref{fig:ftpipeline} lays out.
+
+\input{figures/fig_ft_pipeline.tex}
+
+\begin{proposition}[one-sided compression]\label{prop:ftcompress}
+Fix $c^\star$ and let $\kappa=|I|+|J|+|L|+\tau$. The subclass of
+$\mathrm{MP\text{-}TSCFLP}(B)$ whose opening and transport costs
+$f,g,c,d$ and whose total demands $D_1,\dots,D_{|L|}$ are integers at
+most $\kappa^{c^\star}$, with capacities unrestricted, admits a
+polynomial compression in $\kappa$ into a fixed sign-condition
+language, which is not itself a location problem, and so does the
+subclass with $\max(f,g,c,d,B)\le\kappa^{c^\star}$. The first subclass is nontrivial.
+The strongly hard slice with $|K|=|L|=1$ of Theorem~\ref{thm:numeric}
+has costs in $\{0,1\}$ and a single customer whose demand, the only
+product total, is $|I|\,(|J|+1)\le\kappa^{2}$, so the slice lies in the
+subclass for every $c^\star\ge 2$.
+\end{proposition}
+The proof, given in \ref{app:tech}, first aggregates customers and caps
+capacities, so that acceptance becomes a Boolean combination of sign
+conditions on integer linear forms in the cost vector, with coefficients
+that total unimodularity bounds by a fixed power of $\kappa$. The
+Frank--Tardos theorem then replaces the vector by one of
+$\mathrm{poly}(\kappa)$ bits preserving every sign at once, and the
+second subclass exchanges the roles of the two data groups.
+
+The matching negative result completes the account. Two cross-compositions
+of \textsc{set cover} show that, unless
+$\NP\subseteq\mathrm{coNP}/\mathrm{poly}$, the parameter of the dichotomy
+admits no polynomial kernel, and
+the same construction reaches the augmented parameters and the unary
+encoding.
+
+\begin{theorem}[no polynomial kernel]\label{thm:nokernel}
+Unless $\NP\subseteq\mathrm{coNP}/\mathrm{poly}$,
+$\mathrm{MP\text{-}TSCFLP}(B)$ parameterized by $|I|+|J|$ admits no
+polynomial compression, and in particular no polynomial kernel, already on
+the subclass $|I|=|L|=1$ and even with unary data. The exclusion transfers
+to the parameters $|I|+|J|+|L|$ and $|I|+|J|+|K|$, to the cardinality
+version $\mathrm{MP\text{-}TSCFLP}(B,k)$, and to the subclass $|K|=1$.
+\end{theorem}
+\begin{proof}
+We give an OR-cross-composition of \textsc{Set Cover} \citep{Karp1972}
+into $\mathrm{MP\text{-}TSCFLP}(B)$ parameterized by $|I|+|J|$, which by
+the framework of \citet{BodlaenderJansenKratsch2014} rules out a
+polynomial compression unless $\NP\subseteq\mathrm{coNP}/\mathrm{poly}$.
+The framework asks for a polynomial equivalence relation, and we take
+the relation $R$ that declares two well-formed instances equivalent when
+they agree on the universe size $|U|$, the family size $m$ and the
+target $t$, with $|U|\ge 1$ and $1\le t\le m$. Four further classes are
+reserved, one for the malformed inputs, one for the well-formed
+instances with empty universe, one for those with nonempty universe and
+$t=0$, and one for those with nonempty universe and $t>m$.
+Each instance falling in a reserved class is decided individually in
+polynomial time by the stated test, an empty universe being covered by
+the empty subfamily, a target of zero over a nonempty universe admitting
+no cover, and a target above $m$ admitting one exactly when the whole
+family covers the universe. On inputs from those classes the composition
+therefore answers the OR of those individual answers, emitting a fixed
+yes- or no-instance realising it. Deciding $R$ compares three numbers, and
+the triple $(|U|,m,t)$ takes at most cubically many values in the total
+encoding length of the input list, so
+$R$ is a polynomial equivalence relation in the sense of the framework.
+
+Take now $T$ \textsc{Set Cover} instances $X_1,\dots,X_T$ from one
+nontrivial class, sharing $|U|\ge 1$, $m$ and $t$ with $1\le t\le m$,
+and assume
+$T=2^{s}$ with $s=\lceil\log T\rceil$ by duplicating instances,
+duplicating once more when $T=1$ so that $s\ge 1$. Identify the copies
+with the strings of $\{0,1\}^{s}$ and write $c_a$ for the $a$th bit of
+the copy index $c$. The budget is $B=s(t+1)+t$, the amplifier is
+$Q=B+1$, and the customers comprise $T|U|$ copy customers and $s$ guard
+customers, one guard per index bit, each of demand $Q$, so a customer
+forced onto arcs of unit cost pays at least $Q>B$ even under divisible
+service, exactly the accounting of Theorem~\ref{thm:cover}. The
+composed instance has a single product and a single factory of opening
+cost zero, capacity $(T|U|+s)\,Q$ equal to the total demand, and zero
+first-stage costs, so the whole construction lives in the depot layer
+and the second-stage matrix, and $|I|=|L|=1$ throughout.
+
+\emph{Depots.} Use $m$ set-depots $D_1,\dots,D_m$ of opening cost $1$,
+shared across all copies, and $s$ pairs of selector depots
+$(P_a^{0},P_a^{1})$, one pair per index bit, each of opening cost $t+1$.
+Every depot has capacity equal to the total demand. Sharing the
+set-depots is sound, and no instance is merged, because the
+copy-specific set membership is carried not by the depots but by the
+cost matrix to the copy-specific customers introduced next. Opening
+$P_a^{b}$ reads bit $a$ of the selected index as $b$. A guard customer
+per pair reaches either selector of its own pair at cost $0$ and every
+other depot at cost $1$, so an unguarded pair costs at least $Q$ and at
+least one selector per pair must open. The opening charges cap the
+number of open selectors, since $s+1$ open selectors already cost
+$(s+1)(t+1)=s(t+1)+t+1=B+1>B$, so
+jointly with the guards a within-budget design opens exactly one
+selector per pair, fixing a single index $\iota\in\{0,1\}^{s}$. Because
+all routing costs are nonnegative, the selector charges leave for the
+set-depot openings a residual budget of exactly $B-s(t+1)=t$.
+
+\emph{Customers.} For every copy $c$ and element $u\in U$ create a
+customer $(c,u)$ with demand $Q$. The cost from set-depot $D_j$ to
+$(c,u)$ is $0$ when $u$ belongs to the $j$th set of copy $c$ and $1$
+otherwise, so the whole of copy $c$'s instance lives in these costs. The
+cost from selector $P_a^{b}$ to $(c,u)$ is $0$ when $c_a\ne b$, and $1$
+otherwise.
+
+\emph{Correctness.} Fix the selected index $\iota$. A copy $c\ne\iota$
+differs from $\iota$ in some bit $a$, so the open selector
+$P_a^{\iota_a}$ serves all of copy $c$ for free, and the non-selected
+copies cost nothing beyond the selectors already open. The copy $\iota$
+agrees with the pattern on every bit, so every selector arc into its
+customers costs one, and each $(\iota,u)$, carrying demand $Q$, must be
+served through a set-depot whose set in copy $\iota$ contains $u$, since
+any other service costs at least $Q>B$. Each open set-depot costs $1$
+against the residual budget $t$, so at most $t$ set-depots are open.
+Every element $u$ therefore has an open set-depot whose set in copy
+$\iota$ contains it, and those sets form a cover of
+$X_\iota$ of size at most $t$. Conversely, if some $X_\iota$ has a cover
+of size at most $t$, open the factory, the selector pattern of $\iota$ and
+that cover. Every depot has capacity equal to the total demand, so with
+the free factory and these depots open (F1) and (F2) hold and the design
+is feasible by Proposition~\ref{prop:feas}. Completeness of the two
+stages then lets every customer draw its demand through a zero-cost
+depot. The guards use the open selector of their own pair, the customers
+of a copy $c\ne\iota$ use the open selector $P_a^{\iota_a}$ at a bit $a$
+where $c$ disagrees with $\iota$, as in the forward direction, and the
+customers of copy $\iota$ use the depots of the cover, so the routing
+cost is zero and the total cost is the fixed charge
+$s(t+1)+|C|\le s(t+1)+t=B$. A within-budget design therefore exists if and
+only if the OR of the $T$ instances is a yes-instance.
+
+\emph{Parameter and robustness.} The depots number $m+2s$ and the
+factories one, so $|I|+|J|=O(m+\log T)$, polynomially bounded in the
+largest input and in $\log T$ exactly as the framework requires. The
+construction writes $O((T|U|+s)(m+2s))$ cost entries and numbers of
+$O(\log(T|U|m))$ bits, so it runs in time polynomial in
+$\sum_c\lvert X_c\rvert$, which is the framework's time bound. The
+largest numbers are the capacities, equal to the total demand
+$(T|U|+s)\,Q$. Here $Q=B+1=s(t+1)+t+1\le(s+1)(m+1)=O(m\log T)$ since
+$t\le m$, and $s\le T\le T|U|$ since $|U|\ge 1$, so the total demand is
+$O(T\,|U|\,m\log T)$, hence polynomial in the output size,
+so the composition is robust to a unary encoding, and the single product
+places it in the subclass $|I|=|L|=1$ while inflating $|K|$.
+
+\emph{Transfer to $|K|=1$.} The dual construction keeps one depot and one
+customer and moves the composition to the factory and product sides,
+mirroring the primal exactly as Corollary~\ref{cor:mirror} mirrors
+Theorem~\ref{thm:products}. Introduce a product $(c,u)$ of demand $Q$ for every
+copy $c$ and element $u$. Introduce $m$ shared set-factories
+$F_1,\dots,F_m$ of opening cost $1$, whose first-stage cost to product
+$(c,u)$ is $0$ when $u$ lies in the $i$th set of copy $c$ and $1$
+otherwise, together with $s$ pairs of selector factories of opening cost $t+1$,
+whose cost to $(c,u)$ is $0$ when $c_a\ne b$ for the pair's bit $a$ and
+read value $b$, and $1$ otherwise. Add a guard product per pair, of
+demand $Q$, free through either selector factory of its pair and costing
+$1$ elsewhere. The budget is again $B=s(t+1)+t$ with amplifier $Q=B+1$.
+The single depot and the single customer are free, the
+customer demands $Q$ units of every product, and all second-stage costs
+vanish. Every factory and the depot hold, in each product separately,
+capacity equal to the total demand, so
+feasibility reads through (F1) and (F2) as before, and since the second
+stage carries zero cost the entire penalty sits on the first stage. The
+paragraphs on depots and correctness of the primal now apply verbatim under
+the substitution of set-factory for set-depot, selector factory for
+selector depot, product $(c,u)$ for customer $(c,u)$, guard product for
+guard customer, and first-stage cost for second-stage cost, with (F1),
+(F2) and the budget arithmetic unchanged. In the transferred
+construction the single depot receives every product through the first
+stage and forwards it to the single customer, so constraint \eqref{eq:C2}
+reads, for each product, first-stage inflow at least second-stage
+outflow, and the routing that serves each product through its designated
+factory satisfies it with equality. The orientation of the balance
+constraint is therefore respected and the budget arithmetic is
+unchanged. A within-budget design
+therefore selects one index $\iota$ and covers copy $\iota$'s products
+with at most $t$ set-factories, and conversely a cover of size at most
+$t$ yields a design of cost at most $B$. This
+keeps $|K|=1$ while inflating $|L|$, with $|I|+|J|=(m+2s)+1=O(m+\log T)$
+and all numbers polynomial in the output, so it excludes a polynomial
+kernel on the subclass $|K|=1$ too.
+
+Finally, the augmented parameters
+match the two compositions as follows. Adding $|L|$ leaves
+$|I|+|J|+|L|$ polynomially bounded in the primal composition, where
+$|L|=1$, and adding $|K|$ leaves $|I|+|J|+|K|$ polynomially bounded in
+the dual composition, where $|K|=1$, so each augmented parameter
+inherits the exclusion from its composition. Appending the cardinality
+bound $k=1+s+t$ is likewise redundant. The total demand is positive, so
+(F1) forces the single factory of the primal open and (F2) forces the
+single depot of the dual open, and every within-budget design opens that
+forced facility, exactly one selector per pair and at most $t$
+set-facilities, hence at most $1+s+t=k$ facilities in all. The witness
+of the converse direction opens $1+s+|C|\le 1+s+t=k$ of them, so the
+bound thins the set of witnesses and breaks
+neither direction.
+\end{proof}
+
+Fixed-parameter tractability in $|I|+|J|$ still yields an exponential
+kernel, by the standard equivalence between fixed-parameter
+tractability and kernelization \citep[e.g.][]{Cygan2015}, since on
+instances larger than a threshold depending on the parameter the \FPT\
+algorithm runs in polynomial time and a trivial equivalent instance can
+be output, while below the threshold the instance is its own kernel. What
+Theorem~\ref{thm:nokernel} rules out is only the polynomial one, and
+whether a polynomial kernel exists for the full parameter
+$|I|+|J|+|K|+|L|$ with general numbers, where the yes-certificate
+comparison becomes genuinely bilinear, is left open.
+
+\subsection{Width parameters}\label{sec:width}
+
+A reader versed in algorithmic meta-theorems might hope to route the
+tractable side through graph width, and this last remark closes that door
+for the representation we analyse.
+The natural incidence graph carries no useful width, and over that
+representation the obstruction
+is arithmetic rather than structural.
+
+\begin{observation}[width is uninformative]\label{obs:cliquewidth}
+The incidence structure comes first.
+For every instance the layered incidence graph on $I\cup J\cup K$ is the
+complete bipartite graph $K_{J,\,I\cup K}$, since
+$K_{I,J}\cup K_{J,K}=K_{J,\,I\cup K}$. Its clique-width is at most $2$,
+witnessed by the expression that introduces every vertex of $J$ with
+label $1$, introduces every vertex of $I\cup K$ with label $2$, and
+performs a single join between the two labels.
+
+Its treewidth
+\citep{RobertsonSeymour1986} equals
+$\min(|J|,|I|+|K|)$ once both sides are nonempty, and is therefore
+unbounded over the class. Indeed, for $K_{m',n'}$ with
+$1\le m'\le n'$, the bags formed by the smaller side together with one
+vertex of the larger side, one bag per such vertex and arranged along a
+path, give a decomposition of width $m'$. The matching lower bound
+follows by contracting a matching of size $m'-1$ between the two sides.
+The contracted
+vertices become pairwise adjacent, and the remaining vertex of the
+smaller side and any remaining vertex of the larger side are adjacent to
+all of them and to each other, so $K_{m',n'}$ has a $K_{m'+1}$ minor,
+and since $K_{m'+1}$ has treewidth $m'$ and treewidth never increases
+under minors \citep{RobertsonSeymour1986}, the treewidth is exactly
+$m'=\min(m',n')$.
+
+The logical consequence closes the observation.
+The treewidth-one star slice with $|J|=1$ is already strongly
+\NP-hard, by Theorem~\ref{thm:products} (which fixes $|J|=|K|=1$). Were
+the problem expressible in the
+$\mathrm{MSO}_1$ optimisation logic over the unweighted incidence graph
+used here, the clique-width meta-theorem
+\citep{CourcelleMakowskyRotics2000} together with the bound of at most
+two would force a polynomial algorithm on the whole class,
+contradicting strong \NP-hardness unless $\Ppoly=\NP$, so that route is
+closed. The capacity and demand constraints compare sums of numbers,
+which that logic over that graph cannot express, and over the
+representation used here the obstruction is therefore arithmetic rather
+than structural. This persists even when every capacity, demand and
+cost lies in $\{0,1,m+1\}$ and the budget is at most $m$, where $m$ is
+the size of the set family in the construction of
+Theorem~\ref{thm:products}. Richer relational structures, weighted or
+counting logics, or representations carrying products and constraints
+as objects are not addressed by this observation and remain unanalysed
+rather than excluded.
+\end{observation}

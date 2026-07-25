@@ -1,0 +1,63 @@
+% Requires: \usetikzlibrary{positioning,fit}
+\begin{figure}[H]
+  \centering
+  \resizebox{0.98\textwidth}{!}{%
+  \begin{tikzpicture}[
+      x=1cm,y=1.35cm,
+      every node/.style={font=\scriptsize},
+      nd/.style={draw=black!70,line width=0.4pt,fill=black!4,rounded corners=1.5pt,
+        minimum width=8mm,minimum height=5mm,inner sep=2.5pt},
+      fpt/.style={draw,line width=0.8pt,fill=black!18,rounded corners=1.5pt,
+        font=\scriptsize\bfseries,minimum width=8mm,minimum height=5mm,inner sep=2.5pt},
+      weak/.style={draw=black!70,line width=0.5pt,dashed,fill=black!4,rounded corners=1.5pt,
+        minimum width=8mm,minimum height=5mm,inner sep=2.5pt},
+      ed/.style={draw=black!40,line width=0.3pt}
+    ]
+    % rank 0
+    \node[nd] (e) at (4.5,0) {$\varnothing$};
+    % rank 1
+    \node[nd] (I) at (1.5,1) {I}; \node[nd] (J) at (3.5,1) {J};
+    \node[nd] (K) at (5.5,1) {K}; \node[nd] (L) at (7.5,1) {L};
+    % rank 2
+    \node[fpt] (IJ) at (0.5,2) {IJ}; \node[nd] (IK) at (2.1,2) {IK};
+    \node[nd] (IL) at (3.7,2) {IL}; \node[nd] (JK) at (5.3,2) {JK};
+    \node[weak] (JL) at (6.9,2) {JL$^\dagger$}; \node[nd] (KL) at (8.5,2) {KL};
+    % rank 3
+    \node[fpt] (IJK) at (1.5,3) {IJK}; \node[fpt] (IJL) at (3.5,3) {IJL};
+    \node[weak] (IKL) at (5.5,3) {IKL$^\dagger$}; \node[weak] (JKL) at (7.5,3) {JKL$^\dagger$};
+    % rank 4
+    \node[fpt] (IJKL) at (4.5,4) {IJKL};
+    % cover edges (drawn behind)
+    \begin{scope}[on background layer]
+      \foreach \a/\b in {e/I,e/J,e/K,e/L,
+        I/IJ,I/IK,I/IL, J/IJ,J/JK,J/JL, K/IK,K/JK,K/KL, L/IL,L/JL,L/KL,
+        IJ/IJK,IJ/IJL, IK/IJK,IK/IKL, IL/IJL,IL/IKL,
+        JK/IJK,JK/JKL, JL/IJL,JL/JKL, KL/IKL,KL/JKL,
+        IJK/IJKL,IJL/IJKL,IKL/IJKL,JKL/IJKL}{\draw[ed] (\a) -- (\b);}
+    \end{scope}
+    % rank labels
+    \foreach \r/\t in {0/{$|P|=0$},1/{$1$},2/{$2$},3/{$3$},4/{$4$}}{
+      \node[anchor=east,font=\scriptsize\itshape,text=black!55] at (-0.6,\r) {\t};}
+    % legend
+    \begin{scope}[shift={(0,-1.15)}]
+      \node[fpt,minimum width=4mm,minimum height=3.5mm] (lf) at (0,0) {};
+      \node[anchor=west] at (0.35,0) {FPT ($\{$I,J$\}\subseteq P$)};
+      \node[nd,minimum width=4mm,minimum height=3.5mm] (ls) at (3.9,0) {};
+      \node[anchor=west] at (4.25,0) {para-NP-hard (strong)};
+      \node[weak,minimum width=4mm,minimum height=3.5mm] (lw) at (0,-0.75) {};
+      \node[anchor=west] at (0.35,-0.75) {$\dagger$ para-NP-hard (weak under binary encoding)};
+    \end{scope}
+  \end{tikzpicture}%
+  }
+  \caption{The size-parameter dichotomy of Theorem~\ref{thm:dichotomy}
+  over the sixteen subsets $P\subseteq\{|I|,|J|,|K|,|L|\}$, arranged by
+  cardinality as a Hasse diagram whose edges are the cover relations.
+  The problem is fixed-parameter tractable exactly on the four
+  upward-closed sets that contain both facility layers I and J, shaded
+  and shown in bold (Theorem~\ref{thm:fpt}), and para-NP-hard on the
+  remaining twelve. Hardness is strong except at the three sets marked
+  with a dagger, whose witnessing slices are only weakly NP-hard under a
+  binary encoding (Theorem~\ref{thm:partition},
+  Corollary~\ref{cor:partitionmirror}).}
+  \label{fig:dichotomy}
+\end{figure}

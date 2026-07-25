@@ -1,0 +1,76 @@
+% Requires: \usetikzlibrary{positioning,arrows.meta,shapes.geometric}
+\begin{figure}[H]
+  \centering
+  \resizebox{0.96\textwidth}{!}{%
+  \begin{tikzpicture}[
+      >={Stealth[length=1.8mm]},
+      thin,
+      every node/.style={font=\footnotesize},
+      term/.style={draw=black!70,line width=0.5pt,circle,fill=black!15,minimum size=6mm,inner sep=1pt},
+      fac/.style={draw=black!70,line width=0.5pt,fill=black!8,rounded corners=1pt,minimum size=6mm,inner sep=1pt},
+      dep/.style={draw=black!70,line width=0.5pt,circle,fill=black!8,minimum size=7mm,inner sep=0pt},
+      cus/.style={draw=black!70,line width=0.5pt,regular polygon,regular polygon sides=3,fill=black!4,minimum size=5mm,inner sep=0pt},
+      capr/.style={draw=black!45,line width=0.35pt,->},
+      cost/.style={draw=black,line width=0.7pt,->},
+      splt/.style={draw=black,line width=0.9pt,->}
+    ]
+    % source and sink
+    \node[term] (S) at (0,0.9) {$S$};
+    \node[term] (T) at (11.6,0.9) {$T$};
+    % open factory
+    \node[fac] (i1) at (2.3,0.9) {$i$};
+    % split pairs of the two open depots
+    \node[dep] (j1in) at (4.7,2.3) {$1_{\mathrm{in}}$};
+    \node[dep] (j1out) at (6.7,2.3) {$1_{\mathrm{out}}$};
+    \node[dep] (j2in) at (4.7,-0.5) {$2_{\mathrm{in}}$};
+    \node[dep] (j2out) at (6.7,-0.5) {$2_{\mathrm{out}}$};
+    % customers
+    \node[cus] (k1) at (9.2,2.3) {};
+    \node[cus] (k2) at (9.2,-0.5) {};
+    \node[font=\scriptsize,anchor=south] at (k1.north) {$k=1$};
+    \node[font=\scriptsize,anchor=north] at (k2.south) {$k=2$};
+    % layer captions
+    \node[font=\scriptsize\itshape] at (0,3.4) {source};
+    \node[font=\scriptsize\itshape] at (2.3,3.4) {open factory};
+    \node[font=\scriptsize\itshape] at (5.7,3.4) {open depots, split pairs};
+    \node[font=\scriptsize\itshape] at (9.2,3.4) {customers};
+    \node[font=\scriptsize\itshape] at (11.6,3.4) {sink};
+    % source arc: capacity b_il, cost 0
+    \draw[capr] (S) -- (i1);
+    \node[font=\scriptsize,anchor=south] at (1.15,1.02) {cap.\ $b_{il}$};
+    % first-stage arcs: cost c_ijl, carry x_ijl; label inside the wedge
+    \draw[cost] (i1) -- (j1in);
+    \draw[cost] (i1) -- (j2in);
+    \node[font=\scriptsize,align=center] at (3.85,0.9)
+      {cost $c_{ijl}$\\ carries $x_{ijl}$};
+    % split arcs: capacity p_jl, cost 0
+    \draw[splt] (j1in) -- (j1out);
+    \draw[splt] (j2in) -- (j2out);
+    \node[font=\scriptsize,anchor=south] at (5.7,2.45) {cap.\ $p_{jl}$};
+    \node[font=\scriptsize,anchor=north] at (5.7,-0.68) {cap.\ $p_{jl}$};
+    % second-stage arcs: cost d_jkl, carry w_jkl; label below the network
+    \draw[cost] (j1out) -- (k1);
+    \draw[cost] (j1out) -- (k2);
+    \draw[cost] (j2out) -- (k1);
+    \draw[cost] (j2out) -- (k2);
+    \node[font=\scriptsize,anchor=north] at (8.0,-1.05)
+      {cost $d_{jkl}$, carries $w_{jkl}$};
+    % demand arcs: capacity q_kl, cost 0; label above the upper arc
+    \draw[capr] (k1) -- (T);
+    \draw[capr] (k2) -- (T);
+    \node[font=\scriptsize,anchor=south] at (10.55,1.97) {cap.\ $q_{kl}$};
+  \end{tikzpicture}%
+  }
+  \caption{The layered network $N_l(y,z)$ of
+  Proposition~\ref{prop:oracle} for one product $l$, drawn for a design
+  with one open factory, two open depots and two customers. Source arcs
+  $S\to i$ have capacity $b_{il}$ and cost $0$, each arc
+  $i\to j_{\mathrm{in}}$ costs $c_{ijl}$ and carries the model variable
+  $x_{ijl}$, each split arc $j_{\mathrm{in}}\to j_{\mathrm{out}}$ has
+  capacity $p_{jl}$ and cost $0$, each arc $j_{\mathrm{out}}\to k$ costs
+  $d_{jkl}$ and carries $w_{jkl}$, and each demand arc $k\to T$ has
+  capacity $q_{kl}$ and cost $0$. This correspondence between the arc
+  families and the model variables is the content of the proposition's
+  proof.}
+  \label{fig:oraclenet}
+\end{figure}

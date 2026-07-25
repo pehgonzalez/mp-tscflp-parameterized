@@ -1,0 +1,53 @@
+% Requires: \usetikzlibrary{positioning,arrows.meta}
+\begin{figure}[H]
+  \centering
+  \resizebox{0.99\textwidth}{!}{%
+  \begin{tikzpicture}[
+      >={Stealth[length=1.8mm]},
+      res/.style={draw=black!70,line width=0.4pt,fill=black!6,
+        rounded corners=2pt,align=center,inner sep=3.5pt,
+        font=\footnotesize},
+      flow/.style={draw=black,line width=0.5pt,->}
+    ]
+    \node[res,text width=1.7cm] (I) at (0,0)
+      {instance\\
+       \textcolor{black!60}{\scriptsize costs, totals
+       $\le\kappa^{c^\star}$}};
+    \node[res,text width=2.2cm] (A) at (2.95,0)
+      {customer aggregation\\
+       \textcolor{black!60}{\scriptsize Prop.~\ref{prop:aggregation},
+       $|K|\le\tau$}};
+    \node[res,text width=2.0cm] (C) at (5.95,0)
+      {capacity capping\\
+       \textcolor{black!60}{\scriptsize Obs.~\ref{obs:capping}, caps
+       $\le\max_l D_l$}};
+    \node[res,text width=2.3cm] (S) at (8.95,0)
+      {bounded coefficient forms\\
+       \textcolor{black!60}{\scriptsize basic flows,
+       $|a|\le\Delta_{\max}$}};
+    \node[res,text width=2.0cm] (F) at (11.95,0)
+      {Frank--Tardos\\
+       \textcolor{black!60}{\scriptsize $\Phi\mapsto\Phi'$,
+       $\mathrm{poly}(\kappa)$ bits}};
+    \node[res,text width=2.0cm] (L) at (14.85,0)
+      {sign-condition language\\
+       \textcolor{black!60}{\scriptsize equivalent output}};
+    \draw[flow] (I) -- (A);
+    \draw[flow] (A) -- (C);
+    \draw[flow] (C) -- (S);
+    \draw[flow] (S) -- (F);
+    \draw[flow] (F) -- (L);
+  \end{tikzpicture}%
+  }
+  \caption{The compression pipeline of
+  Proposition~\ref{prop:ftcompress}. Aggregation and capping
+  (Prop.~\ref{prop:aggregation}, Obs.~\ref{obs:capping}) bound the
+  entities and the numeric entries by $\mathrm{poly}(\kappa)$, total
+  unimodularity of the oracle networks of
+  Proposition~\ref{prop:oracle} turns acceptance into sign conditions
+  on integer forms with coefficients of magnitude at most
+  $\Delta_{\max}$, and the Frank--Tardos step replaces the cost vector
+  $\Phi$ by an equivalent $\Phi'$ of $\mathrm{poly}(\kappa)$ bits, so
+  the bounded subclass compresses in $\kappa$.}
+  \label{fig:ftpipeline}
+\end{figure}

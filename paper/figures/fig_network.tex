@@ -1,0 +1,63 @@
+% Requires: \usetikzlibrary{positioning,arrows.meta,shapes.geometric}
+\begin{figure}[H]
+  \centering
+  \resizebox{0.86\textwidth}{!}{%
+  \begin{tikzpicture}[
+      >={Stealth[length=1.8mm]},
+      thin,
+      every node/.style={font=\footnotesize},
+      fac/.style={draw=black!70,line width=0.5pt,fill=black!8,rounded corners=1pt,minimum size=6mm,inner sep=1pt},
+      dep/.style={draw=black!70,line width=0.5pt,circle,fill=black!8,minimum size=6mm,inner sep=0pt},
+      cus/.style={draw=black!70,line width=0.5pt,regular polygon,regular polygon sides=3,fill=black!4,minimum size=5mm,inner sep=0pt},
+      lite/.style={draw=black!40,line width=0.35pt,->},
+      p1/.style={draw=black,line width=0.7pt,->},
+      p2/.style={draw=black,line width=0.7pt,dashed,->}
+    ]
+    % factories I
+    \node[fac] (i1) at (0,2.1) {$1$};
+    \node[fac] (i2) at (0,0.3) {$2$};
+    % depots J
+    \node[dep] (j1) at (3.3,3.0) {$1$};
+    \node[dep] (j2) at (3.3,1.2) {$2$};
+    \node[dep] (j3) at (3.3,-0.6) {$3$};
+    % customers K
+    \node[cus] (k1) at (6.6,3.0) {};
+    \node[cus] (k2) at (6.6,1.2) {};
+    \node[cus] (k3) at (6.6,-0.6) {};
+    % layer captions
+    \node[font=\scriptsize\itshape] at (0,3.3) {factories $I$};
+    \node[font=\scriptsize\itshape] at (3.3,4.05) {depots $J$};
+    \node[font=\scriptsize\itshape] at (6.6,4.05) {customers $K$};
+    % stage-1 complete bipartite (light)
+    \foreach \a in {i1,i2}{\foreach \b in {j1,j2,j3}{\draw[lite] (\a) -- (\b);}}
+    % stage-2 complete bipartite (light)
+    \foreach \a in {j1,j2,j3}{\foreach \b in {k1,k2,k3}{\draw[lite] (\a) -- (\b);}}
+    % highlighted multiproduct arcs (two products)
+    \draw[p1] (i1) -- (j2);
+    \draw[p2] (i2) -- (j2);
+    \draw[p1] (j2) -- (k2);
+    \draw[p2] (j2) -- (k1);
+    % annotations, each placed in a stroke-free pocket
+    \node[anchor=south east,font=\scriptsize] at (i1.north west) {$y_1$};
+    \node[anchor=north,font=\scriptsize] at (i2.south) {$b_{2l}$};
+    \node[anchor=south,font=\scriptsize] at (j1.north) {$z_1$};
+    \node[anchor=north,font=\scriptsize] at (j3.south) {$p_{3l}$};
+    \node[font=\scriptsize] at (1.1,1.48) {$x_{ijl}$};
+    \node[font=\scriptsize] at (3.98,1.88) {$w_{jkl}$};
+    \node[anchor=west,font=\scriptsize] at (k2.east) {$q_{kl}$};
+  \end{tikzpicture}%
+  }
+  \caption{The MP-TSCFLP network of
+  model~\eqref{eq:obj}--\eqref{eq:dom}. A designer opens factories
+  ($y_i$) and depots ($z_j$), after which each product flows across two
+  capacitated stages, from factories through depots to customers, along
+  stage-1 arcs carrying $x_{ijl}$ and stage-2 arcs carrying $w_{jkl}$.
+  Factory capacities $b_{il}$ and depot capacities $p_{jl}$ bound the
+  flow, which must meet every customer demand $q_{kl}$. The heavy solid
+  arcs trace product $l=1$ and the heavy dashed arcs product $l=2$, so
+  the two line styles convey the multiproduct structure, while the light
+  arcs show that both stages are complete. The coupling of the two stages
+  through the depots is the interaction that the reductions of
+  Section~\ref{sec:complexity} turn into hardness.}
+  \label{fig:network}
+\end{figure}

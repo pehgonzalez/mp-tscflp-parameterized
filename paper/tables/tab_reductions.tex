@@ -1,0 +1,39 @@
+\begin{table}[H]
+\small
+\centering
+\caption{The covering constructions of Section~\ref{sec:complexity},
+one column per construction. Each column names the dimension whose
+members play the \textsc{Set Cover} elements, the facility side whose
+openings choose the sets, the cost block in $\{0,1\}$ that
+discriminates the covered dimension, the openings forced by
+feasibility, and the amplifier $Q$ that makes an uncovered element
+incompatible with the budget. Theorem~\ref{thm:w2} inherits the
+construction of the first column unchanged, with the cardinality bound
+$k=t+1$.}
+\label{tab:reductions}
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.6cm}
+  >{\raggedright\arraybackslash}p{2.25cm}
+  >{\raggedright\arraybackslash}p{2.25cm}
+  >{\raggedright\arraybackslash}p{2.25cm}
+  >{\raggedright\arraybackslash}p{2.45cm}@{}}
+\toprule
+ & Thm.~\ref{thm:cover} & Thm.~\ref{thm:products} &
+Cor.~\ref{cor:mirror} & Thm.~\ref{thm:numeric}\\
+\midrule
+covered dimension & customers, $K=U$ & products, $L=U$ &
+products, $L=U$ & factories, $I=U$\\[2pt]
+deciding side & depots, $g\equiv 1$ & factories, $f\equiv 1$ &
+depots, $g\equiv 1$ & depots, $g\equiv 1$\\[2pt]
+discriminating block & second stage, $d_{ju}=0$ iff $u\in S_j$ &
+first stage, $c_{i1l}=0$ iff $l\in S_i$ &
+second stage, $d_{j1l}=0$ iff $l\in S_j$ &
+first stage, $c_{ij}=0$ iff $i\in S_j$\\[2pt]
+forced openings & the single free factory & the single free depot &
+the single free factory & all $n_U$ free factories, saturated\\[2pt]
+amplifier & $Q=m+1$ on each demand $q_u$ &
+$Q=m+1$ on each demand $q_{1l}$ & $Q=m+1$ on each demand $q_{1l}$ &
+$Q=m+1$ on each factory load\\
+\bottomrule
+\end{tabular}
+\end{table}

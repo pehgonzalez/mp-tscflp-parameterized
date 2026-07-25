@@ -1,0 +1,116 @@
+% Elsevier submission build, using the elsarticle bundle from the author's
+% 2016 COR article. Target venue: Computers & Operations Research (theory-first
+% framing; the template is shared with Computers & Industrial Engineering
+% should the framing be pivoted).
+\documentclass[preprint,12pt]{elsarticle}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\graphicspath{{figures/}}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{microtype}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.geometric,backgrounds,fit,calc}
+\usepackage{float}
+\usepackage{longtable}
+% Self-contained algorithm float and numbered pseudocode lines (no external
+% algorithm packages; switch to algorithmicx at submission if preferred).
+\floatstyle{ruled}
+\newfloat{algorithm}{H}{loa}
+\floatname{algorithm}{Algorithm}
+\newcounter{algline}
+\newenvironment{pseudolines}
+  {\begin{list}{{\footnotesize\arabic{algline}:}}
+     {\usecounter{algline}\setlength{\itemsep}{1pt}
+      \setlength{\parsep}{0pt}\setlength{\topsep}{4pt}
+      \setlength{\labelwidth}{1.4em}\setlength{\leftmargin}{2.2em}}}
+  {\end{list}}
+\newcommand{\kw}[1]{\textbf{#1}}
+\newcommand{\algin}{\hspace*{1.4em}}
+\newcommand{\algcomment}[1]{\hfill$\triangleright$~{\footnotesize #1}}
+\biboptions{numbers,sort&compress}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=3em
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{observation}{Observation}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\newtheorem{openproblem}{Open Problem}
+
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\dist}{\mathrm{dist}}
+\newcommand{\NP}{\textsf{NP}}
+\newcommand{\Ppoly}{\textsf{P}}
+\newcommand{\FPT}{\textsf{FPT}}
+\newcommand{\XP}{\textsf{XP}}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{The Multiproduct Two-Stage Capacitated Facility Location
+Problem: A Parameterized Complexity Analysis}
+
+\author{Pedro Henrique Gonz\'alez}
+\ead{pegonzalez@cos.ufrj.br}
+
+\author{Rafael Schneider}
+\ead{rschneider@cos.ufrj.br}
+
+\address{Federal University of Rio de Janeiro, Brazil}
+
+\begin{abstract}
+In the multiproduct two-stage capacitated facility location problem
+(MP-TSCFLP), factories and depots open at fixed cost and route products
+to customers under per-product capacities and demands. On the
+hundred-instance benchmark of Mauri and coauthors a commercial solver
+proved no instance optimal within the original limits. Parameterized
+analyses of facility location cover uncapacitated single-stage
+variants, and we give, to our knowledge, the first for this model.
+Unless P equals NP, the four size parameters obey a dichotomy, the
+problem fixed-parameter tractable exactly when the parameter set
+contains both facility counts. The facility-count parameter admits
+no polynomial kernel unless NP lies in coNP/poly. One product and one
+factory already force strong NP-hardness and, unless P equals NP,
+logarithmic set-cover inapproximability. In the number of opened
+facilities the problem is W[2]-hard, its XP algorithm optimal under the
+Exponential Time Hypothesis up to the constant in the exponent. With
+one customer and one product, separable transport costs delimit a
+pseudo-polynomial, only weakly hard slice, while an explicitly
+non-separable family remains strongly hard. On the order of nine hundred
+thousand exhaustive computational checks validated every hardness
+gadget, with no failure. Integrality of the data turns any absolute gap
+below one into a proof of the exact value, yielding three solver-certified optima
+improving the best values of Mauri and coauthors.
+\end{abstract}
+
+\begin{keyword}
+Facility Location \sep Supply Chain Design \sep Parameterized Complexity
+\sep Fixed-Parameter Tractability \sep Kernelization Lower Bounds
+\sep Branch-and-Bound
+\end{keyword}
+
+\end{frontmatter}
+
+\input{sections/introduction}
+\input{sections/literature}
+\input{sections/preliminaries}
+\input{sections/complexity}
+\input{sections/algorithms}
+\input{sections/landscape_table}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+\bibliographystyle{elsarticle-num-names}
+\bibliography{references}
+
+\appendix
+\input{sections/appendix_proofs.tex}
+
+\end{document}

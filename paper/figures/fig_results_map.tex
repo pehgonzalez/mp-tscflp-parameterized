@@ -1,0 +1,80 @@
+% Requires: \usetikzlibrary{positioning,arrows.meta}
+\begin{figure}[H]
+  \centering
+  \resizebox{0.99\textwidth}{!}{%
+  \begin{tikzpicture}[
+      >={Stealth[length=1.8mm]},
+      res/.style={draw=black!70,line width=0.4pt,fill=black!6,
+        rounded corners=2pt,align=center,inner sep=3.5pt,
+        font=\footnotesize},
+      dep/.style={draw=black,line width=0.5pt,->}
+    ]
+    % row 1: the structural toolkit and the two reduction rules
+    \node[res,text width=2.6cm] (FM) at (2.6,0)
+      {feasibility and monotonicity\\
+       \textcolor{black!60}{\scriptsize Props.~\ref{prop:feas}
+       and~\ref{prop:mono}}};
+    \node[res,text width=2.0cm] (OR) at (7.6,0)
+      {routing oracle\\
+       \textcolor{black!60}{\scriptsize Prop.~\ref{prop:oracle}}};
+    \node[res,text width=2.4cm] (AGG) at (12.4,0)
+      {aggregation and capping\\
+       \textcolor{black!60}{\scriptsize Prop.~\ref{prop:aggregation},
+       Obs.~\ref{obs:capping}}};
+    % row 2: constructions, algorithms, certificates, compression
+    \node[res,text width=2.8cm] (CC) at (1.5,-2.1)
+      {four covering constructions\\
+       \textcolor{black!60}{\scriptsize Thms.~\ref{thm:cover},
+       \ref{thm:products}, \ref{thm:numeric},
+       Cor.~\ref{cor:mirror}}};
+    \node[res,text width=2.0cm] (FPT) at (4.6,-2.1)
+      {design enumeration\\
+       \textcolor{black!60}{\scriptsize Thm.~\ref{thm:fpt}}};
+    \node[res,text width=2.2cm] (XP) at (7.2,-2.1)
+      {\XP\ branch and bound\\
+       \textcolor{black!60}{\scriptsize Thm.~\ref{thm:xp},
+       Alg.~\ref{alg:xpbb}}};
+    \node[res,text width=2.0cm] (BC) at (9.8,-2.1)
+      {Benders certificates\\
+       \textcolor{black!60}{\scriptsize Prop.~\ref{prop:duals}}};
+    \node[res,text width=2.4cm] (CP) at (12.4,-2.1)
+      {polynomial compression\\
+       \textcolor{black!60}{\scriptsize Prop.~\ref{prop:ftcompress}}};
+    % row 3: the classification
+    \node[res,text width=2.4cm] (W2) at (0.9,-4.2)
+      {$\mathrm{W}[2]$ and ETH bounds\\
+       \textcolor{black!60}{\scriptsize Thms.~\ref{thm:w2}
+       and~\ref{thm:eth}}};
+    \node[res,text width=2.2cm] (NK) at (3.5,-4.2)
+      {no polynomial kernel\\
+       \textcolor{black!60}{\scriptsize Thm.~\ref{thm:nokernel}}};
+    \node[res,text width=1.9cm] (DI) at (6.1,-4.2)
+      {size dichotomy\\
+       \textcolor{black!60}{\scriptsize Thm.~\ref{thm:dichotomy}}};
+    % dependencies
+    \draw[dep] (FM.south) -- (CC.north);
+    \draw[dep] (FM.south) -- (FPT.north);
+    \draw[dep] (FM.south) -- (XP.north);
+    \draw[dep] (OR.south) -- (FPT.north);
+    \draw[dep] (OR.south) -- (XP.north);
+    \draw[dep] (OR.south) -- (BC.north);
+    \draw[dep] (OR.south) -- (CP.north);
+    \draw[dep] (AGG.south) -- (CP.north);
+    \draw[dep] (CC.south) -- (W2.north);
+    \draw[dep] (CC.south) -- (NK.north);
+    \draw[dep] (CC.south) -- (DI.north);
+    \draw[dep] (FPT.south) -- (DI.north);
+  \end{tikzpicture}%
+  }
+  \caption{The results of the paper as a diagram, each box naming its
+  numbered statements. A solid arrow points from a result to one whose
+  proof uses it, and no other relation is drawn. The structural layer
+  feeds every branch, the four covering constructions carry the whole
+  negative side, from the $\mathrm{W}[2]$ and ETH bounds
+  (Theorems~\ref{thm:w2} and~\ref{thm:eth}) through the kernel
+  exclusion (Theorem~\ref{thm:nokernel}) to the negative half of the
+  dichotomy (Theorem~\ref{thm:dichotomy}), and the oracle feeds the
+  algorithms, the cuts and the compression
+  (Prop.~\ref{prop:ftcompress}).}
+  \label{fig:resultsmap}
+\end{figure}

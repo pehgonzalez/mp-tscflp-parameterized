@@ -1,0 +1,343 @@
+\section{Problem definition and structural properties}\label{sec:prelim}
+
+This section fixes the model, records its decision versions and the
+parameterized objects we study, and collects the structural facts that
+the later sections use as tools. The facts are elementary but used
+throughout the subsequent proofs, so we prove them in full, with the
+three longest proofs collected in \ref{app:proofs}. Each is additionally checked
+computationally, over the bounded instance families recorded in the
+accompanying software archive.
+
+An instance of MP-TSCFLP is given by four finite sets, the factories
+$I$, the depots $J$, the customers $K$ and the products $L$, together
+with nonnegative integer data. Opening factory $i$ costs $f_i$ and
+opening depot $j$ costs $g_j$. Shipping one unit of product $l$ from
+factory $i$ to depot $j$ costs $c_{ijl}$, and shipping it from depot $j$
+to customer $k$ costs $d_{jkl}$. Factory $i$ can supply $b_{il}$ units of
+product $l$ and depot $j$ can hold $p_{jl}$, while customer $k$ demands
+$q_{kl}$. Both stages are complete bipartite, so no arc is forbidden a
+priori. A solution opens a set of factories and depots, encoded by
+$y\in\{0,1\}^{I}$ and $z\in\{0,1\}^{J}$, and routes the products through
+nonnegative flows $x_{ijl}$ on the first stage and $w_{jkl}$ on the
+second. We write $D_l=\sum_{k\in K}q_{kl}$ for the total demand of
+product $l$ and $n=|I|+|J|$ for the number of candidate facilities.
+Following \citet{MauriEtAl2021,PirkulJayaraman1998}, the problem
+minimises total cost,
+\begin{align}
+\min\;&\sum_{i\in I}f_iy_i+\sum_{j\in J}g_jz_j
+      +\sum_{i,j,l}c_{ijl}\,x_{ijl}+\sum_{j,k,l}d_{jkl}\,w_{jkl}
+\label{eq:obj}\\
+\text{s.t.}\;
+&\textstyle\sum_{j\in J}w_{jkl}\ge q_{kl}
+   &&\forall k\in K,\ l\in L,\label{eq:C1}\\
+&\textstyle\sum_{i\in I}x_{ijl}\ge\sum_{k\in K}w_{jkl}
+   &&\forall j\in J,\ l\in L,\label{eq:C2}\\
+&\textstyle\sum_{j\in J}x_{ijl}\le b_{il}\,y_i
+   &&\forall i\in I,\ l\in L,\label{eq:C3}\\
+&\textstyle\sum_{k\in K}w_{jkl}\le p_{jl}\,z_j
+   &&\forall j\in J,\ l\in L,\label{eq:C4}\\
+&y_i,z_j\in\{0,1\},\quad x_{ijl},w_{jkl}\ge 0.\label{eq:dom}
+\end{align}
+Constraint~\eqref{eq:C1} serves each demand, \eqref{eq:C2} balances flow
+through a depot, and \eqref{eq:C3} and~\eqref{eq:C4} cap the throughput of
+a factory and a depot by its capacity while forcing the facility open
+before any flow may use it. At $y_i=0$ the right-hand side
+of~\eqref{eq:C3} vanishes and nonnegativity forces $x_{ijl}=0$ for every
+$j$ and $l$, and \eqref{eq:C4} acts on the $w_{jkl}$ in the same way at
+$z_j=0$. Capacities and demands are per product and
+never couple two products, a feature the analysis exploits throughout.
+Figure~\ref{fig:network} shows the two-stage network and the decisions a
+solution fixes.
+
+\input{figures/fig_network.tex}
+
+A tiny instance already shows the interaction that drives the hardness.
+Take one product and one factory of ample capacity, two depots and three
+customers, with unit second-stage cost $d_{jk}$ equal to $0$ when depot
+$j$ can reach customer $k$ cheaply and to $1$ otherwise. Choosing which
+depots to open so that every customer is served through a zero-cost arc
+is exactly a set-cover decision, and no amount of first-stage freedom
+removes it, because the single factory feeds whichever depots are open.
+A core of the model's combinatorial difficulty is thus already present
+in the second stage, and the reductions of Section~\ref{sec:complexity}
+grow from this observation.
+
+The optimisation problem has two decision versions. In the first only the
+budget is bounded, and in the second the number of opened facilities is
+bounded as well, which is the version we parameterize.
+
+\begin{definition}[$\mathrm{MP\text{-}TSCFLP}(B)$]\label{def:B}
+Given an MP-TSCFLP instance and an integer $B\ge 0$, decide whether some
+feasible solution has total cost at most $B$.
+\end{definition}
+
+\begin{definition}[$\mathrm{MP\text{-}TSCFLP}(B,k)$]\label{def:Bk}
+Given an MP-TSCFLP instance and integers $B\ge 0$ and $k\ge 0$, decide
+whether some feasible solution has total cost at most $B$ and opens at
+most $k$ facilities, that is $\sum_{i}y_i+\sum_{j}z_j\le k$. The
+parameter is $k$.
+\end{definition}
+
+A tempting alternative would parameterize by the number of facilities
+open in an optimal solution. Solution-dependent parameters are studied
+in other settings, but this one is not well defined here, because the
+optimum is not unique.
+When a closed facility carries zero fixed charge, opening it yields
+another optimum, since by Proposition~\ref{prop:mono} below the total
+cost cannot rise and optimality of the original solution means it cannot
+fall. On such instances the count can therefore
+vary by up to $n$ depending on which optimum one names, so we do not
+adopt it. Turning the count into an explicit
+budget repairs the defect, and setting $k=n$ recovers
+Definition~\ref{def:B}, so nothing is lost.
+
+We phrase the complexity statements in the standard parameterized
+vocabulary, which we recall briefly following
+\citet{DowneyFellows2013} and \citet{Cygan2015}. A parameterized problem
+is fixed-parameter tractable, in the class \FPT, when it is solvable in
+time $h(p)\cdot\mathrm{poly}(N)$ for a computable function $h$ of the
+parameter $p$, with $N$ the instance size, and it lies in \XP\ when the
+polynomial degree may depend on $p$. A problem that is \NP-hard already at
+a fixed value of $p$ is para-\NP-hard and, unless $\Ppoly=\NP$, admits
+neither an \FPT\ nor an \XP\ algorithm. We call a parameterization
+strongly para-\NP-hard when some fixed slice is strongly \NP-hard, so
+that the exclusion survives a unary encoding.\footnote{The term is our
+coinage for the combination, para-\NP-hardness witnessed by a strongly
+\NP-hard slice, and we are not aware of an established name.} Hardness within the W
+hierarchy is transferred by \FPT\ reductions. An \FPT\ reduction maps an
+instance of one parameterized problem to an equivalent instance of
+another in \FPT\ time, with the parameter of the image bounded by a
+computable function of the source parameter
+\citep{DowneyFellows2013,Cygan2015}. A parameterized problem is
+W[2]-hard when some W[2]-complete problem, \textsc{Set Cover}
+parameterized by the cover size for instance, admits an \FPT\ reduction
+to it, and a W[2]-hard problem is fixed-parameter tractable only if
+every problem in W[2] is, which is considered implausible. A kernel is a
+polynomial-time self-reduction that maps an instance to an equivalent
+instance of the same problem whose size is bounded by a computable
+function of $p$ alone, and a polynomial kernel is one whose size bound is
+polynomial. More generally, a polynomial compression is a polynomial-time
+reduction that maps an instance of a parameterized problem to an
+equivalent instance of some fixed problem, not necessarily the same one,
+whose size is bounded by a polynomial of the parameter alone. A
+polynomial kernel is thus the special case of a polynomial compression in
+which the target problem is the problem itself.
+
+The first structural fact isolates the routing subproblem. Once the open
+facilities are fixed the remaining decisions are pure transport, and
+because capacities and costs never couple products the transport splits
+into one independent flow per product. Each such flow is an ordinary
+minimum-cost flow on a layered network, which both makes the residual
+value computable in strongly polynomial time and, by total unimodularity,
+forces it to be an integer. A routing for the fixed design $(y,z)$ is a
+pair of nonnegative flow vectors $(x,w)$ satisfying
+\eqref{eq:C1}--\eqref{eq:C4} with $(y,z)$ held fixed, and its block $l$ is
+the slice of $(x,w)$ formed by the variables of product $l$. We write
+$v(y,z)$ for the least total cost of a routing for the design, a minimum
+that Proposition~\ref{prop:oracle} shows to be attained whenever a routing
+exists, with the convention $v(y,z)=+\infty$ when no routing exists, that
+is when the design is infeasible.
+
+\paragraph{The layered network} For a fixed design $(y,z)$ and a product
+$l$, build the network $N_l(y,z)$ with a source $S$, a sink $T$, one node
+per open factory ($y_i=1$), one node per customer, and, for each open
+depot ($z_j=1$), a split pair $j_{\mathrm{in}}\!\to\! j_{\mathrm{out}}$.
+The arcs are as follows. From the source, each $S\!\to\! i$ has capacity
+$b_{il}$ and cost $0$. Each $i\!\to\! j_{\mathrm{in}}$ has infinite
+capacity and cost $c_{ijl}$, the split arc
+$j_{\mathrm{in}}\!\to\! j_{\mathrm{out}}$ has capacity $p_{jl}$ and cost
+$0$, each $j_{\mathrm{out}}\!\to\! k$ has infinite capacity and cost
+$d_{jkl}$, and each $k\!\to\! T$ has capacity $q_{kl}$ and cost $0$. A
+closed facility contributes no node, so its flow is forced to $0$, in
+accordance with the vanishing right-hand sides of \eqref{eq:C3}
+and~\eqref{eq:C4} noted after the model. An open depot caps its throughput at $p_{jl}$
+through the split arc, which is~\eqref{eq:C4} at $z_j=1$, and the
+source-arc capacity $b_{il}$ of an open factory is~\eqref{eq:C3} at
+$y_i=1$. Every $S$--$T$ path has the form
+$S\!\to\! i\!\to\! j_{\mathrm{in}}\!\to\! j_{\mathrm{out}}\!\to\! k\!\to\!
+T$, because every arc leads from one layer of nodes to the next and no
+arc skips a layer or returns to an earlier one.
+Figure~\ref{fig:oraclenet} draws $N_l(y,z)$ for a small design and
+labels each arc family with its capacity, its cost and the model
+variable it carries.
+
+\input{figures/fig_oracle_network.tex}
+
+\begin{proposition}[routing oracle]\label{prop:oracle}
+Fix $(y,z)\in\{0,1\}^{I}\times\{0,1\}^{J}$. The residual routing problem
+separates over products, and for each product $l$ its optimal cost equals
+the minimum cost $\mu_l$ of an $S$--$T$ flow of value $D_l$ in the layered
+network $N_l(y,z)$ defined above, with $\mu_l=+\infty$ when no such flow
+exists. The finite $\mu_l$ are attained by integral flows and are
+nonnegative integers, and $v(y,z)=\sum_l\mu_l$. Hence $v(y,z)$ is
+computable in strongly polynomial time by $|L|$ minimum-cost flow
+computations \citep{Orlin1993}.
+\end{proposition}
+The proof identifies each per-product block with a minimum-cost flow of
+value $D_l$ in the layered network $N_l(y,z)$, matching routings and
+flows in both directions at equal cost after a trimming step that
+tightens \eqref{eq:C1} and~\eqref{eq:C2}. Total unimodularity of the
+node--arc incidence matrix makes every finite block optimum an integer
+attained by an integral flow. Summing the blocks delivers the identity
+$v(y,z)=\sum_l\mu_l$ used throughout the paper. The full proof is in
+\ref{app:proofs}.
+
+Whether a fixed design can serve the demand at all is settled without
+solving any flow, by an aggregate test on each product. The completeness
+of the two stages is what makes the test exact, since any open factory
+reaches any open depot and any open depot reaches any customer, so only
+the totals matter.
+
+\begin{proposition}[feasibility]\label{prop:feas}
+A design $(y,z)$ is feasible if and only if, for every product $l$,
+\begin{equation}
+\textstyle\sum_{i\in I}b_{il}\,y_i\ \ge\ D_l
+\quad\text{(F1)}\qquad\text{and}\qquad
+\sum_{j\in J}p_{jl}\,z_j\ \ge\ D_l\quad\text{(F2)}.
+\label{eq:feas}
+\end{equation}
+The test runs in $O((n+|K|)\,|L|)$ time, of which $O(|K|\,|L|)$ computes
+the totals $D_l$.
+\end{proposition}
+Necessity follows by aggregating the four constraint groups per
+product, which bounds the served demand by the total open capacity of
+each of the two layers, a two-cut argument. Sufficiency exhibits an
+explicit flow of value $D_l$ in $N_l(y,z)$ through northwest-corner
+transport constructions on the two complete stages, so the aggregate
+test (F1) and (F2) is exact. The full proof is in \ref{app:proofs}.
+
+The characterisation rests on the completeness of the two stages in an
+essential way, and the following counterexample shows that
+the dependence is real rather than an artefact of the proof.
+
+\begin{remark}[completeness is essential]\label{rem:sparse}
+The aggregate test fails once an arc may be forbidden, a forbidden arc
+being modelled by deleting its flow variable. Take one product, two
+factories, two depots and one customer, and open all four facilities.
+Since there is a single product and a single customer we drop those
+indices and write $b_i$, $p_j$ and $D$ for the capacities and the
+demand, with $b_1=b_2=1$, $p_1=p_2=1$ and $D=2$, so (F1) and (F2) both
+read $2\ge 2$ and hold. Suppose the first stage is sparse and both
+factories may ship only to depot $1$. Depot $2$ then receives nothing,
+so \eqref{eq:C2} forces it to forward nothing, while depot $1$ forwards
+at most one unit by~\eqref{eq:C4}. The customer therefore receives at
+most one unit, which violates \eqref{eq:C1} against the demand of two,
+so no routing exists although both tests pass. The per-product totals no
+longer determine feasibility, which is why the characterisation is
+stated only for the complete model.
+\end{remark}
+
+Opening more facilities preserves feasibility and never raises the
+routing cost, only the fixed charge. This monotonicity underlies both the polynomial
+cases below and the admissible bound used by the enumeration algorithm.
+
+\begin{proposition}[monotonicity]\label{prop:mono}
+If $(y,z)\le(y',z')$ componentwise then feasibility of $(y,z)$ implies
+feasibility of $(y',z')$, and $v(y',z')\le v(y,z)$ always, with the
+convention $v=+\infty$ on infeasible designs. In particular the all-open
+design attains the least routing value among all feasible designs.
+\end{proposition}
+The feasibility part holds because the left-hand sides of (F1) and
+(F2) are nondecreasing in the design. For the value part, $N_l(y,z)$ is
+a subnetwork of $N_l(y',z')$, so every value-$D_l$ flow of the smaller
+network is one of the larger network at the same cost and no block
+optimum increases. Enlarging a design therefore preserves feasibility
+and never raises the routing value, which is the form in which later
+sections use the proposition. The full proof is in \ref{app:proofs}.
+
+Two regimes collapse to polynomial-time problems. When all fixed charges
+vanish the fixed cost drops out and monotonicity makes opening everything
+optimal, and when a single factory faces a single depot the routing is
+forced and the optimum has a closed form.
+
+\begin{proposition}[polynomial cases]\label{prop:fzero}
+If $f\equiv 0$ and $g\equiv 0$, then MP-TSCFLP is solvable in strongly
+polynomial time, its instance is feasible exactly when
+$\sum_i b_{il}\ge D_l$ and $\sum_j p_{jl}\ge D_l$ for every $l$, and its
+optimum is the all-open routing value $v(\mathbf 1,\mathbf 1)$.
+\end{proposition}
+\begin{proof}
+With no fixed charge the cost of a design is its routing
+value alone. By Proposition~\ref{prop:mono} the all-open design attains
+the least routing value among feasible designs, and by
+Proposition~\ref{prop:feas} it is feasible precisely under the displayed
+conditions, which are (F1) and (F2) at $(y,z)=(\mathbf 1,\mathbf 1)$. If
+they fail, no design at all is feasible, for every design lies
+componentwise below $(\mathbf 1,\mathbf 1)$, so its feasibility would
+imply that of the all-open design by the feasibility part of
+Proposition~\ref{prop:mono}. In the feasible case the all-open design is
+itself a solution of cost $v(\mathbf 1,\mathbf 1)$, and no feasible
+design costs less, so the optimum equals $v(\mathbf 1,\mathbf 1)$,
+computed in strongly polynomial time by Proposition~\ref{prop:oracle}.
+\end{proof}
+
+The second polynomial regime fixes one facility on each side. There the
+routing is forced and the optimum admits a closed form.
+
+\begin{proposition}[single factory and depot]\label{prop:onebyone}
+If $|I|=|J|=1$, then MP-TSCFLP is solvable in $O(|K|\,|L|)$ time after
+reading the input, and feasibility reduces to $b_{1l}\ge D_l$ and
+$p_{1l}\ge D_l$ for every $l$. When the instance is feasible and some
+demand is positive the optimum equals
+$f_1+g_1+\sum_{l}\bigl(c_{11l}D_l+\sum_k d_{1kl}q_{kl}\bigr)$, and when all
+demand is zero the optimum is $0$, attained by opening nothing.
+\end{proposition}
+\begin{proof}
+Feasibility forces the design, and the design in turn forces the
+routing. By Proposition~\ref{prop:feas}, a design $(y_1,z_1)$
+is feasible if and only if $b_{1l}y_1\ge D_l$ and $p_{1l}z_1\ge D_l$ for
+every $l$, which is what (F1) and (F2) read with one facility per side.
+If all demand is zero, these conditions hold for every design and the
+stated condition holds because every $D_l$ equals $0$. In that case the
+empty design is feasible, since (F1) and (F2) read $0\ge 0$ and the
+all-zero routing satisfies \eqref{eq:C1}--\eqref{eq:C4}, and its cost $0$
+is optimal by nonnegativity of the costs. Otherwise some $D_l>0$, and
+any feasible design has $y_1=z_1=1$, since $y_1=0$ or $z_1=0$ would make
+(F1) or (F2) read $0\ge D_l>0$. For such a design the conditions become
+$b_{1l}\ge D_l$ and $p_{1l}\ge D_l$, so the instance is feasible exactly
+under the stated condition, and feasibility forces the fixed charge to be
+exactly $f_1+g_1$. The only remaining variables are $x_{11l}$ and
+$w_{1kl}$. Feasibility needs $w_{1kl}\ge q_{kl}$ by~\eqref{eq:C1} and
+$x_{11l}\ge\sum_k w_{1kl}\ge D_l$ by~\eqref{eq:C2}, and since all costs
+are nonnegative the cheapest choice is $w_{1kl}=q_{kl}$ and
+$x_{11l}=D_l$, of cost $\sum_k d_{1kl}q_{kl}$ on the second stage and
+$c_{11l}D_l$ on the first. This choice is itself feasible, since
+\eqref{eq:C3} reads $x_{11l}=D_l\le b_{1l}$ and \eqref{eq:C4} reads
+$\sum_k w_{1kl}=D_l\le p_{1l}$, both guaranteed by the feasibility
+condition, while \eqref{eq:C1} and~\eqref{eq:C2} hold with equality. No
+feasible routing costs less, since its variables dominate this choice
+componentwise by the bounds just derived and every cost coefficient is
+nonnegative. Summing over $l$ and adding $f_1+g_1$ gives the closed
+form, evaluated in $O(|K||L|)$ time.
+\end{proof}
+
+Finally, the cardinality version sits in \XP\ by brute force over the
+opening pattern, a bound the algorithms of
+Section~\ref{sec:algorithms} later refine and, under the Exponential
+Time Hypothesis, match up to the constant in the exponent.
+
+\begin{observation}[membership in \XP]\label{obs:xp}
+$\mathrm{MP\text{-}TSCFLP}(B,k)$ is decidable in time
+$n^{k+O(1)}\cdot\mathrm{poly}(|I|,|J|,|K|,|L|)$. When $n=0$ the empty
+design is the only design, one application of
+Propositions~\ref{prop:oracle} and~\ref{prop:feas} to it decides the
+instance in polynomial time, and the counting below is not needed, so
+assume $n\ge 1$. One may further normalise $k\le n$, since no design
+opens more than $n$ facilities. Enumerating every set
+$S\subseteq I\cup J$ of at most $k$ facilities then decides the
+instance. Each $S$ is identified with the design $(y,z)$ whose
+indicators it defines, so that $v(S)$ denotes $v(y,z)$, feasibility of
+$S$ is tested by Proposition~\ref{prop:feas}, and for feasible $S$ the
+total cost
+$\sum_{i\in S\cap I}f_i+\sum_{j\in S\cap J}g_j+v(S)$ is evaluated with
+$v(S)$ from
+Proposition~\ref{prop:oracle}. The answer is \textsc{yes} if and only if
+some such cost is at most $B$, since by the definition of $v$ the
+cheapest solution whose opening pattern is $S$ costs exactly this
+amount, and every solution opening at most $k$ facilities has its
+pattern among the enumerated sets. The number of sets is
+$\sum_{r=0}^{k}\binom{n}{r}\le\sum_{r=0}^{k}n^{r}\le(k+1)\,n^{k}$, using
+$\binom{n}{r}\le n^{r}\le n^{k}$ for $r\le k$ and $n\ge 1$. Each set is
+processed in polynomial time, and the factor $k+1\le n+1$ is absorbed
+into the $n^{O(1)}$ term, which gives the stated bound.
+\end{observation}

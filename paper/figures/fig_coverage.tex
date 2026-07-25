@@ -1,0 +1,54 @@
+% Requires: \usetikzlibrary{positioning,arrows.meta}
+\begin{figure}[H]
+  \centering
+  \resizebox{0.8\textwidth}{!}{%
+  \begin{tikzpicture}[
+      >={Stealth[length=1.8mm]},
+      every node/.style={font=\footnotesize},
+      fac/.style={draw=black!70,line width=0.5pt,fill=black!8,rounded corners=1pt,minimum size=7mm,inner sep=1pt},
+      dep/.style={draw=black!70,line width=0.5pt,circle,fill=black!8,minimum size=6.5mm,inner sep=0pt},
+      cus/.style={draw=black!70,line width=0.5pt,circle,fill=black!4,minimum size=6.5mm,inner sep=0pt},
+      s1/.style={draw=black!50,line width=0.35pt,->},
+      cost0/.style={draw=black,line width=0.9pt,->},
+      cost1/.style={draw=black!40,line width=0.35pt,->}
+    ]
+    % factory
+    \node[fac] (I) at (0,1.2) {$I$};
+    \node[font=\scriptsize,anchor=north east,align=right] at (-0.05,0.78) {$f=0$\\ huge cap.};
+    % depots = sets
+    \node[dep] (s1) at (3.2,3.0) {$S_1$};
+    \node[dep] (s2) at (3.2,1.2) {$S_2$};
+    \node[dep] (sm) at (3.2,-0.6) {$S_m$};
+    \node[font=\scriptsize,anchor=south] at (s1.north) {$g=1$};
+    \node[font=\scriptsize] at (3.2,0.35) {$\vdots$};
+    % customers = universe
+    \node[cus] (u1) at (6.6,3.0) {$u_1$};
+    \node[cus] (u2) at (6.6,1.2) {$u_2$};
+    \node[cus] (un) at (6.6,-0.6) {$u_{n_U}$};
+    \node[font=\scriptsize] at (6.6,0.35) {$\vdots$};
+    \node[font=\scriptsize,anchor=west,align=left] at (7.15,1.2) {demand\\ $Q=m+1$};
+    % layer captions
+    \node[font=\scriptsize\itshape] at (0,3.0) {factory};
+    \node[font=\scriptsize\itshape] at (3.2,4.0) {depots $=$ sets};
+    \node[font=\scriptsize\itshape] at (6.6,4.0) {customers $=$ elements};
+    % stage-1 arcs cost 0
+    \foreach \b in {s1,s2,sm}{\draw[s1] (I) -- (\b);}
+    \node[font=\scriptsize] at (1.5,2.38) {$0$};
+    % stage-2: solid cost 0 (u in S), faint cost 1 (u notin S)
+    \draw[cost0] (s1) -- (u1); \node[font=\scriptsize] at (4.75,3.17) {$0$};
+    \draw[cost0] (s2) -- (u2); \node[font=\scriptsize] at (4.9,1.43) {$0$};
+    \draw[cost1] (s1) -- (u2); \node[font=\scriptsize] at (5.6,2.02) {$1$};
+    \draw[cost1] (sm) -- (un); \node[font=\scriptsize] at (4.9,-0.36) {$1$};
+  \end{tikzpicture}%
+  }
+  \caption{The Set Cover reduction behind Theorem~\ref{thm:cover}, with
+  a single product and a single free factory of ample capacity. Each
+  depot is a set $S_j$ with opening cost $1$, each customer is a
+  universe element with demand $Q=m+1$, and a heavy stage-2 arc costs
+  $0$ when the element lies in the set while a light arc costs $1$.
+  Opening a depot is choosing its set into the cover, an uncovered
+  element can be served only at cost at least $Q>B$, and the budget
+  $B=t$ is therefore attainable exactly when a cover of size $t$
+  exists.}
+  \label{fig:coverage}
+\end{figure}

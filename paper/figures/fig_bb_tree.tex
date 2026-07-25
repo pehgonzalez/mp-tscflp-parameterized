@@ -1,0 +1,46 @@
+% Requires: \usetikzlibrary{positioning,arrows.meta}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      >={Stealth[length=1.8mm]},
+      res/.style={draw=black!70,line width=0.4pt,fill=black!6,
+        rounded corners=2pt,align=center,inner sep=3.5pt,
+        font=\footnotesize},
+      note/.style={font=\scriptsize,text=black!55,align=center},
+      branch/.style={draw=black,line width=0.5pt,->},
+      lead/.style={draw=black!55,line width=0.35pt,dashed}
+    ]
+    \node[res] (P) at (0,0)
+      {$(O,C)$\\
+       \textcolor{black!60}{\scriptsize free set $F$,\quad $r=k-|O|$}};
+    \node[res] (L) at (-2.5,-2.1)
+      {$(O\cup\{e\},C)$\\
+       \textcolor{black!60}{\scriptsize open $e$}};
+    \node[res] (R) at (2.5,-2.1)
+      {$(O,C\cup\{e\})$\\
+       \textcolor{black!60}{\scriptsize close $e$}};
+    \draw[branch] (P) -- (L);
+    \draw[branch] (P) -- (R);
+    % P1 acts on the popped node, covering counts against r
+    \node[note,anchor=east] (p1) at (-3.1,0.5)
+      {P1, covering\\ $\max_l s_I+\max_l s_J>r$};
+    \draw[lead] (p1.east) -- (P.west);
+    % P2 acts on the popped node, admissible bound
+    \node[note,anchor=west] (p2) at (3.1,0.5)
+      {P2, bound\\ $LB(O,C)\ge\min(\mathrm{best},B+1)$};
+    \draw[lead] (p2.west) -- (P.east);
+    % P3 acts only at a leaf
+    \node[note] (p3) at (0,-3.0)
+      {P3, dominance, only at a leaf, where $F=\varnothing$ and the
+       oracle flow leaves some facility of $O$ unused};
+  \end{tikzpicture}
+  \caption{One branching step of Algorithm~\ref{alg:xpbb}. A node
+  carries the forced-open set $O$, the forced-closed set $C$, the free
+  set $F$ and the remaining cardinality $r$, and branching on a free
+  facility $e$ produces the two children along the solid arrows. The
+  dashed leaders attach P1 and P2 to the popped node they test, while
+  P3 fires only at a leaf, so the three prunes act exactly on the named
+  quantities (Lemma~\ref{lem:cover},
+  Proposition~\ref{prop:bbcorrect}).}
+  \label{fig:bbtree}
+\end{figure}

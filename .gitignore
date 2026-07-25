@@ -1,0 +1,19 @@
+# LaTeX build artifacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.spl
+paper/*.toc
+# Python
+__pycache__/
+*.pyc
+# Binaries and local builds
+code/build/
+*.exe
+*.o
+*.obj
+# Bulk generated instances (regenerated deterministically by code/tools/)
+code/data/instances_kstar/*.txt
+code/data/boundary600/*.txt

@@ -1,0 +1,134 @@
+\section{Related work}\label{sec:literature}
+
+Two-stage capacitated facility location entered the operations research
+literature as a distribution-planning model. General surveys of facility
+location and of multi-level location are given by \citet{KloseDrexl2005}
+and \citet{OrtizAstorquizaEtAl2018}.
+\citet{PirkulJayaraman1998} formulated the multiproduct two-stage
+capacitated version, observed its \NP-hardness and solved it by
+Lagrangian relaxation, and this is the formulation that the later
+benchmark work inherits. Exact and heuristic effort has continued on both
+the single- and multi-stage variants. \citet{LitvinchevOzuna2012} derived
+Lagrangian bounds for two-stage capacitated location, together with an
+accompanying heuristic, and \citet{FernandesEtAl2014} proposed a simple
+and effective genetic algorithm for the single-product two-stage problem
+along with the large benchmark instance sets that the multiproduct
+studies later reused. On the exact side, Benders decompositions tailored
+to facility location are a mature computational line
+\citep{FischettiLjubicSinnl2017}, and the disaggregated cuts of
+Section~\ref{sec:certificates}, derived from the routing oracle of
+Proposition~\ref{prop:oracle}, sit in that tradition. The benchmark this paper builds on is due
+to \citet{MauriEtAl2021}, who assembled a hundred multiproduct instances
+and, finding that a commercial mixed-integer solver closed none of them
+within the imposed limits, proposed two hybrid metaheuristics, a
+clustering search matheuristic that calls CPLEX on network-flow
+subproblems and a biased random-key genetic algorithm with local search.
+\citet{MoraisEtAl2022} then addressed the same multiproduct problem with
+a hybrid biased random-key genetic algorithm that adds local branching,
+extending a single-product hybrid from the same group. Across this line the model is treated as empirically hard, and
+the hardness is managed rather than explained.
+
+The complexity of facility location itself is well understood in the
+uncapacitated single-product case, and it is where our covering arguments
+originate. Without the metric assumption, uncapacitated facility location
+contains Set Cover, so \citet{Hochbaum1982} obtained a greedy
+$O(\log n)$ approximation, and the lower bounds recorded next show that no
+better guarantee is possible in general unless $\Ppoly=\NP$.
+The matching lower bounds are those of \citet{Feige1998} and, under the
+weaker assumption \Ppoly${}\neq{}$\NP, of \citet{DinurSteurer2014},
+which together pin the Set Cover threshold at $(1-\varepsilon)\ln n$.
+These bounds transfer to the depot-to-customer stage of MP-TSCFLP and
+account for its inapproximability. The classical hardness of the
+underlying decision problems traces back to \citet{Karp1972}, and the
+distinction between weak and strong \NP-hardness that organises our
+numeric layer is that of \citet{GareyJohnson1979}.
+
+Parameterized complexity has been brought to bear on optimisation and
+covering problems for two decades, and the vocabulary and lower-bound
+machinery we use are standard \citep{DowneyFellows2013,Cygan2015}. The
+$\mathrm{W}[2]$-hardness of \textsc{Set Cover} parameterized by the
+solution size is classical \citep{DowneyFellows2013}, the ETH-based lower
+bounds we compose with are due to \citet{ChenHuangKanjXia2006}, and the
+compression arguments in the kernelization section rely on
+the number-reduction technique of \citet{FrankTardos1987}. The parameterized
+view of location and network problems has grown quickly, though along axes
+different from ours. The closest antecedent is the parameterized view of
+facility location by \citet{FellowsFernau2011}, published in this
+journal, which establishes W-hardness and \FPT\ results for
+uncapacitated facility location variants under related parameters.
+Capacities, a second stage and multiple products all lie outside its
+scope, and that is the gap the present analysis fills.
+Facility-location-flavoured clustering admits tight
+fixed-parameter approximations in the number of centres
+\citep{CohenAddadEtAl2019}. Under uniform capacities tight \FPT\
+approximations in the number of centres remain available, and
+constant-factor \FPT\ approximations with larger factors extend to the
+general capacitated setting \citep{CohenAddadLi2019}. The survivable
+network design problem is fixed-parameter tractable in its edge- and
+element-connectivity forms while turning $\mathrm{W}[1]$-hard for vertex
+connectivity \citep{FeldmannMukherjeevanLeeuwen2025}. Covering objectives
+on structured graphs, tractable by treewidth alone in their nonnegative
+form, in general require treewidth combined with maximum degree
+\citep{FominRamamoorthi2022}. Each of the clustering, connectivity and
+covering results turns on a metric, a connectivity
+requirement or a graph width, whereas the hardness we isolate is arithmetic,
+carried by capacities and demands, so their positive machinery does not
+transfer to the representations analysed here, while richer
+representations remain unanalysed rather than excluded. The contrast is sharpest on the
+approximation side. What separates our covering core from the capacitated clustering results
+is the absence of a metric. There the parameterized lower bounds have
+recently caught up with the classical ones, since approximating
+\textsc{Set Cover} parameterized by the solution size within any constant
+factor is itself $\mathrm{W}[2]$-hard \citep{LinRenSunWang2023}. This suggests the same barrier for
+MP-TSCFLP, a transfer we state as a conjecture among the open problems
+of Section~\ref{sec:conclusion}. Closest in
+spirit to the present analysis is the parameterized study of
+minimum-weight solution subgraphs of and-or graphs by
+\citet{DantasProttiSouza2013}, where a cheapest subnetwork must respect
+local dependency semantics and zero-weight arcs are exactly what turns a
+fixed-parameter tractable problem $\mathrm{W}[2]$-hard. Zero fixed charges play a
+comparable role in our constructions, which require either large numbers,
+many products or positive charges to produce hardness.
+
+Table~\ref{tab:positioning} closes the section by placing this paper
+against the works discussed above, one line per selected work and one
+column per feature, with a mark recording only what the corresponding
+paragraph of this section states. The last line of the table records a
+combination of features that no previous line fills, a parameterized
+analysis of the two-stage capacitated multiproduct model.
+
+\begin{table}[H]
+\footnotesize
+\centering
+\caption{Positioning against the related work of this section. A check
+mark means the feature is treated in the cited work as described above.
+The circle marks bounds or partial guarantees claimed without an
+exactness or completeness proof. Blank means not
+treated.}
+\label{tab:positioning}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+ & two-stage & multi- & capa- & exact or & heuris- & parameterized \\
+ & location & product & cities & lower bounds & tics & analysis \\
+\midrule
+\citet{PirkulJayaraman1998} & \checkmark & \checkmark & \checkmark &
+$\circ$ & \checkmark & \\
+\citet{LitvinchevOzuna2012} & \checkmark & & \checkmark & $\circ$ &
+\checkmark & \\
+\citet{FernandesEtAl2014} & \checkmark & & \checkmark &
+ & \checkmark & \\
+\citet{MauriEtAl2021} & \checkmark & \checkmark & \checkmark & &
+\checkmark & \\
+\citet{MoraisEtAl2022} & \checkmark & \checkmark & \checkmark & &
+\checkmark & \\
+\citet{DantasProttiSouza2013} & & & & \checkmark & & \checkmark \\
+\citet{CohenAddadLi2019} & & & \checkmark & $\circ$ & &
+\checkmark \\
+\citet{FeldmannMukherjeevanLeeuwen2025} & & & & \checkmark & &
+\checkmark \\
+This paper & \checkmark & \checkmark & \checkmark & \checkmark & &
+\checkmark \\
+\bottomrule
+\end{tabular}}
+\end{table}

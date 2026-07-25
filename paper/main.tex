@@ -47,6 +47,8 @@
 \newcommand{\FPT}{\textsf{FPT}}
 \newcommand{\XP}{\textsf{XP}}
 
+\journal{Discrete Applied Mathematics}
+
 \begin{document}
 
 \begin{frontmatter}
@@ -54,13 +56,14 @@
 \title{The Multiproduct Two-Stage Capacitated Facility Location
 Problem: A Parameterized Complexity Analysis}
 
-\author{Pedro Henrique Gonz\'alez}
+\author{Pedro Henrique Gonz\'alez\corref{cor1}}
 \ead{pegonzalez@cos.ufrj.br}
 
 \author{Rafael Schneider}
 \ead{rschneider@cos.ufrj.br}
 
-\address{Federal University of Rio de Janeiro, Brazil}
+\cortext[cor1]{Corresponding author.}
+\address{Federal University of Rio de Janeiro, Rio de Janeiro, Brazil}
 
 \begin{abstract}
 In the multiproduct two-stage capacitated facility location problem
@@ -94,6 +97,7 @@ coauthors.
 Facility Location \sep Supply Chain Design \sep Parameterized Complexity
 \sep Fixed-Parameter Tractability \sep Kernelization Lower Bounds
 \sep Branch-and-Bound
+\MSC[2020] 90B80 \sep 68Q27 \sep 90C27
 \end{keyword}
 
 \end{frontmatter}
@@ -106,6 +110,18 @@ Facility Location \sep Supply Chain Design \sep Parameterized Complexity
 \input{sections/landscape_table}
 \input{sections/experiments}
 \input{sections/conclusion}
+
+\section*{Declaration of competing interest}
+
+The authors declare that they have no known competing financial
+interests or personal relationships that could have appeared to
+influence the work reported in this paper.
+
+\section*{Data availability}
+
+The code, the instance generator with its manifests, the raw result
+files and the verification scripts are available at
+\url{https://github.com/pehgonzalez/mp-tscflp-parameterized}.
 
 \bibliographystyle{elsarticle-num-names}
 \bibliography{references}

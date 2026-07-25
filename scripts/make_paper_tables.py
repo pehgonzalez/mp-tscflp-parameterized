@@ -121,8 +121,8 @@ three-seed refinement family and the $600$~s rows the ten-seed budget
 family, both from the same generator. The tenfold budget displaces the
 partially solved band from $n=24$ to $n=28$, where the solved count
 again rises with the bound, and $n=40$ stays fully censored. Starred
-cells have fewer than three solved runs and their medians are
-individual observations.}
+cells have fewer than three solved runs, so their medians rest on one
+or two observations.}
 \label{tab:q1boundary}
 \setlength{\tabcolsep}{4.5pt}
 \begin{tabular}{llcccc}

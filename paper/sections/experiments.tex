@@ -84,13 +84,15 @@ incumbent, quoted in percent throughout.
 The enumeration runs were executed under a fixed $60$~s limit. The
 \textsc{Xp} binary is single-threaded C++20, compiled with g++~13.3.0 at
 optimisation level O2, and ran on a Linux virtual machine with an Intel
-Xeon processor at $2.1$~GHz.
+Xeon processor at $2.1$~GHz. The budget boundary sample of Q1 ran on a
+second such machine with an Intel Xeon at $2.8$~GHz.
 The integer programming runs use Gurobi $13.0.2$ on an Intel Core i9-14900HX
 with $24$ cores under Windows, with the controlled family limited to $600$~s
 and the benchmark to $3{,}600$~s. Gurobi ran with default tolerances,
 automatic thread count and a fixed seed recorded with every run, and on
 each run the harness recomputed the incumbent's cost independently from
-its flows, with agreement on all $900$ runs. The enumeration and the
+its flows, with agreement on all $900$ runs, the $400$ \textsc{Mip} runs, the
+$400$ \textsc{Bd} runs and the $100$ benchmark runs. The enumeration and the
 integer programming codes ran on different machines, so times are
 compared only within a code and never across codes, and the
 solved-versus-censored contrasts that the section draws are insensitive
@@ -116,15 +118,17 @@ graphs all have $n=|I|+|J|\ge 40$, lies entirely outside the $60$~s regime, so
 all $400$ instances are censored. This is the result rather than a failure of
 protocol. At $n\ge 40$ the search processes a median of roughly
 $2{,}700$ nodes before the limit, while a completed search at $n=24$
-already needs a median of roughly $50{,}000$, and the cost of each node
+already needs a median of roughly $23{,}000$, and the cost of each node
 grows with $|I|$, $|J|$, $|K|$ and $|L|$ through the oracle. The raw
 per-run records in the archive carry node, pruning and oracle
 counters. Two boundary samples locate the frontier, and
 Table~\ref{tab:q1boundary} reports them side by side. The first holds
 three seeded runs per cell under the $60$~s limit of the main protocol,
 and the second reruns the same grid with ten fresh seeds per cell under
-the tenfold budget of $600$~s, on the container hardware documented
-above. Medians are taken over solved runs only, so the times in
+the tenfold budget of $600$~s, on the second virtual machine documented
+above. The two samples therefore support the solved-versus-censored
+contrast across budgets and time readings within one budget, and no
+cross-budget time comparison is drawn. Medians are taken over solved runs only, so the times in
 partially solved cells are biased downward by that conditioning. Under
 $60$~s every instance at $n=20$ solves, seven of twelve solve at
 $n=24$, and none solves from $n=28$ upward, so that budget places the
@@ -166,8 +170,8 @@ Theorem~\ref{thm:xp} delimits.}
 \end{figure}
 
 Within the solvable range the covering bound acts in a direction that
-requires explanation. Time and node counts decrease as $k^\ast$ grows,
-and the solved count at $n=24$ in Table~\ref{tab:q1boundary} rises from
+requires explanation. Under the $60$~s budget, time and node counts decrease as $k^\ast$
+grows, and the solved count at $n=24$ in Table~\ref{tab:q1boundary} rises from
 one in three at $k^\ast=4$ to three in three at $k^\ast=16$. The
 tenfold budget replicates the pattern one grid step further out, the
 solved count at $n=28$ rising from one in ten to six in ten across the
@@ -257,8 +261,8 @@ equal size, so its variation is not a proxy for instance size.}
 
 The completed campaign lets the correlation between $k^\ast$ and the
 effort \textsc{Mip} spends on the $100$ benchmark instances be read
-directly, with a within-group control that separates the effect of the
-bound from the effect of size. Pooled over the benchmark, the covering
+directly, with a within-group reading that separates the association
+of the bound from the association of size. Pooled over the benchmark, the covering
 bound and the terminal gap are rank-correlated with Spearman
 $\rho=-0.28$. Ninety-seven of the hundred runs end at the limit, so
 solving time carries no usable signal on this benchmark and the analysis
@@ -291,8 +295,8 @@ larger bounds go with smaller terminal gaps, the same inverse direction
 the enumeration exhibits in Q1, where tight capacities give the covering
 pruning its greatest effect.
 
-The stored solver logs admit a mediation analysis that locates the
-mechanism, extracted by a pinned script with no further runs. The
+The stored solver logs admit a mediation-style analysis that points
+to the mechanism, extracted by a pinned script with no further runs. The
 terminal gap on this benchmark is essentially the root relaxation gap,
 the two rank-correlating between $+0.89$ and $+1.00$ within groups and
 at $+0.97$ pooled. The covering bound correlates with the root gap
@@ -301,8 +305,8 @@ the root gap is controlled the partial rank correlation of the bound
 with the terminal gap collapses, ranging from $-0.04$ to $+0.52$ across
 groups with no stable sign ($+0.29$ pooled). The bound moreover
 correlates positively with the explored node count in every group. The
-association of the bound with solver effort is therefore mediated by
-the relaxation. Tight capacities give tight root relaxations, and
+association of the bound with solver effort is therefore consistent
+with mediation through the relaxation. Tight capacities give tight root relaxations, and
 within the $3{,}600$~s budget the solver rarely moves far from its root
 bound. On this benchmark the covering bound annotates relaxation
 tightness rather than search difficulty, its direction stable across

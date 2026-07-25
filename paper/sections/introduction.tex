@@ -63,7 +63,7 @@ which of these quantities, when held small, tames the exponential behaviour
 of the problem, and which leave it intractable even when fixed. An
 answer matters beyond taxonomy, because each tractable combination names
 a regime in which exact solution scales, and each hard combination names
-a feature whose cost no exact method avoids. The
+a feature whose cost no exact method avoids unless \Ppoly${}={}$\NP. The
 analysis is a classification, so the algorithms it produces are devices for
 locating the difficulty rather than candidates to beat a commercial solver,
 and its practical residue is a covering bound that annotates an instance
@@ -119,8 +119,8 @@ outside the algorithmic core, since our aim is the map and not the
 tuning of any one route through it.
 
 Third, every construction behind the map is checked computationally.
-Each gadget was validated by a battery of on the order of nine hundred
-thousand individual checks with no failure, and the enumeration algorithm agrees
+The gadgets were validated by a shared battery of on the order of nine
+hundred thousand individual checks with no failure, and the enumeration algorithm agrees
 with an independent brute-force solver across all $1{,}381$
 comparisons. The computational study asks in what regime the
 enumeration is practical, how it stands against Gurobi, the

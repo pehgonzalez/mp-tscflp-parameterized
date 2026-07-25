@@ -36,7 +36,7 @@ code/
 ## Build
 
 ```
-g++ -std=c++20 -O2 -o build/xp src/solver_xp.cpp src/main_xp.cpp
+mkdir -p build && g++ -std=c++20 -O2 -o build/xp src/solver_xp.cpp src/main_xp.cpp
 ```
 
 (Windows/MinGW: same line with `build\xp.exe`.)

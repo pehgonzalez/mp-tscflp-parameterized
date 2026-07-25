@@ -1,8 +1,9 @@
-// Lagrangian relaxation of the MP-TSCFLP (derivation: docs/LAGRANGIAN.md;
-// reference implementation validated in python/lagrangian_gurobipy.py).
+// Lagrangian relaxation of the MP-TSCFLP (derivation: see the paper's
+// Lagrangian section; reference implementation validated in
+// python/lagrangian_gurobipy.py).
 //
 // Dualizes flow conservation (4) with lambda_jl >= 0.
-//   A(lmb): closed form over plants (Prop. L1), O(IJL).
+//   A(lmb): closed form over plants, O(IJL).
 //   B(lmb): depot-side CFLP (z binary), solved by Gurobi; ObjBound keeps every
 //           reported L(lmb) a valid lower bound even with MIPGap > 0.
 // Subgradient with Polyak step + Lagrangian primal heuristic (greedy (F1)/(F2)
@@ -43,7 +44,7 @@ private:
     };
     AResult solve_A(const std::vector<std::vector<double>>& lmb) const;
 
-    // Prop. L3 (LAGRANGIAN.md): lambda0 = LP-relaxation duals of the flow-conservation
+    // Warm start: lambda0 = LP-relaxation duals of the flow-conservation
     // rows makes the FIRST evaluation A+B_MIP already >= v_LP. Returns lmb (empty on
     // failure/timeout; caller falls back to zeros).
     std::vector<std::vector<double>> lp_dual_warmstart(double time_limit) const;

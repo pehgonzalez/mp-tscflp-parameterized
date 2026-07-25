@@ -84,8 +84,8 @@ public:
 
         if (!f) throw std::runtime_error("Truncated instance file: " + fname);
 
-        // Audit #14: the whole certification chain (FlowEvaluator, Prop. 5 proof
-        // mode, MIPGapAbs<1) assumes integral data. Fail loudly if violated.
+        // The whole certification chain (FlowEvaluator, integral proof mode,
+        // MIPGapAbs<1) assumes integral data. Fail loudly if violated.
         auto chk = [&](double v) {
             if (v != static_cast<double>(static_cast<long long>(v)))
                 throw std::runtime_error("Non-integral datum in " + fname +

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""kstar_check.py — independent covering-bound computation (Lemma A4.1.1, root case).
+"""kstar_check.py — independent covering-bound computation (the covering-count lemma, root case).
 
 Parses PSC instances directly and computes, per product l,
     k*_I(l) = min{ s : sum of s largest b_{.l} >= D_l }   (inf if impossible)

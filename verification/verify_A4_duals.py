@@ -12,7 +12,7 @@ forma de desigualdade, exatamente (C1)-(C4) do artigo) e
        (delta_j >= 0) -sum_k w_jk           >= -p_j z_j
        x, w >= 0,
 
-com dual (derivado na Prop. A4.3)
+com dual (derivado na proposicao de certificados duais do artigo)
 
   max  sum_k q_k alpha_k - sum_i b_i y_i gamma_i - sum_j p_j z_j delta_j
   s.a. beta_j - gamma_i           <= c_ij   (coluna de x_ij)
@@ -35,9 +35,9 @@ Checagens (>= 40 instancias, semente 20260710; scipy.linprog/HiGHS):
        v_l = +infinito, desigualdade trivial — contados a parte).
   [S4] desenhos INVIAVEIS: o dual e ilimitado (status HiGHS 3), coerente
        com dual sempre viavel (ponto 0) + primal inviavel.
-  [S5] os dois raios de viabilidade F1/F2 (Obs. A4.3.1), teste NUMERICO
-       (revisao independente; identico ao attack3 de
-       review_attacks_A4A5.py): para as direcoes
+  [S5] os dois raios de viabilidade F1/F2, teste NUMERICO (checagem
+       cruzada independente; identico ao terceiro teste de
+       stress_tests_A4A5.py): para as direcoes
        r1 = (alpha=1, beta=1, gamma=1, delta=0) e
        r2 = (alpha=1, beta=0, gamma=0, delta=1),
        o ponto u + theta*r_i — com u = u* (dual otimo) nos desenhos
@@ -183,7 +183,7 @@ def cut_rhs(inst, l, dual, y, z):
 
 
 def rays_check(inst, l, y, z, u_base=None, v_base=0.0):
-    """[S5] raios F1/F2 — teste numerico (attack3 da revisao independente).
+    """[S5] raios F1/F2 — teste numerico (checagem cruzada independente).
 
     Para cada raio r em {r1, r2} e theta em {1, 10, 1000}, verifica que
     pt = u_base + theta*r satisfaz TODAS as restricoes de Delta_l

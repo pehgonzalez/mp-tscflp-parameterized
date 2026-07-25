@@ -5,7 +5,7 @@ Conteudo:
   - gerador de instancias aleatorias com semente (inteiros pequenos);
   - min-cost flow exato por caminhos aumentantes mais curtos (SSP),
     aritmetica 100% inteira (Bellman-Ford/SPFA no grafo residual);
-  - construtor da rede em camadas N_l(y,z) da Prop. A1.1;
+  - construtor da rede em camadas N_l(y,z) do oraculo de roteamento do artigo;
   - oraculo de roteamento por produto (viabilidade + valor otimo).
 
 Somente stdlib. networkx / scipy sao usados apenas nos scripts de
@@ -131,7 +131,7 @@ class MinCostFlow:
 
 
 # ---------------------------------------------------------------------------
-# Rede em camadas N_l(y,z) da Prop. A1.1
+# Rede em camadas N_l(y,z) do oraculo de roteamento
 # ---------------------------------------------------------------------------
 
 def build_network(inst, l, y, z):
@@ -175,7 +175,7 @@ def build_network(inst, l, y, z):
 
 
 def routing_value(inst, l, y, z):
-    """Oraculo da Prop. A1.1 para o produto l e desenho (y,z).
+    """Oraculo de roteamento do artigo para o produto l e desenho (y,z).
 
     Retorna (viavel: bool, valor: int|None). Viavel sse o fluxo maximo
     S-T em N_l(y,z) atinge D_l; nesse caso, valor = custo minimo de um
@@ -191,14 +191,15 @@ def routing_value(inst, l, y, z):
 
 
 def max_flow_value(inst, l, y, z):
-    """Fluxo maximo S-T em N_l(y,z), truncado em D_l (basta para A1.2)."""
+    """Fluxo maximo S-T em N_l(y,z), truncado em D_l (basta para a
+    caracterizacao de viabilidade)."""
     mc, S, T, D, _ = build_network(inst, l, y, z)
     sent, _ = mc.flow(S, T, D)
     return sent
 
 
 def aggregate_condition(inst, y, z):
-    """Condicao da Prop. A1.2: para todo l,
+    """Condicao da proposicao de viabilidade do artigo: para todo l,
     sum_i b_il y_i >= D_l  e  sum_j p_jl z_j >= D_l."""
     for l in range(inst["nL"]):
         D = demand_total(inst, l)

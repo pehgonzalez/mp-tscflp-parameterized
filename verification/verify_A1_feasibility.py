@@ -1,5 +1,5 @@
 """
-Verificacao computacional da Prop. A1.2 (caracterizacao de viabilidade).
+Verificacao computacional da caracterizacao de viabilidade do artigo.
 
 Para >= 30 instancias aleatorias pequenas com semente fixa, percorre
 EXAUSTIVAMENTE todos os desenhos (y,z) em {0,1}^{|I|} x {0,1}^{|J|}

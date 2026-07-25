@@ -1,4 +1,4 @@
-"""Branch-and-Benders-cut for the MP-TSCFLP (derivation and proofs: docs/BENDERS.md)."""
+"""Branch-and-Benders-cut for the MP-TSCFLP (derivation and proofs: see the paper's Benders section)."""
 import sys
 
 import gurobipy as gp
@@ -76,7 +76,7 @@ class BendersSolver:
         self.ncuts = 0
 
     def _add_cut(self, model, l, const, fac, ware, lazy, where=None):
-        # Audit fix: dropped coefficients (<= 0) move into the constant (weakens only).
+        # Dropped coefficients (<= 0) move into the constant (weakens only).
         dropped = sum(fac[i] for i in range(self.inst["I"]) if abs(fac[i]) <= EPS) \
                 + sum(ware[j] for j in range(self.inst["J"]) if abs(ware[j]) <= EPS)
         expr = (const + dropped) \
@@ -116,7 +116,7 @@ class BendersSolver:
                         rc = self.sp[l].solve(self.core_y, self.core_z)
                         if rc is not None:
                             self._add_cut(model, l, rc[1], rc[2], rc[3], lazy=True)
-            # Audit fix: core point updated once per round, not per product.
+            # Core point is updated once per round, not per product.
             if self.papadakos and cut_added:
                 self.core_y = [0.5 * (c + v) for c, v in zip(self.core_y, yb)]
                 self.core_z = [0.5 * (c + v) for c, v in zip(self.core_z, zb)]

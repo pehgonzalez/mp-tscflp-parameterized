@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A3a_partition.py — Verificacao computacional do Teorema A3a.1 (R4b):
-NP-dificuldade FRACA do MP-TSCFLP com |J| = |L| = |K| = 1 (via PARTITION)
+verify_A3a_partition.py — Verificacao computacional da reducao de PARTITION
+do artigo: NP-dificuldade FRACA do MP-TSCFLP com |J| = |L| = |K| = 1 (via PARTITION)
 e resolubilidade pseudo-polinomial da mesma celula (DP knapsack-cover).
 
-Reducao verificada (Teorema A3a.1(i)), de PARTITION (a_1..a_m, A = sum a_i,
+Reducao verificada (item (i) do teorema), de PARTITION (a_1..a_m, A = sum a_i,
 WLOG A par, alvo D = A/2):
   * fabricas = itens: I = {1..m}, b_i = a_i, f_i = a_i;
   * 1 deposito: g_1 = 0, p_1 = D;
@@ -14,15 +14,17 @@ WLOG A par, alvo D = A/2):
   * orcamento B = D = A/2.
 Afirmacao: existe S com sum_{i in S} a_i = A/2  <=>  OPT_MP <= A/2.
 (Estrutural: OPT_MP = min { sum_{i in S} a_i : S subconjunto, sum >= D },
-pois toda solucao viavel custa exatamente a soma dos f_i abertos — F1 de
-A1.2 exige sum b_i y_i >= D e o transporte e gratuito.)
+pois toda solucao viavel custa exatamente a soma dos f_i abertos — a
+condicao F1 de viabilidade exige sum b_i y_i >= D e o transporte e
+gratuito.)
 
 O otimo do MP-TSCFLP reduzido e computado por forca bruta INDEPENDENTE da
 formula: enumeracao de TODOS os desenhos (y,z) via common_mp_tscfl.all_designs
 com roteamento exato pelo MCMF inteiro de common_mp_tscfl.routing_value
-(oraculo da Prop. A1.1 — nenhuma forma fechada da prova e usada aqui).
+(o oraculo de roteamento do artigo — nenhuma forma fechada da prova e
+usada aqui).
 
-DP verificado (Teorema A3a.1(ii)), celula |J| = |K| = |L| = 1 com dados
+DP verificado (item (ii) do teorema), celula |J| = |K| = |L| = 1 com dados
 GERAIS (f, g, c, d, b, p, q inteiros >= 0):
   OPT = g_1 + d_111 * D + DP(D), onde DP(t) = custo minimo de abrir um
   subconjunto de fabricas e enviar exatamente t unidades (u_i <= b_i,
@@ -30,7 +32,7 @@ GERAIS (f, g, c, d, b, p, q inteiros >= 0):
   e inviabilidade (p_1 < D ou sum b_i < D) a parte.
 
 Tambem verificados (celula SIMETRICA |I| = |K| = |L| = 1 do item (iii)
-do Teorema A3a.1): a reducao espelhada de PARTITION (itens = DEPOSITOS:
+do mesmo teorema): a reducao espelhada de PARTITION (itens = DEPOSITOS:
 p_j = g_j = a_j; fabrica unica gratuita com b_1 = D) e o DP simetrico
 (fabrica forcada aberta; custo unitario via deposito j = c_1j1 + d_j11).
 
@@ -60,7 +62,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common_mp_tscfl import all_designs, routing_value
 
 # ---------------------------------------------------------------------------
-# Reducao do Teorema A3a.1(i)
+# Reducao de PARTITION (item (i))
 # ---------------------------------------------------------------------------
 
 def build_partition_instance(a):
@@ -84,7 +86,7 @@ def build_partition_instance(a):
 
 def brute_force_mp_opt(inst):
     """OPT do MP-TSCFLP por forca bruta: todos os (y,z), roteamento MCMF
-    exato (Prop. A1.1). Retorna None se nenhum desenho e viavel."""
+    exato (oraculo de roteamento). Retorna None se nenhum desenho e viavel."""
     best = None
     for y, z in all_designs(inst["nI"], inst["nJ"]):
         total = sum(inst["f"][i] * y[i] for i in range(inst["nI"])) \
@@ -156,7 +158,7 @@ def check_partition_instance(a, failures):
 
 
 def build_partition_mirror_instance(a):
-    """Reducao simetrica (item (iii) do Teorema A3a.1): itens = depositos."""
+    """Reducao simetrica (item (iii) do teorema): itens = depositos."""
     A = sum(a)
     assert A % 2 == 0
     D = A // 2
@@ -176,8 +178,6 @@ def build_partition_mirror_instance(a):
 
 def check_partition_mirror(a, failures):
     """Testa a reducao espelhada numa instancia com A par. Retorna #checks."""
-    A = sum(a)
-    D = A // 2
     inst, B = build_partition_mirror_instance(a)
     opt = brute_force_mp_opt(inst)
     part_yes = brute_force_partition(a)
@@ -198,7 +198,7 @@ def check_partition_mirror(a, failures):
 
 
 # ---------------------------------------------------------------------------
-# DP do Teorema A3a.1(ii)
+# DP pseudo-polinomial (item (ii) do teorema)
 # ---------------------------------------------------------------------------
 
 def knapsack_cover_dp(f, c, b, D):
@@ -222,18 +222,18 @@ def knapsack_cover_dp(f, c, b, D):
 
 
 def dp_cell_opt(inst):
-    """OPT da celula |J|=|K|=|L|=1 pela formula do Teorema A3a.1(ii)."""
+    """OPT da celula |J|=|K|=|L|=1 pela formula do item (ii) do teorema."""
     D = inst["q"][0][0]
     if D == 0:
         return 0
     if inst["p"][0][0] < D:
-        return None  # F2 de A1.2 falha para todo desenho
+        return None  # condicao F2 de viabilidade falha para todo desenho
     core = knapsack_cover_dp(inst["f"],
                              [inst["c"][i][0][0] for i in range(inst["nI"])],
                              [inst["b"][i][0] for i in range(inst["nI"])],
                              D)
     if core is None:
-        return None  # F1 de A1.2 falha
+        return None  # condicao F1 de viabilidade falha
     return inst["g"][0] + inst["d"][0][0][0] * D + core
 
 
@@ -255,14 +255,14 @@ def gen_cell_instance(seed):
 
 
 def dp_cell_opt_mirror(inst):
-    """OPT da celula simetrica |I|=|K|=|L|=1 (item (iii) do Teorema A3a.1):
+    """OPT da celula simetrica |I|=|K|=|L|=1 (item (iii) do teorema):
     OPT = f_1 + DP(D) sobre depositos, custo unitario via j = c_1j1 + d_j11,
     capacidade p_j, custo fixo g_j; inviavel se b_1 < D ou sum p < D."""
     D = inst["q"][0][0]
     if D == 0:
         return 0
     if inst["b"][0][0] < D:
-        return None  # F1 de A1.2 falha para todo desenho
+        return None  # condicao F1 de viabilidade falha para todo desenho
     m = inst["nJ"]
     core = knapsack_cover_dp(inst["g"],
                              [inst["c"][0][j][0] + inst["d"][j][0][0]
@@ -270,7 +270,7 @@ def dp_cell_opt_mirror(inst):
                              [inst["p"][j][0] for j in range(m)],
                              D)
     if core is None:
-        return None  # F2 de A1.2 falha
+        return None  # condicao F2 de viabilidade falha
     return inst["f"][0] + core
 
 

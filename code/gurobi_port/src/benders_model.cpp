@@ -81,8 +81,8 @@ public:
 
 protected:
     void callback() override {
-        // Audit finding #5: a swallowed exception would silently ACCEPT the incumbent
-        // (no lazy cut added). Any failure must abort the solve and poison the result.
+        // A swallowed exception would silently ACCEPT the incumbent (no lazy
+        // cut added). Any failure must abort the solve and poison the result.
         try {
             if (where == GRB_CB_MIPSOL) {
                 separate(/*integer=*/true);
@@ -104,7 +104,7 @@ protected:
     }
 
 private:
-    // Sparsified cut with VALIDITY-PRESERVING compensation (audit finding #1):
+    // Sparsified cut with VALIDITY-PRESERVING compensation:
     // coefficients are <= 0, so moving a dropped term into the constant (its value
     // at y=1) only weakens the cut: coef*y >= coef for y in [0,1].
     GRBLinExpr cut_expr(const BendersCut& c) {
@@ -153,14 +153,14 @@ private:
                     for (int j = 0; j < J; ++j) if (zv[j] < 0.5) e += o_.z_[j];
                     addLazy(e >= 1.0);
                     ++o_.ncuts_;
-                    cut_added = true; // audit #6: never schedule theta-repair here
+                    cut_added = true; // never schedule theta-repair here
                 }
                 continue;
             }
             vl[l] = c.value;
-            // Audit finding #2: relative tolerance alone allows theta to sit up to
+            // Relative tolerance alone allows theta to sit up to
             // eps*|v_l| BELOW v_l; summed over products this can exceed the absolute
-            // gap-1 certificate (Prop. 5). Cap the tolerance so L*tol < 0.5.
+            // gap-1 certificate. Cap the tolerance so L*tol < 0.5.
             const double tol =
                 std::min(o_.opt_.eps * std::max(1.0, std::abs(c.value)), 0.4 / L);
             if (tv[l] < c.value - tol) {
@@ -177,7 +177,7 @@ private:
                 }
             }
         }
-        // Audit #10: Papadakos core point updated ONCE per round, not per product.
+        // Papadakos core point is updated ONCE per round, not per product.
         if (integer && o_.opt_.papadakos && cut_added) {
             for (int i = 0; i < I; ++i) o_.core_y_[i] = 0.5 * (o_.core_y_[i] + yv[i]);
             for (int j = 0; j < J; ++j) o_.core_z_[j] = 0.5 * (o_.core_z_[j] + zv[j]);
@@ -273,10 +273,11 @@ void BendersModel::set_start(const std::vector<int>& ybar, const std::vector<int
 
 ExactResult BendersModel::run(double time_limit, double cutoff) {
     master_.set(GRB_DoubleParam_TimeLimit, time_limit);
-    // Proof mode: integral optimum (Prop. 5). In the BENDERS master obj = fixed + sum
+    // Proof mode: integral optimum. In the BENDERS master obj = fixed + sum
     // theta, and acceptance allows theta_l >= v_l - tol_l with sum_l tol_l <= 0.4
-    // (audit #2 fix). MIPGapAbs = 0.5 then certifies: bound > obj - 0.5 >= true - 0.9,
-    // and integrality closes the argument (BENDERS.md sec. 5.2).
+    // (capped per-product tolerance above). MIPGapAbs = 0.5 then certifies:
+    // bound > obj - 0.5 >= true - 0.9,
+    // and integrality closes the argument (see the paper's Benders section).
     master_.set(GRB_DoubleParam_MIPGap, 0.0);
     master_.set(GRB_DoubleParam_MIPGapAbs, 0.5);
     master_.set(GRB_DoubleParam_Cutoff, cutoff > 0 ? cutoff : GRB_INFINITY);
@@ -286,7 +287,7 @@ ExactResult BendersModel::run(double time_limit, double cutoff) {
     master_.optimize();
 
     ExactResult r;
-    if (callback_failed_) { // audit #5: never trust a run whose separation failed
+    if (callback_failed_) { // never trust a run whose separation failed
         std::cerr << "[Benders] result POISONED by callback failure; discarding.\n";
         r.status = Status::NotFound;
         return r;
@@ -295,7 +296,7 @@ ExactResult BendersModel::run(double time_limit, double cutoff) {
     if (st == GRB_INFEASIBLE) { r.status = Status::Infeasible; return r; }
     if (master_.get(GRB_IntAttr_SolCount) == 0) {
         r.status = Status::NotFound;
-        // audit #4/#8: on CUTOFF (or timeout) without incumbent the dual bound is
+        // On CUTOFF (or timeout) without incumbent the dual bound is
         // still valid and lets the caller certify a heuristic UB.
         try { r.bound = master_.get(GRB_DoubleAttr_ObjBound); } catch (GRBException&) {}
         return r;

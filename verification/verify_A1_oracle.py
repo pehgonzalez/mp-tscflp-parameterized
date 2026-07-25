@@ -1,5 +1,5 @@
 """
-Verificacao computacional da Prop. A1.1 (oraculo de roteamento).
+Verificacao computacional do oraculo de roteamento do artigo.
 
 Para >= 30 instancias aleatorias pequenas com semente fixa
 (|I|,|J|,|K| <= 4, |L| <= 3, valores <= 9) e varios desenhos (y,z)
@@ -22,7 +22,7 @@ Checagens:
      (integralidade do valor otimo do PL residual).
 
 (1) e (2) sao modelos de fluxo; (3) e o PL original com desigualdades,
-logo C valida a reducao provada na Prop. A1.1 e D valida a
+logo C valida a reducao PL -> fluxo provada no artigo e D valida a
 integralidade do valor.
 """
 
@@ -31,8 +31,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from common_mp_tscfl import (gen_instance, demand_total, build_network,
-                             routing_value)
+from common_mp_tscfl import (gen_instance, demand_total, routing_value)
 
 import random
 import networkx as nx

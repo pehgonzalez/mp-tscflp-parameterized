@@ -30,9 +30,9 @@ brute-force enumeration of all designs with an exact per-product min-cost-flow
 oracle, matching it on $180$ small seeded instances and on $1{,}381$ exact
 comparisons of optimal value, feasibility and covering bound across a full sweep
 of the cardinality, with no disagreement. The verification battery in the
-accompanying code performs on the order of nine hundred thousand
-individual checks, spanning design enumerations, closed-form comparisons
-and LP cross-checks, with no failure. More than $560{,}000$ of the
+accompanying code spans design enumerations, closed-form comparisons
+and LP cross-checks, and every one of its roughly nine hundred
+thousand runs passed. More than $560{,}000$ of the
 checks are exhaustive design enumerations validating the numeric-layer
 constructions alone, roughly ten thousand are equivalence
 verifications, two hundred are independent LP cross-checks, $1{,}381$
@@ -79,7 +79,7 @@ certifies its bound, a caveat Section~\ref{sec:exp-q2} makes explicit
 for the three closed runs. The
 terminal gap of a run is the relative optimality gap the solver reports
 when it stops, the difference between incumbent and bound divided by the
-incumbent, quoted in percent throughout.
+incumbent, quoted in per cent throughout.
 
 The enumeration runs were executed under a fixed $60$~s limit. The
 \textsc{Xp} binary is single-threaded C++20, compiled with g++~13.3.0 at
@@ -114,8 +114,8 @@ submission as supplementary material and is released at
 The controlled family was built to probe the boundary that
 Theorem~\ref{thm:xp} predicts, and the outcome is unambiguous. The main grid, whose
 graphs all have $n=|I|+|J|\ge 40$, lies entirely outside the $60$~s regime, so
-all $400$ instances are censored. This is the result rather than a failure of
-protocol. At $n\ge 40$ the search processes a median of roughly
+all $400$ instances are censored, which is the finding itself and not
+a failure of protocol. At $n\ge 40$ the search processes a median of roughly
 $2{,}500$ nodes before the limit, while a completed search at $n=24$
 already needs a median of roughly $23{,}000$, and the cost of each node
 grows with $|I|$, $|J|$, $|K|$ and $|L|$ through the oracle. The raw
@@ -127,9 +127,8 @@ and the second reruns the same grid with ten fresh seeds per cell under
 the tenfold budget of $600$~s, on the same virtual machine. Medians are taken over solved runs only, so the times in
 partially solved cells are biased downward by that conditioning. Under
 $60$~s every instance at $n=20$ solves, seven of twelve solve at
-$n=24$, and none solves from $n=28$ upward, so that budget places the
-border at $n\approx 24$, for this implementation, under this protocol,
-in plain optimisation mode. Under $600$~s both $n=20$ and $n=24$ solve
+$n=24$, and none solves from $n=28$ upward, so under this protocol and implementation the $60$~s budget places
+the border of plain optimisation at $n\approx 24$. Under $600$~s both $n=20$ and $n=24$ solve
 in full, $n=28$ solves in thirteen of forty runs, $n=30$ yields one
 solve in forty, and $n=40$ stays fully censored. The border of the
 regime is therefore a property of the implementation and the budget
@@ -228,13 +227,14 @@ on optimal values they jointly certify.
 \subsection{The covering bound and the root relaxation (Q3)}
 \label{sec:exp-q3}
 
-The last question asks whether $k^\ast$ tracks difficulty beyond the
-algorithm that motivated it, and through which mechanism, so we
+The last question confronts the covering bound with a solver that
+makes no use of it, asking not only whether $k^\ast$ correlates with
+solver effort but through what channel the association runs, so we
 confront the covering bound with the integer
 solver on the benchmark that the original study left without a single proven
 optimum. The bound is available
-without solving anything, computed by one sort and one prefix scan,
-and it varies widely across the benchmark, as Figure~\ref{fig:q3} shows. Table~\ref{tab:q3groups} reports the campaign by
+before anything is solved, at the cost of sorting each capacity vector
+once, and it varies widely across the benchmark, as Figure~\ref{fig:q3} shows. Table~\ref{tab:q3groups} reports the campaign by
 size group, the range of the bound, the median terminal gap, the proven
 optima and the within-group correlations with their Holm-adjusted
 $p$-values. Within every size group the

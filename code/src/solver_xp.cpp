@@ -1,5 +1,5 @@
-// solver_xp.cpp — Algorithm A4.1 (Note A4 §1), literal steps 1-9, plus the
-// safe preprocessing of Note A6 §1. See solver_xp.hpp for the contract.
+// solver_xp.cpp — the branch-and-bound of the paper, literal steps 1-9, plus
+// the paper's safe preprocessing. See solver_xp.hpp for the contract.
 
 #include "solver_xp.hpp"
 
@@ -17,10 +17,10 @@ namespace {
 constexpr long long LLINF = std::numeric_limits<long long>::max();
 
 // ---------------------------------------------------------------------------
-// Preprocessing (Note A6 §1) — exact, safe under (B,k)
+// Preprocessing — exact, safe under (B,k)
 // ---------------------------------------------------------------------------
 
-// Prop. A6.1: merge customers with identical d-columns (d[l][j][k] equal for
+// Customer aggregation: merge customers with identical d-columns (d[l][j][k] equal for
 // all l, j), summing demands. Preserves feasibility and cost of every design.
 Instance aggregate_customers(const Instance& X, int& merged) {
     std::map<std::vector<long long>, int> seen;  // d-column -> new index
@@ -54,7 +54,7 @@ Instance aggregate_customers(const Instance& X, int& merged) {
     return Y;
 }
 
-// Obs. A6.1.4: cap b_il, p_jl at D_l. Preserves feasibility and cost of every
+// Capacity capping: cap b_il, p_jl at D_l. Preserves feasibility and cost of every
 // design; also preserves k* (a capped entry >= D_l already gives prefix >= D_l
 // at s = 1, and entries < D_l are untouched).
 void cap_capacities(Instance& X, int& capped) {
@@ -69,7 +69,8 @@ void cap_capacities(Instance& X, int& capped) {
 }
 
 // ---------------------------------------------------------------------------
-// Lemma A4.1.1 — minimum covering count via sorted-capacity prefix scan
+// The covering-count lemma of the paper — minimum covering count via
+// sorted-capacity prefix scan
 // ---------------------------------------------------------------------------
 
 // k*(a; D): smallest s with the sum of the s largest entries of a >= D;
@@ -86,7 +87,7 @@ long long kstar_prefix(std::vector<long long>& a, long long D) {
 }
 
 // ---------------------------------------------------------------------------
-// Routing oracle (Prop. A1.1): |L| exact min-cost flows on N_l(y,z)
+// Routing oracle: |L| exact min-cost flows on N_l(y,z)
 // ---------------------------------------------------------------------------
 
 struct OracleOut {
@@ -97,7 +98,7 @@ struct OracleOut {
 };
 
 // yopen/zopen: which facilities are open. Under complete stages, feasibility
-// is exactly F1/F2 (Prop. A1.2); middle arcs may be capped at
+// is exactly F1/F2 (the feasibility proposition of the paper); middle arcs may be capped at
 // min(b_il, p_jl) (resp. min(p_jl, q_kl)) without loss, since every feasible
 // flow already respects those bounds through the capacity arcs.
 OracleOut routing_oracle(const Instance& X, const std::vector<char>& yopen,
@@ -143,7 +144,7 @@ OracleOut routing_oracle(const Instance& X, const std::vector<char>& yopen,
         for (int k = 0; k < X.nK; ++k)
             if (X.q[k][l] > 0) net.add_edge(Ck(k), T, X.q[k][l], 0);
         auto [sent, cost] = net.min_cost_flow(S, T, D);
-        if (sent < D) return out;  // defensive; cannot happen under A1.2
+        if (sent < D) return out;  // defensive; cannot happen when F1/F2 hold
         out.value += cost;
         for (int i = 0; i < X.nI; ++i) out.fac_use[i] += net.flow_on(hb[i]);
         for (int j = 0; j < X.nJ; ++j) out.dep_use[j] += net.flow_on(hp[j]);
@@ -153,7 +154,7 @@ OracleOut routing_oracle(const Instance& X, const std::vector<char>& yopen,
 }
 
 // ---------------------------------------------------------------------------
-// The B&B (Algorithm A4.1, steps 3-9)
+// The B&B (steps 3-9 of the paper's algorithm)
 // ---------------------------------------------------------------------------
 
 struct Search {
@@ -202,7 +203,8 @@ struct Search {
         return timed_out;
     }
 
-    // Node P1 quantities (Cor. A4.1.1'): s_I, s_J via prefix counts over the
+    // Node P1 quantities (node form of the covering-count lemma): s_I, s_J
+    // via prefix counts over the
     // capacities of FREE (undecided) facilities against residual demand.
     bool p1_prune(int r) {
         long long maxSI = 0, maxSJ = 0;

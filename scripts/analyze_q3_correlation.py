@@ -75,7 +75,8 @@ def group_label(row):
 
 def main():
     mip_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(
-        os.path.dirname(__file__), "mauri_mip.csv")
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "results", "mauri_mip.csv")
     if not os.path.exists(mip_path):
         sys.exit(f"MIP results not found: {mip_path}\n"
                  "Run the benchmark campaign first, then pass its CSV path.")

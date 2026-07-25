@@ -7,7 +7,7 @@ isto e, todas as arestas fabrica-deposito e deposito-cliente, nenhuma outra.
 
 Checagens (todas construtivas, sobre o conjunto EXATO de arestas):
 
-  [1] A 3-expressao "por camadas" da Obs. A4.4(a)
+  [1] A 3-expressao "por camadas" da observacao de clique-width do artigo
           eta_{2,3}( eta_{1,2}( ⊕_I 1(v) ⊕ ⊕_J 2(v) ⊕ ⊕_K 3(v) ) )
       gera exatamente K_{I,J} ∪ K_{J,K} (nem uma aresta a mais, nem a menos),
       usando exatamente 3 rotulos. Isto vale tambem para a estrutura

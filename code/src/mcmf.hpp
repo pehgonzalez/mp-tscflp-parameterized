@@ -1,7 +1,7 @@
 // mcmf.hpp — exact integer min-cost flow: successive shortest paths (SSP)
 // with Johnson potentials (Dijkstra on reduced costs). All arithmetic in
 // long long; requires all original arc costs >= 0 (true for the layered
-// network N_l(y,z) of Prop. A1.1: c, d >= 0, capacity arcs cost 0).
+// network N_l(y,z) of the routing oracle: c, d >= 0, capacity arcs cost 0).
 //
 // Correctness of keeping potentials of unreachable nodes unchanged: in SSP
 // a node unreachable in the residual graph can never become reachable

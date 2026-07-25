@@ -1,37 +1,35 @@
 #!/usr/bin/env python3
 """
-Ataques adversariais independentes complementares aos scripts verify_A6_*.
+Independent stress tests complementing verify_A6_*.
 
-ATK1: cross-composition (clientes e produtos) fora das faixas do script do
-      desenvolvedor: n_U=1, t_hat=m, t0=3 (padding impar), fontes
+ATK1: cross-composition (clientes e produtos) fora das faixas de
+      verify_A6_crosscomp.py: n_U=1, t_hat=m, t0=3 (padding impar), fontes
       adversariais (uma quase-SIM: cobertura minima = t_hat+1; outras NAO;
       uma trivialmente quase-YES com conjuntos grandes). Checagem OR dos
       dois lados por forca bruta + estrutural em TODO desenho de custo <=B.
 ATK2: sanidade dos guardas - composicao D1 (sem guardas) deve QUEBRAR o OR
       (abrir os dois seletores de um par contorna tudo). Confirma que os
       guardas sao load-bearing e que o teste detectaria o furo.
-ATK3: agregacao de clientes (Prop. A6.1) com demandas extremas/assimetricas
+ATK3: agregacao de clientes com demandas extremas/assimetricas
       e verificacao por LP independente (scipy.linprog) alem do MCMF.
-ATK4: capping (Obs. A6.1.4) com b,p >> D_l e resposta (B,k) para todo k.
-ATK5: probe n_U = 0 (fora da convencao n_U>=1 de A2 par.0): documenta que a
+ATK4: capping com b,p >> D_l e resposta (B,k) para todo k.
+ATK5: probe n_U = 0 (fora da convencao n_U>=1 do artigo): documenta que a
       composicao por PRODUTOS falharia sem a convencao (guardas sem fabrica).
 """
 import itertools
 import random
 import copy
-from common_mp_tscfl import routing_value, all_designs
+from common_mp_tscfl import all_designs
 
 try:
-    import numpy as np
     from scipy.optimize import linprog
     HAVE_SCIPY = True
 except Exception:
     HAVE_SCIPY = False
 
 from verify_A6_crosscomp import (compose_clients, compose_products,
-                                 sc_yes, sc_min_cover, pad_to_pow2)
-from verify_A6_aggregation import (total_cost, cost_map, opt_and_argmin,
-                                   merge_customers)
+                                 sc_yes, pad_to_pow2)
+from verify_A6_aggregation import total_cost, cost_map, merge_customers
 
 
 # ---------------------------------------------------------------------------
@@ -391,4 +389,4 @@ if __name__ == "__main__":
     atk3()
     atk4()
     atk5()
-    print("review_attacks_A6.py: concluido")
+    print("stress_tests_A6.py: concluido")

@@ -1,4 +1,4 @@
-// main_xp.cpp — CLI for the Xp solver (Algorithm A4.1).
+// main_xp.cpp — CLI for the Xp solver (the branch-and-bound of the paper).
 //
 // Usage: xp <instance.psc> [time_limit_s] [k|-1]
 //   time_limit_s : wall-clock deadline in seconds (default 3600; <=0 = none)
@@ -8,7 +8,7 @@
 // Output contract (ONE line on stdout):
 //   instance= status= obj= k_used= kstar= nodes= time= agg= timeout=
 // followed by extra diagnostic fields (p1= p2i= p2b= p3= rneg= cap=).
-// kstar is the root covering lower bound of Lemma A4.1.1 (the Q3 predictor);
+// kstar is the root covering lower bound of the covering-count lemma (the Q3 predictor);
 // it is always computed and printed, including on TIMEOUT and INFEASIBLE
 // ("inf" when no covering design exists at all). obj= is "inf" when no
 // feasible design of cardinality <= k is known.

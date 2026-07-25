@@ -1,10 +1,11 @@
 """
-Exploracao computacional do problema aberto R8(ii) do artigo.
+Exploracao computacional do problema aberto do artigo sobre a celula
+|K| = |L| = 1 com custos de transporte gerais.
 
 Celula: |K| = |L| = 1, custos de transporte GERAIS (c_ij, d_j), |I| e |J|
 livres. Escrevemos c^(Y,Z) := f(Y) + g(Z) + v(Y,Z) para o custo total do
 desenho (Y,Z), com c^ = +infinito se o desenho e' inviavel, e v(Y,Z) o
-valor do PL residual (oraculo MCMF da Prop. A1.1, implementacao inteira
+valor do PL residual (oraculo MCMF de roteamento, implementacao inteira
 exata de common_mp_tscfl.py).
 
 Baterias (todas com sementes fixas; contagens impressas ao final):
@@ -13,7 +14,7 @@ Baterias (todas com sementes fixas; contagens impressas ao final):
         produto 2^I x 2^J (join = uniao, meet = intersecao).
         MOTIVACAO: se c^ fosse submodular, a minimizacao de funcao
         submodular (poli, Groetschel-Lovasz-Schrijver) resolveria
-        R8(ii) POSITIVAMENTE. Testamos primeiro por ser decisivo.
+        o problema aberto POSITIVAMENTE. Testamos primeiro por ser decisivo.
         Obstrucao estrutural registrada a parte: com A e B viaveis o
         meet pode ser inviavel (c^(meet) = +inf), o que ja viola a
         desigualdade submodular; contamos tambem violacoes com os
@@ -32,11 +33,12 @@ Baterias (todas com sementes fixas; contagens impressas ao final):
         (ignorando o transporte), depois rotear otimamente. Comparar
         com OPT (forca bruta): contamos falhas estritas.
 
-  [SEP] Sanidade da Prop. A5.3: em instancias com custos SEPARAVEIS
+  [SEP] Sanidade da proposicao dos custos separaveis: em instancias com
+        custos SEPARAVEIS
         c_ij = gamma_i + delta_j, o par de DPs desacoplados (lado I com
         (f_i, gamma_i, b_i); lado J com (g_j, delta_j + d_j, p_j)) deve
         coincidir EXATAMENTE com a forca bruta. (A verificacao formal
-        da Prop. A5.3 esta em verify_A5_R8ii.py; aqui e' o farol da
+        da proposicao esta em verify_A5_R8ii.py; aqui e' o farol da
         exploracao.)
 
 Forca bruta: enumeracao de TODOS os desenhos (y,z) + oraculo MCMF
@@ -44,7 +46,6 @@ inteiro (routing_value). Nenhuma forma fechada e' usada como fonte.
 """
 
 import random
-import sys
 from fractions import Fraction
 
 from common_mp_tscfl import routing_value
@@ -254,7 +255,7 @@ def battery_G(inst_list):
                                         if mz >> j & 1), bin(mz).count("1"),
                                     mz))
         heur = tab[(bestY, bestZ)][0]
-        assert heur < INF  # condicao agregada => viavel (Prop. A1.2)
+        assert heur < INF  # condicao agregada => viavel (caracterizacao de viabilidade)
         assert heur >= opt
         if heur > opt:
             n_fail += 1
@@ -265,7 +266,7 @@ def battery_G(inst_list):
 
 
 # ---------------------------------------------------------------------------
-# [SEP] custos separaveis: DPs desacoplados == forca bruta (Prop. A5.3)
+# [SEP] custos separaveis: DPs desacoplados == forca bruta
 # ---------------------------------------------------------------------------
 
 def side_dp(items, D):

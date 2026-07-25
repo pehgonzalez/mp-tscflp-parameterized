@@ -1,12 +1,13 @@
 """
-Verificacao exaustiva da o artigo:
+Verificacao exaustiva de dois resultados da camada numerica do artigo:
 
-  Teorema A5.2 — SET COVER -> MP-TSCFLP restrito a |K| = |L| = 1
+  Reducao de cobertura da celula — SET COVER -> MP-TSCFLP restrito a
+  |K| = |L| = 1
     (elementos = fabricas, conjuntos = depositos, acoplamento
     c_ij in {0,1}; f = 0, g = 1, d = 0, b_i = Q := m+1, p_j = n_U*Q,
-    D = n_U*Q, orcamento B = t). Resolve R8(ii): dureza FORTE.
+    D = n_U*Q, orcamento B = t). Estabelece a dureza FORTE da celula.
 
-  Proposicao A5.3 — custos de estagio 1 separaveis c_ij = gamma_i +
+  Proposicao dos custos separaveis — custos de estagio 1 c_ij = gamma_i +
     delta_j  =>  a celula |K| = |L| = 1 e' pseudo-polinomial (dois
     min-knapsack-covers desacoplados).
 
@@ -20,10 +21,10 @@ Baterias:
             (Y = I e Z != vazio) e, se viavel, v == Q * #descobertos(Z);
         (b) OPT == t* (tamanho minimo de cobertura, forca bruta) quando
             cobrivel; OPT > m quando nao cobrivel;
-        (c) "<=>" do Teorema A5.2 para TODO orcamento t in {1..m}.
+        (c) "<=>" da reducao para TODO orcamento t in {1..m}.
   [B] aleatoria: familias com |U|, |S| <= 5 (sementes fixas), mesmas
       checagens (a)-(c).
-  [C] Prop. A5.3: instancias separaveis aleatorias (incluindo D = 0,
+  [C] custos separaveis: instancias aleatorias (incluindo D = 0,
       inviaveis e decomposicoes com gamma_i NEGATIVO — so os arcos
       c_ij = gamma_i + delta_j precisam ser >= 0): DP desacoplado ==
       forca bruta, com viabilidade implicita via OPT (INF == INF).
@@ -53,7 +54,7 @@ def check(cond, msg):
 
 
 # ---------------------------------------------------------------------------
-# construcao do Teorema A5.2
+# construcao da reducao de cobertura da celula
 # ---------------------------------------------------------------------------
 
 def build_reduction(nU, fam):
@@ -163,7 +164,7 @@ def battery_B(n=40, seed0=20260710):
 
 
 # ---------------------------------------------------------------------------
-# Prop. A5.3 — DP desacoplado para custos separaveis
+# Custos separaveis — DP desacoplado
 # ---------------------------------------------------------------------------
 
 def side_dp(items, D):
@@ -190,7 +191,7 @@ def battery_C(n=120, seed0=8000):
         g = [rng.randint(0, 8) for _ in range(nJ)]
         b = [rng.randint(1, 8) for _ in range(nI)]
         p = [rng.randint(1, 8) for _ in range(nJ)]
-        # gamma pode ser negativo (Prop. A5.3 nao exige sinal);
+        # gamma pode ser negativo (a proposicao nao exige sinal);
         # delta >= 3 garante arcos c_ij = gamma_i + delta_j >= 0
         gamma = [rng.randint(-3, 5) for _ in range(nI)]
         delta = [rng.randint(3, 8) for _ in range(nJ)]
@@ -232,7 +233,7 @@ def battery_C(n=120, seed0=8000):
                           for j in range(nJ)], D)
             dpval = a + bb if a < INF and bb < INF else INF
         check(opt == dpval,
-              f"A5.3 seed={s}: bruta={opt} dp={dpval}")
+              f"custos separaveis seed={s}: bruta={opt} dp={dpval}")
         counters["instancias"] += 1
         if opt < INF:
             counters["viaveis"] += 1
@@ -339,7 +340,7 @@ def main():
     print(f"  familias: {cb['familias']}  desenhos verificados: "
           f"{cb['desenhos']}  testes '<=>': {cb['iff']}")
 
-    print("== [C] Prop. A5.3 (custos separaveis, DP vs forca bruta) ==")
+    print("== [C] custos separaveis (DP vs forca bruta) ==")
     cc = battery_C()
     print(f"  instancias: {cc['instancias']} (viaveis {cc['viaveis']}, "
           f"inviaveis {cc['inviaveis']}, D=0 {cc['D0']})")

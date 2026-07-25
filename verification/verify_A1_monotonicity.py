@@ -1,5 +1,5 @@
 """
-Verificacao computacional da Prop. A1.3 (monotonicidade).
+Verificacao computacional da proposicao de monotonicidade do artigo.
 
 Para >= 20 instancias aleatorias pequenas com semente fixa
 (|I|,|J| <= 3 para manter a enumeracao de pares tratavel), calcula
@@ -12,8 +12,8 @@ componente a componente e todo produto l:
 o que inclui, em particular: (y,z) viavel => (y',z') viavel.
 Valores por implementacao propria de MCMF com aritmetica inteira.
 
-Revisao independente: pares reflexivos (y,z) = (y',z')
-tornam a desigualdade tautologica; sao agora EXCLUIDOS da contagem de
+Checagem cruzada independente: pares reflexivos (y,z) = (y',z')
+tornam a desigualdade tautologica; sao EXCLUIDOS da contagem de
 checks (contados a parte, apenas para registro de cobertura).
 """
 

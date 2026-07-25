@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Extrai, dos logs do Gurobi da campanha do benchmark, o objetivo da
-relaxacao de raiz e o numero de nos explorados por corrida, e grava
-results/mauri_rootgap.csv. Nenhuma reexecucao, apenas leitura dos logs
-arquivados junto aos resultados brutos. Os coeficientes de mediacao
-citados na Secao 6.4 sao recomputaveis deste CSV.
+Extracts, from the Gurobi logs of the benchmark campaign, the root
+relaxation objective and the number of explored nodes per run, and
+writes results/mauri_rootgap.csv. No rerun is involved, only reading
+the logs archived next to the raw results. The mediation coefficients
+quoted in the paper are recomputable from this CSV.
 
-Uso: python3 scripts/extract_rootgap.py <pasta-dos-logs>
+Usage: python3 scripts/extract_rootgap.py <log-directory>
 """
 import csv, os, re, sys
 
@@ -39,7 +39,7 @@ def main():
         w.writeheader()
         for o in out:
             w.writerow(o)
-    print(dest, len(out), "linhas")
+    print(dest, len(out), "rows")
 
 if __name__ == "__main__":
     main()

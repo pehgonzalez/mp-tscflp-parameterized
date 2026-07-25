@@ -7,8 +7,8 @@
 //   IloCplex::TiLim                    -> GRB_DoubleParam_TimeLimit
 //   IloCplex::NodeFileInd = 3          -> GRB_DoubleParam_NodefileStart
 //   refineConflict                     -> GRBModel::computeIIS
-//   Benders::Strategy = BendersFull    -> NO Gurobi equivalent; a manual
-//     branch-and-Benders-cut (lazy-constraint callback) is Phase 1 of the roadmap.
+//   Benders::Strategy = BendersFull    -> NO Gurobi equivalent; the manual
+//     branch-and-Benders-cut (lazy-constraint callback) is benders_model.*.
 #ifndef MPTSCFL_EXACT_MODEL_HPP
 #define MPTSCFL_EXACT_MODEL_HPP
 
@@ -42,7 +42,7 @@ public:
     void set_seed(int seed);
 
     // method: 0 = plain branch-and-bound (Gurobi default cuts/heuristics on).
-    //         1 = reserved for manual Benders (Phase 1); currently falls back to 0
+    //         1 = reserved for manual Benders (benders_model.*); currently falls back to 0
     //             with a warning, since Gurobi has no automatic Benders.
     ExactResult run(double time_limit, double cutoff = -1.0, int method = 0, int threads = 0);
 

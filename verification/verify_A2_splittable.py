@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A2_splittable.py — Verificacao adversarial da "brecha do servico
-divisivel" nos Teoremas A2.1/A2.3 do projeto MP-TSCFLP-PCA.
+verify_A2_splittable.py — Verificacao adversarial do "servico divisivel"
+nos teoremas de cobertura e de inaproximabilidade do artigo.
 
 PERGUNTA ADVERSARIAL: nas instancias produzidas pela reducao de Set Cover,
 fluxos FRACIONARIOS/DIVIDIDOS (servico repartido entre varios depositos, ou
@@ -38,12 +38,13 @@ com b_1 = p_j = |U|*Q. Depositos fechados nao recebem variaveis (w=x=0
 forcado por z_j = 0). Tolerancia numerica: 1e-6 (dados pequenos, HiGHS
 resolve exato nesses tamanhos).
 
-Baterias (ampliadas apos revisao independente,
+Baterias (ampliadas por checagem cruzada independente,
 para casar com as faixas de verify_A2_setcover.py, de modo que a formula
 fechada nunca rode "sem contraste" em instancia coberta so pelo outro script):
   (A) TODAS as familias deduplicadas com |U| <= 4, |S| <= 4 (mesma
       enumeracao da bateria [A] de verify_A2_setcover.py), ambos os
-      amplificadores Q = m+1 (A2.1) e Q' = nm+m+1 (A2.3), todos os D
+      amplificadores Q = m+1 (cobertura) e Q' = nm+m+1 (inaproximabilidade),
+      todos os D
       nao vazios.
   (B) 50 instancias aleatorias semeadas com |U| <= 6, |S| <= 6, idem.
 Criterio: LP_otimo == Q * #descobertos(D) em toda combinacao (=> fracionar
@@ -121,7 +122,7 @@ def closed_form_cost(n, sets, Q, depots):
 def check_family(n, fam, failures, tol=1e-6):
     m = len(fam)
     checks = 0
-    for Q in (m + 1, n * m + m + 1):  # amplificadores de A2.1 e A2.3
+    for Q in (m + 1, n * m + m + 1):  # os dois amplificadores dos teoremas
         for mask in range(1, 1 << m):
             depots = [j for j in range(m) if (mask >> j) & 1]
             lp = lp_routing_cost(n, fam, Q, depots)

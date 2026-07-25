@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A3a_products.py — Verificacao computacional do Teorema A3a.2 (R4c)
-e do Corolario A3a.3 (construcao espelhada) do projeto MP-TSCFLP-PCA.
+verify_A3a_products.py — Verificacao computacional da construcao por
+produtos do artigo e do seu corolario espelhado.
 
-Teorema A3a.2, de SET COVER (U, S = {S_1..S_m}, t), PRODUTOS como elementos:
+Construcao primaria, de SET COVER (U, S = {S_1..S_m}, t), PRODUTOS como
+elementos:
   * produtos = elementos de U (|L| = n_U), 1 deposito, 1 cliente;
   * fabricas = conjuntos: f_i = 1, b_il = Q para TODO l,
     c_i1l = 0 se l in S_i senao 1;
@@ -15,7 +16,7 @@ Forma fechada do lema estrutural (a SER verificada, nao usada como fonte):
   custo(Y aberto, z=1) = |Y| + Q * #{l nao coberto por Y};  Y vazio ou z=0
   inviavel.
 
-Corolario A3a.3 (espelho, |I| = |K| = 1, depositos x produtos):
+Construcao espelhada (|I| = |K| = 1, depositos x produtos):
   * 1 fabrica: f_1 = 0, b_1l = Q, c_1jl = 0;
   * depositos = conjuntos: g_j = 1, p_jl = Q, d_j1l = 0 se l in S_j senao 1;
   * cliente: q_1l = Q; amplificador e orcamento identicos.
@@ -23,7 +24,7 @@ Forma fechada: custo(y=1, Z aberto) = |Z| + Q * #{l nao coberto por Z}.
 
 INDEPENDENCIA: o otimo por forca bruta enumera TODOS os desenhos (y,z)
 (common_mp_tscfl.all_designs) e roteia cada produto pelo MCMF inteiro exato
-(common_mp_tscfl.routing_value, oraculo da Prop. A1.1) — sem forma fechada.
+(common_mp_tscfl.routing_value, o oraculo de roteamento) — sem forma fechada.
 A forma fechada e testada CONTRA esse roteamento em todos os desenhos, e
 adicionalmente contra um LP continuo completo (scipy.linprog/HiGHS) em uma
 subamostra adversarial (brecha do servico divisivel), incluindo desenhos
@@ -58,7 +59,7 @@ from common_mp_tscfl import all_designs, routing_value
 # ---------------------------------------------------------------------------
 
 def build_primary(n_u, sets):
-    """Teorema A3a.2: fabricas = conjuntos, produtos = elementos."""
+    """Construcao primaria: fabricas = conjuntos, produtos = elementos."""
     m = len(sets)
     Q = m + 1
     return {
@@ -75,7 +76,7 @@ def build_primary(n_u, sets):
 
 
 def build_mirror(n_u, sets):
-    """Corolario A3a.3: depositos = conjuntos, produtos = elementos."""
+    """Construcao espelhada: depositos = conjuntos, produtos = elementos."""
     m = len(sets)
     Q = m + 1
     return {
@@ -115,7 +116,7 @@ def closed_form(kind, n_u, sets, Q, y, z):
 
 def brute_force_designs(inst):
     """Gera (y, z, custo_total | None) para todos os desenhos, com
-    roteamento MCMF exato por produto (Prop. A1.1)."""
+    roteamento MCMF exato por produto (oraculo de roteamento)."""
     for y, z in all_designs(inst["nI"], inst["nJ"]):
         total = sum(inst["f"][i] * y[i] for i in range(inst["nI"])) \
               + sum(inst["g"][j] * z[j] for j in range(inst["nJ"]))

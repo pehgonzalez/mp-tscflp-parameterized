@@ -1,27 +1,27 @@
 """
-Ataques independentes complementares aos scripts verify_A4_* e verify_A5_*.
+Independent stress tests complementing verify_A4_* and verify_A5_*.
 
-ATTACK 1 (A5.2 — estacionamento/saturacao, via PL INDEPENDENTE):
-  A brecha F1 da auto-revisao de A5 e' que (C1)-(C4) em desigualdades
-  PERMITEM fluxo x entrando em deposito fechado (desperdicio). O oraculo
-  MCMF proibe isso estruturalmente (arco Din->Dout com cap 0), entao a
-  bateria [A] de verify_A5_R8ii nao ataca a brecha diretamente. Aqui:
+TESTE 1 (estacionamento/saturacao na reducao da celula numerica, via PL
+  INDEPENDENTE): (C1)-(C4) em desigualdades PERMITEM fluxo x entrando em
+  deposito fechado (desperdicio), enquanto o oraculo MCMF proibe isso
+  estruturalmente (arco Din->Dout com cap 0); a bateria [A] de
+  verify_A5_R8ii nao exercita esse caso diretamente. Aqui:
   forca bruta sobre TODOS os desenhos das instancias-imagem da reducao
-  A5.2 usando scipy.linprog sobre o PL ORIGINAL em desigualdades (que
-  permite estacionar), e conferindo:
+  da celula |K| = |L| = 1 usando scipy.linprog sobre o PL ORIGINAL em
+  desigualdades (que permite estacionar), e conferindo:
     - OPT_LP == t* (min cover) quando cobrivel; OPT_LP >= Q+1 senao;
     - "<=>" para todo t in {1..m};
     - por desenho viavel: v_LP == Q * u(Z) (forma fechada do lema).
   Familias: exaustivas pequenas + adversariais (conjunto vazio, elemento
   descoberto, conjuntos duplicados, cobertura so com todos).
 
-ATTACK 2 (A4.1 — testemunha protegida sob empates massivos):
+TESTE 2 (testemunha protegida do B&B sob empates massivos):
   B&B com P1+P2+P3 vs forca bruta em instancias com empates maximos:
   todos os valores em {0,1}(ou {0,1,2}), capacidades ZERO permitidas
   (instalacao aberta que nunca transporta — estresse maximo de P3),
   f=g=0, c=d=0, e combinacoes. Todas as cardinalidades k.
 
-ATTACK 3 (A4.3 — validade do corte em TODOS os desenhos + raios
+TESTE 3 (validade do corte de Benders em TODOS os desenhos + raios
   NUMERICOS):
   Em instancias pequenas: dual otimo u* obtido num desenho gerador
   viavel; checa o corte em TODOS os 2^n desenhos (viaveis: v >= rhs;
@@ -54,7 +54,7 @@ def check(cond, msg):
 
 
 # ---------------------------------------------------------------------------
-# ATTACK 1
+# TESTE 1
 # ---------------------------------------------------------------------------
 
 def lp_cell(inst, y, z):
@@ -151,7 +151,7 @@ def attack1():
 
 
 # ---------------------------------------------------------------------------
-# ATTACK 2
+# TESTE 2
 # ---------------------------------------------------------------------------
 
 def attack2(n=240, seed0=555000):
@@ -201,7 +201,7 @@ def attack2(n=240, seed0=555000):
 
 
 # ---------------------------------------------------------------------------
-# ATTACK 3
+# TESTE 3
 # ---------------------------------------------------------------------------
 
 def dual_lp_full(inst, l, y, z):
@@ -241,7 +241,6 @@ def dual_lp_full(inst, l, y, z):
 
 def attack3(n_inst=25, seed0=777000):
     n_cut = n_ray = n_unb = 0
-    rng = random.Random(seed0)
     for t in range(n_inst):
         inst = gen_instance(seed0 + t, max_i=3, max_j=3, max_k=3, max_l=2)
         # capacidades x2 para ter geradores viaveis com folga moderada
@@ -318,14 +317,14 @@ def attack3(n_inst=25, seed0=777000):
 
 
 def main():
-    print("== ATTACK 1: A5.2 via PL em desigualdades (estacionamento) ==")
+    print("== TESTE 1: reducao da celula numerica via PL em desigualdades (estacionamento) ==")
     c1 = attack1()
     print(f"  familias {c1['familias']}  desenhos-LP {c1['desenhos']}  "
           f"iff {c1['iff']}")
-    print("== ATTACK 2: A4.1 B&B sob empates massivos / capacidade 0 ==")
+    print("== TESTE 2: B&B sob empates massivos / capacidade 0 ==")
     c2 = attack2()
     print(f"  comparacoes {c2}")
-    print("== ATTACK 3: A4.3 cortes exaustivos + raios numericos ==")
+    print("== TESTE 3: cortes exaustivos + raios numericos ==")
     ncut, nray, nunb = attack3()
     print(f"  cortes {ncut}  raios {nray}  ilimitados {nunb}")
     if FAILS:

@@ -1,5 +1,6 @@
-// Branch-and-Benders-cut for the MP-TSCFLP (math + proofs: docs/BENDERS.md;
-// reference implementation validated by brute force: python/benders_gurobipy.py).
+// Branch-and-Benders-cut for the MP-TSCFLP (math and proofs: see the paper's
+// Benders section; reference implementation validated by brute force:
+// python/benders_gurobipy.py).
 //
 // Master in (y, z, theta_l), one transportation-LP subproblem per product,
 // disaggregated optimality cuts as lazy constraints, a-priori aggregate capacity
@@ -78,7 +79,7 @@ private:
     bool has_pending_ = false;
     std::vector<double> pend_y_, pend_z_, pend_theta_;
 
-    // set by the callback on any exception: poisons the result (audit #5)
+    // set by the callback on any exception: poisons the result
     bool callback_failed_ = false;
 };
 

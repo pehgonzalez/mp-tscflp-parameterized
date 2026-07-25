@@ -7,7 +7,7 @@ namespace mptscfl {
 
 TwoStepsResult TwoStepsSolver::solve(double time_limit, int method, bool run_exact,
                                      const std::string& logfile) {
-    // Audit #6 (experimental): the heuristic time must come out of the total budget,
+    // The heuristic time must come out of the total budget,
     // as done for the Lagrangian phase in lb_method 2.
     const auto t0 = std::chrono::steady_clock::now();
     TwoStepsResult r;
@@ -64,8 +64,8 @@ TwoStepsResult TwoStepsSolver::solve(double time_limit, int method, bool run_exa
         ExactModel exact(p_);
         if (!logfile.empty()) exact.set_log(logfile);
         exact.set_start(r.y, r.z);
-        // Integral optimum (Prop. 5): UB + 0.499 is a noise-robust cutoff that still
-        // admits solutions of value UB (audit #4).
+        // Integral optimum: UB + 0.499 is a noise-robust cutoff that still
+        // admits solutions of value UB.
         r.exact = exact.run(std::max(1.0, time_limit - spent),
                             r.heuristic_cost + 0.499, method);
     }

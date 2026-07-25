@@ -1,4 +1,4 @@
-"""Análise da campanha (esquema pós-auditoria de results.csv).
+"""Análise da campanha (esquema atual de results.csv).
 
 Uso:  python analyze_campaign.py [results.csv] [datetime_min]
 - Usa total_wall_s (orçamento completo, inclui fase lagrangiana) nas comparações.
@@ -53,7 +53,7 @@ def main():
         print("Nenhuma linha elegível.")
         return
 
-    # Consistência de configuração (audit #5): um único valor por campo, ou aborta.
+    # Consistência de configuração: um único valor por campo, ou aborta.
     for field in ("time_limit_s", "threads", "gurobi_version"):
         vals = {r[field] for r in rows}
         if len(vals) > 1:
@@ -99,7 +99,7 @@ def main():
             line += f"; gap mediano das abertas {statistics.median(r['gap'] for r in open_):.4%}"
         out.append(line + ".")
 
-    # Pareado por (instância, seed): fechados por tempo, abertos por gap (audit #20).
+    # Pareado por (instância, seed): fechados por tempo, abertos por gap.
     pairs = [(best[(i, 2, s)], best[(i, 1, s)]) for i in insts for s in seeds
              if (i, 2, s) in best and (i, 1, s) in best]
     if pairs:

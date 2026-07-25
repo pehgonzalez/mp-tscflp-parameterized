@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A2_setcover.py — Verificacao computacional do Teorema A2.1 (R2) e da
-aritmetica do gap do Teorema A2.3 (R3) do projeto MP-TSCFLP-PCA.
+verify_A2_setcover.py — Verificacao computacional do teorema de cobertura do
+artigo e da aritmetica do gap do teorema de inaproximabilidade.
 
-Reducao verificada (Teorema A2.1), de SET COVER (U, S = {S_1..S_m}, t):
+Reducao verificada (teorema de cobertura), de SET COVER (U, S = {S_1..S_m}, t):
   * 1 produto (|L| = 1), 1 fabrica (|I| = 1), f_1 = 0, c_{1j} = 0 p/ todo j;
   * depositos = conjuntos S_j, custo fixo g_j = 1, capacidade p_j = |U|*Q;
   * capacidade da fabrica b_1 = |U|*Q;
@@ -42,13 +42,13 @@ Baterias:
   (A) TODAS as instancias de Set Cover com |U| <= 4, |S| <= 4
       (familias = combinacoes de subconjuntos distintos de U, ja
       deduplicadas por construcao; conjuntos vazios permitidos),
-      para todo t em {1..m}: testa a dupla implicacao de A2.1.
+      para todo t em {1..m}: testa a dupla implicacao do teorema de cobertura.
   (B) >= 50 instancias aleatorias com semente fixa, |U| <= 6, |S| <= 6.
-  (C) Aritmetica do gap de A2.3 com Q' := |U|*|S| + |S| + 1:
+  (C) Aritmetica do gap do teorema de inaproximabilidade com Q' := |U|*|S| + |S| + 1:
       - se coberto: OPT_MP(Q') = t* (tamanho da cobertura minima);
       - Q' > (1 + ln|U|) * |S|  (>= max{1, alpha} * t* para todo
-        alpha <= ln|U| e t* <= |S|; e o enunciado de A2.3 usa o fator
-        max{1, (1-eps) ln|U|} — correcao O1 da revisao independente);
+        alpha <= ln|U| e t* <= |S|; e o enunciado do teorema usa o fator
+        max{1, (1-eps) ln|U|} — confirmado por checagem cruzada independente);
       - para todo D: custo(D; Q') < Q'  =>  D cobre U.
 Saida: contagens e PASS/FAIL por bateria; codigo de saida != 0 em falha.
 """
@@ -114,13 +114,14 @@ def solve_setcover_bruteforce(n, sets):
 # ---------------------------------------------------------------------------
 
 def check_instance_A21(n, sets, failures):
-    """Testa a dupla implicacao de A2.1 para todo t em {1..m}; retorna #testes."""
+    """Testa a dupla implicacao do teorema de cobertura para todo t em {1..m};
+    retorna #testes."""
     m = len(sets)
     Q = m + 1
     opt_mp = solve_mp_bruteforce(n, sets, Q)
     tstar = solve_setcover_bruteforce(n, sets)
 
-    # Sanidade estrutural (usada na prova de A2.1):
+    # Sanidade estrutural (usada na prova do teorema de cobertura):
     if tstar is not None:
         # instancia cobrivel: OPT_MP = t* exatamente
         if opt_mp != tstar:
@@ -142,14 +143,15 @@ def check_instance_A21(n, sets, failures):
 
 
 def check_instance_A23_gap(n, sets, failures):
-    """Verifica a aritmetica do gap de A2.3 com Q' = n*m + m + 1."""
+    """Verifica a aritmetica do gap do teorema de inaproximabilidade com
+    Q' = n*m + m + 1."""
     m = len(sets)
     Qp = n * m + m + 1
     tstar = solve_setcover_bruteforce(n, sets)
 
     # (c2) Q' domina (1 + ln|U|) * m: assim max{1, alpha} * t* <= (1+ln n)*m
-    #      < Q' para todo alpha <= ln n e t* <= m (cadeia do Passo 2 de A2.3
-    #      com o fator max{1, (1-eps) ln|U|} da correcao O1).
+    #      < Q' para todo alpha <= ln n e t* <= m (cadeia da prova do teorema
+    #      de inaproximabilidade com o fator max{1, (1-eps) ln|U|}).
     if not (Qp > (1 + math.log(n)) * m):
         failures.append((n, sets, "Q'=%d <= (1+ln(n))*m=%.4f"
                          % (Qp, (1 + math.log(n)) * m)))
@@ -222,11 +224,11 @@ def main():
     print("[B] aleatorio: %d instancias (semente 20260710, |U|<=6, |S|<=6), "
           "%d testes de equivalencia" % (len(rand), n_tests_B))
 
-    # (C) aritmetica do gap de A2.3 nas mesmas instancias
+    # (C) aritmetica do gap do teorema de inaproximabilidade nas mesmas instancias
     n_checks_C = 0
     for n, fam in itertools.chain(enumerate_all_families(4, 4), rand):
         n_checks_C += check_instance_A23_gap(n, fam, failures)
-    print("[C] gap A2.3: %d verificacoes (Q'=nm+m+1; OPT=t*; custo<Q' => cobre; "
+    print("[C] gap de inaproximabilidade: %d verificacoes (Q'=nm+m+1; OPT=t*; custo<Q' => cobre; "
           "Q'>(1+ln(n))*m)" % n_checks_C)
 
     if failures:

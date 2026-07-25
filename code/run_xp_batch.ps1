@@ -1,4 +1,4 @@
-# run_xp_batch.ps1 - Phase C: Xp campaign (Algorithm A4.1) on the author's
+# run_xp_batch.ps1 - Xp campaign (branch-and-bound solver) on the author's
 # Windows machine (i9-14900HX). Run with:
 #   powershell -ExecutionPolicy Bypass -File run_xp_batch.ps1
 #

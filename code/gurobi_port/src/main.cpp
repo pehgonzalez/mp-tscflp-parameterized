@@ -3,7 +3,7 @@
 //   mode:      "two-steps" (default) | "exact"
 //   seed:      Gurobi Seed (default 0); threads: Gurobi Threads (default 0 = auto)
 //
-// Logging (audit-hardened schema, nothing lost if console truncates):
+// Logging (fail-safe schema, nothing lost if console truncates):
 //   logs/<inst>_m<method>_<mode>_s<seed>_<timestamp>.gurobi.log — full solver log
 //   logs/results.csv — one row per run; legacy-schema files are renamed aside.
 #include <algorithm>
@@ -35,7 +35,7 @@ static void usage(const char* prog) {
     std::cout << "Usage: " << prog
               << " <instance> <lb_method> <time_limit> [mode] [seed] [threads]\n"
               << "  lb_method: 0 = B&B, 1 = branch-and-Benders-cut,\n"
-              << "             2 = Lagrangian-guided Benders (docs/LAGRANGIAN.md)\n"
+              << "             2 = Lagrangian-guided Benders\n"
               << "  mode: two-steps (default) | exact;  seed: default 0;  threads: 0=auto\n";
 }
 
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
         double heuristic_cost = -1.0;
         long long cuts = 0;
         double lag_lb = -1.0, lag_ub = -1.0, lag_time = -1.0;
-        std::vector<int> heur_y, heur_z; // for CUTOFF promotion (audit #8)
+        std::vector<int> heur_y, heur_z; // for CUTOFF promotion
 
         if (method == 2) {
             const double lag_budget = std::min(0.15 * time_limit, 600.0);
@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
                 heur_y = ld.y;
                 heur_z = ld.z;
                 benders.set_start(ld.y, ld.z);
-                cutoff = ld.best_ub + 0.499; // integral optimum: noise-robust (audit #4)
+                cutoff = ld.best_ub + 0.499; // integral optimum: noise-robust cutoff
             }
             res = benders.run(remaining(), cutoff);
             cuts = benders.cuts_added();
@@ -161,7 +161,7 @@ int main(int argc, char* argv[]) {
             res = h.exact;
         }
 
-        // Audit #8: CUTOFF/timeout without incumbent but with a certified heuristic UB
+        // CUTOFF/timeout without incumbent but with a certified heuristic UB
         // and bound >= UB - 0.5 proves the heuristic solution optimal (integral value).
         if (res.status == Status::NotFound && heuristic_cost > 0 && !heur_y.empty() &&
             res.bound >= heuristic_cost - 0.5 && res.bound > 0) {
@@ -209,7 +209,7 @@ int main(int argc, char* argv[]) {
                       << (verified_ok ? std::to_string(verified) : "INFEASIBLE (bug!)")
                       << "\n";
 
-        // Summary row (audit #1 schema). Legacy-schema CSV is moved aside once.
+        // Summary row. Legacy-schema CSV is moved aside once.
         const std::string csvpath = "logs/results.csv";
         if (std::filesystem::exists(csvpath)) {
             std::ifstream in(csvpath);

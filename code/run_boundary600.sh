@@ -1,6 +1,6 @@
 #!/bin/bash
-# Campanha da revisao: extensao de fronteira com orcamento de 600s e 10 seeds
-# por celula (Required 2 do parecer). Resumivel: pula instancias ja no CSV.
+# Campanha de extensao de fronteira com orcamento de 600s e 10 seeds
+# por celula. Resumivel: pula instancias ja no CSV.
 cd "$(dirname "$0")"
 OUT=../results/q1_boundary600.csv
 mkdir -p ../results

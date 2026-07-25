@@ -197,8 +197,9 @@ than merely obstructing efficiency, which is the parameterized reading of the
 same reduction.
 
 \begin{corollary}\label{cor:coverpara}
-$\mathrm{MP\text{-}TSCFLP}(B)$ is para-NP-hard with respect to $|L|$,
-with respect to $|I|$, and with respect to the pair $(|L|,|I|)$. Unless
+$\mathrm{MP\text{-}TSCFLP}(B)$ is strongly para-NP-hard with respect
+to $|L|$, with respect to $|I|$, and with respect to the pair
+$(|L|,|I|)$. Unless
 $\Ppoly=\NP$, none of these parameters admits an \XP\ algorithm, and a
 fortiori none is \FPT.
 \end{corollary}
@@ -206,7 +207,8 @@ fortiori none is \FPT.
 \begin{proof}
 The claims follow from the fixed slice. The hard subclass of
 Theorem~\ref{thm:cover} has $|L|=|I|=1$, so a fixed
-slice of each parameter is already NP-hard. A parameterized problem
+slice of each parameter is already NP-hard, and strongly so by the
+same theorem. A parameterized problem
 NP-hard at a fixed parameter value is para-NP-hard, and an \XP\ algorithm
 would decide that slice in polynomial time \citep{DowneyFellows2013}.
 \end{proof}
@@ -227,7 +229,7 @@ technique but the location of the difficulty in the most restricted
 subclass the model contains.
 \end{remark}
 
-\subsection{Products and customers as covering elements}\label{sec:products}
+\subsection{Relocating the covering elements}\label{sec:products}
 
 Theorem~\ref{thm:cover} kept the customers as the covering elements and
 let the depots do the discriminating, but nothing forces that assignment.
@@ -246,8 +248,8 @@ The difficulty is carried by $|L|$, which remains unrestricted.
 \end{theorem}
 
 The elements have migrated from the customers to the products and
-the discriminating layer from the depots to the factories, which is what
-moves the hard group to $|J|=|K|=1$.
+the discriminating layer from the depots to the factories, and the
+hard group moves to $|J|=|K|=1$ accordingly.
 
 \begin{proof}
 Again the source is \textsc{Set Cover} \citep{Karp1972}, with
@@ -594,8 +596,8 @@ so the parameter sits between W[2]-hardness and $\mathrm{W[P]}\cap\XP$.
 
 \subsection{The numeric layer}\label{sec:numeric}
 
-The covering reductions accounted for three of the four ways a facility
-layer can discriminate a demand dimension, namely depots against
+The covering reductions accounted for three discrimination pairs, each
+pairing a facility layer with a demand dimension, depots against
 customers, factories against products, and depots against products. The
 remaining question is the group of instances where both demand dimensions
 are trivial, $|K|=|L|=1$, and only the general transport matrix couples
@@ -644,7 +646,7 @@ summing~\eqref{eq:C3} over $i$ gives $\sum_j X_j\le\sum_i b_i y_i=Qn_U=D$.
 The chain $D\le\sum_j w_j\le\sum_j X_j\le D$ collapses to equalities, so
 $\sum_j w_j=\sum_j X_j=D$ and, since each factory ships $\sum_j x_{ij}\le
 b_i=Q$ while the total over the $n_U$ open factories is $Qn_U$, each
-factory ships exactly $Q$. Moreover $\sum_j (X_j-w_j)=0$ with every
+factory ships exactly $Q$. Since $\sum_j (X_j-w_j)=0$ with every
 $X_j-w_j\ge 0$ by~\eqref{eq:C2}, so $X_j=w_j$ for all $j$. A closed depot
 has $w_j=0$ by~\eqref{eq:C4}, hence $X_j=0$, so no flow enters a closed
 depot and the cost sum below runs only over $j\in Z$.
@@ -671,14 +673,14 @@ matrix, and killing that structure restores tractability. When the matrix
 is separable the two facility layers decouple and each becomes a
 pseudo-polynomial knapsack-cover, so the separable matrices form a
 pseudo-polynomially solvable subclass, while
-Theorem~\ref{thm:numeric} makes one explicitly non-separable family
-strongly hard. The classification of the territory between the two,
+Theorem~\ref{thm:numeric} shows that strong
+hardness persists outside the separable class. The classification of the territory between the two,
 including structured non-separable matrices such as low-rank or Monge
 matrices, remains open.
 
-\begin{theorem}\label{thm:separable}
+\begin{theorem}[separable first stage]\label{thm:separable}
 On the group $|K|=|L|=1$, if the first-stage matrix is separable, that is
-$c_{ij}=\gamma_i+\delta_j$ for integers $\gamma,\delta$ with the arcs
+$c_{ij}=\gamma_i+\delta_j$ for integers $\gamma,\delta$ with the costs
 nonnegative, then the problem is solvable in pseudo-polynomial time
 $O\bigl(|I||J|+(|I|+|J|)\cdot D\cdot\max(b_{\max},p_{\max})\bigr)$.
 Separability is decidable in $O(|I||J|)$ time.

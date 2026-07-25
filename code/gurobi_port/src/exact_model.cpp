@@ -94,15 +94,15 @@ void ExactModel::set_start(const std::vector<int>& ybar, const std::vector<int>&
 ExactResult ExactModel::run(double time_limit, double cutoff, int method, int threads) {
     if (method == 1)
         std::cerr << "[ExactModel] Gurobi has no automatic Benders; running plain B&B. "
-                     "Manual branch-and-Benders-cut is Phase 1 of the roadmap.\n";
+                     "Use lb_method 1 for the branch-and-Benders-cut implementation.\n";
     model_.set(GRB_DoubleParam_TimeLimit, time_limit);
     model_.set(GRB_DoubleParam_NodefileStart, 4.0); // ~ NodeFileInd
     // Proof mode: the optimal value is integral (per-product flow LPs are min-cost
-    // flows with integral data; see BENDERS.md Prop. 5), so absolute gap < 1 certifies
+    // flows with integral data), so absolute gap < 1 certifies
     // exact optimality. Gurobi's default MIPGap=1e-4 would declare OPTIMAL early.
     model_.set(GRB_DoubleParam_MIPGap, 0.0);
     model_.set(GRB_DoubleParam_MIPGapAbs, 0.9999);
-    // Audit #11: always reset (params persist across run() calls on this model).
+    // Always reset (params persist across run() calls on this model).
     model_.set(GRB_DoubleParam_Cutoff, cutoff > 0 ? cutoff : GRB_INFINITY);
     if (threads > 0) model_.set(GRB_IntParam_Threads, threads);
 

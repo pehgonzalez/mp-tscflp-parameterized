@@ -72,7 +72,7 @@ LagrangianSolver::solve_A(const std::vector<std::vector<double>>& lmb) const {
 double LagrangianSolver::repair(std::vector<int> y, std::vector<int> z,
                                 std::vector<int>& out_y, std::vector<int>& out_z) const {
     const int I = p_.nfactories, J = p_.nwarehouses, L = p_.ncommodities;
-    // Greedy cover of (F1_l), (F2_l) by fixed-cost/capacity ratio (LAGRANGIAN.md sec. 3).
+    // Greedy cover of (F1_l), (F2_l) by fixed-cost/capacity ratio.
     for (int l = 0; l < L; ++l) {
         const double D = p_.total_demand(l);
         double capf = 0.0, capw = 0.0;
@@ -190,14 +190,14 @@ LagrangianResult LagrangianSolver::solve(int iters, double time_limit, bool verb
     auto elapsed = [&] {
         return std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();
     };
-    // Prop. L3: start from LP-relaxation duals (first evaluation >= v_LP).
+    // Warm start from LP-relaxation duals (first evaluation >= v_LP).
     std::vector<std::vector<double>> lmb =
         lp_dual_warmstart(std::min(0.4 * time_limit, 120.0));
     if (lmb.empty()) lmb.assign(J, std::vector<double>(L, 0.0)); // fallback
     double mu = 2.0;
     int stall = 0;
 
-    // Audit #3: seed best_ub with the certified all-open cost so the Polyak step can
+    // Seed best_ub with the certified all-open cost so the Polyak step can
     // never blow up on an early infeasible repair. Infeasible all-open = bad instance.
     {
         std::vector<int> ones_y(p_.nfactories, 1), ones_z(J, 1);
@@ -214,7 +214,7 @@ LagrangianResult LagrangianSolver::solve(int iters, double time_limit, bool verb
         res.z = fr.used_warehouses;
         res.has_solution = true;
     }
-    // Audit #8: tight subproblem bounds and per-iteration time cap.
+    // Tight subproblem bounds and per-iteration time cap.
     B_.set(GRB_DoubleParam_MIPGap, 0.0);
     B_.set(GRB_DoubleParam_MIPGapAbs, 0.25);
 

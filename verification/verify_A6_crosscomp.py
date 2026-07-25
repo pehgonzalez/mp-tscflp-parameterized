@@ -5,16 +5,18 @@ Verificacao computacional das cross-compositions OR do artigo.
 Duas composicoes de t instancias de SET COVER (mesmos n_U, m, t_hat) em
 UMA instancia do MP-TSCFLP com parametro |I|+|J| = O(n_U + m + log t):
 
-  compose_clients : Teorema A6.3  - celula |I| = |L| = 1 (sabor A2.1);
+  compose_clients : composicao por CLIENTES - celula |I| = |L| = 1 (sabor
+                    da construcao de cobertura);
                     clientes-elemento por instancia + seletores por bits
                     complementares + clientes-guarda (1 por par de bits).
-  compose_products: Teorema A6.4  - celula |K| = 1 (sabor A5.2); produtos =
+  compose_products: composicao por PRODUTOS - celula |K| = 1 (sabor da
+                    reducao da camada numerica); produtos =
                     instancias, fabricas = elementos com capacidade justa,
                     produtos-guarda.
 
 Checagens, para cada composicao:
   (i)  OR-correcao: forca bruta no MP-TSCFLP composto (todos os desenhos +
-       oraculo MCMF da Prop. A1.1) da SIM  <=>  alguma instancia fonte e SIM
+       oraculo MCMF de roteamento) da SIM  <=>  alguma instancia fonte e SIM
        (forca bruta no SET COVER);
   (ii) estrutural: TODO desenho de custo <= B abre exatamente um seletor por
        par de bits, define i*, cobre a instancia i* com <= t_hat conjuntos
@@ -80,7 +82,7 @@ def pad_to_pow2(sets_list):
 
 
 # ---------------------------------------------------------------------------
-# Composicao 1: clientes (Teorema A6.3; celula |I| = |L| = 1)
+# Composicao 1: clientes (celula |I| = |L| = 1)
 # ---------------------------------------------------------------------------
 
 def compose_clients(sets_list, nU, t_hat):
@@ -151,7 +153,7 @@ def check_clients(sets_list, nU, t_hat):
 
 
 # ---------------------------------------------------------------------------
-# Composicao 2: produtos (Teorema A6.4; celula |K| = 1, sabor A5.2)
+# Composicao 2: produtos (celula |K| = 1)
 # ---------------------------------------------------------------------------
 
 def compose_products(sets_list, nU, t_hat):

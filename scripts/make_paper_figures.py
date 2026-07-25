@@ -7,7 +7,7 @@
 # only where identity demands it (the overlapping k* and size-group scatters,
 # Okabe-Ito hues + distinct markers so the encoding survives greyscale and CVD).
 # The plotted numbers are identical to the previous revision of this script.
-import csv, collections, statistics as st, os
+import csv, statistics as st, os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -70,7 +70,7 @@ axa.axvspan(18,25,color="0.92",zorder=0)
 axa.annotate("main grid\nall 400 censored",xy=(60,TL*0.9),
              xytext=(63,7),fontsize=7,ha="center",color="0.3",
              arrowprops=dict(arrowstyle="->",color="0.5",lw=0.6))
-axa.set_yscale("log"); axa.set_xticks([20,24,28,40,60,80])
+axa.set_yscale("log"); axa.set_xticks([20,30,40,60,80])
 axa.set_xlim(15,84); axa.set_ylim(0.2,110)
 axa.set_xlabel("$n=|I|+|J|$"); axa.set_ylabel("enumeration time (s)")
 axa.set_title("(a)",fontsize=9,loc="left")
@@ -182,7 +182,7 @@ for gi,g in enumerate(groups):
                 marker=markers[gi%len(markers)],
                 edgecolors="white",linewidths=0.8,zorder=3)
 ax3.set_xlabel(r"covering bound $k^\ast$")
-ax3.set_ylabel("MIP terminal gap (%)")
+ax3.set_ylabel("terminal gap (%)")
 ax3.grid(axis="y",alpha=0.25,linewidth=0.5,zorder=0)
 # the four groups overlap, so the colour+marker legend stays, placed fully
 # outside the axes area

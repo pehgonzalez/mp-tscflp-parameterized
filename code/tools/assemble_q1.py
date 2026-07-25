@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """assemble_q1.py — join xp one-line records with MANIFEST.csv into q1_xp.csv
 and print the Q1 group summary (solved counts, median time over solved,
-censoring) used by results/q1_summary.md.
+censoring) printed after assembly.
 
 Usage: python3 assemble_q1.py <lines_dir> <manifest.csv> <out.csv> [<manifest2.csv> ...]
 """

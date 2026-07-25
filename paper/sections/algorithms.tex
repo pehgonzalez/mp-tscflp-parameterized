@@ -337,7 +337,7 @@ linear-programming dual both certifies the routing value and supplies a
 cut that a Benders master can reuse. The fact that carries the
 subsection is that the dual polyhedron depends only on the data, never
 on the design, so a single dual point
-yields an inequality valid across the whole hypercube of designs.
+yields an inequality valid for every design whose block is feasible.
 Figure~\ref{fig:bendersflow} traces the pipeline the proposition
 formalises.
 
@@ -348,7 +348,7 @@ Fix a product $l$ and let $\Delta_l$ be the dual polyhedron of its
 transportation block, which is independent of $(y,z)$. If the block is
 feasible then some $u^\ast\in\Delta_l$ attains the dual value
 $\mu_l(y,z)$, and the pair of an optimal flow and $u^\ast$ certifies
-$\mu_l(y,z)$ in time $O(|I||J|+|J||K|)$. Moreover, writing $\theta_l$ for
+$\mu_l(y,z)$ in time $O(|I||J|+|J||K|)$. Further, writing $\theta_l$ for
 a variable through which a master problem represents the block value, for
 every $u=(\alpha,\beta,\sigma,\pi)\in\Delta_l$ the inequality
 \[
@@ -401,9 +401,8 @@ The proof, given in \ref{app:tech}, exhibits the two maps directly. The
 merge adds the flow rows of the two customers, the split expands the
 merged row by the northwest-corner procedure, and both preserve every
 constraint and every cost term, so the two instances agree design by
-design.
-
-A companion reduction bounds the capacities without touching any design.
+design, and a companion reduction bounds the capacities without
+touching any design.
 
 \begin{observation}[capacity capping]\label{obs:capping}
 Replacing every capacity $b_{il}$ by $\min(b_{il},D_l)$ and every
@@ -463,7 +462,7 @@ $\mathrm{poly}(\kappa)$ bits preserving every sign at once, and the
 second subclass exchanges the roles of the two data groups.
 
 The matching negative result completes the account. Two cross-compositions
-of \textsc{set cover} show that, unless
+of \textsc{Set Cover} show that, unless
 $\NP\subseteq\mathrm{coNP}/\mathrm{poly}$, the parameter of the dichotomy
 admits no polynomial kernel, and
 the same construction reaches the augmented parameters and the unary
@@ -694,6 +693,6 @@ cost lies in $\{0,1,m+1\}$ and the budget is at most $m$, where $m$ is
 the size of the set family in the construction of
 Theorem~\ref{thm:products}. Richer relational structures, weighted or
 counting logics, or representations carrying products and constraints
-as objects are not addressed by this observation and remain unanalysed
-rather than excluded.
+as objects are not addressed by this observation, and their width
+status simply remains open.
 \end{observation}

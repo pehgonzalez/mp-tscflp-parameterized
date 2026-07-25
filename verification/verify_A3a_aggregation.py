@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A3a_aggregation.py — Verificacao computacional do Lema de agregacao
-da Observacao A3a.5: com |J| = 1, os clientes colapsam.
+verify_A3a_aggregation.py — Verificacao computacional do lema de agregacao
+de clientes do artigo: com |J| = 1, os clientes colapsam.
 
 Lema (enunciado verificado): seja P uma instancia com |J| = 1 e
 Delta := sum_{k,l} d_{1kl} * q_{kl}. Seja R a instancia com K' = {1},
@@ -11,12 +11,13 @@ Entao P e viavel <=> R e viavel, e OPT(P) = OPT(R) + Delta.
 
 Verificacao por forca bruta TOTAL dos dois lados: enumeracao de todos os
 desenhos (y,z) (common_mp_tscfl.all_designs) com roteamento exato pelo MCMF
-inteiro (common_mp_tscfl.routing_value, Prop. A1.1) — nenhuma forma fechada.
+inteiro (common_mp_tscfl.routing_value, o oraculo de roteamento) — nenhuma
+forma fechada.
 
 Baterias:
   (A) >= 40 instancias semeadas com |J| = |L| = 1, |K| <= 4, |I| <= 4,
-      dados gerais (f, g, c, d, b, p, q aleatorios) — a celula da
-      Observacao A3a.5; inclui casos inviaveis e com demanda nula.
+      dados gerais (f, g, c, d, b, p, q aleatorios) — a celula do lema;
+      inclui casos inviaveis e com demanda nula.
   (B) >= 20 instancias com |J| = 1, |L| = 2 (o lema vale para |L| geral;
       a agregacao e por produto).
 Saida: contagens (viaveis / inviaveis / D=0) e PASS/FAIL.
@@ -109,7 +110,7 @@ def run_battery(label, count, seed0, n_l, failures):
 
 def main():
     failures = []
-    run_battery("A", 40, 500, 1, failures)   # celula da Obs. A3a.5
+    run_battery("A", 40, 500, 1, failures)   # celula do lema de agregacao
     run_battery("B", 20, 700, 2, failures)   # lema em |L| geral
     if failures:
         print("\nFALHAS (%d):" % len(failures))

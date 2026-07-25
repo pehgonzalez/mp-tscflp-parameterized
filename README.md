@@ -23,8 +23,8 @@ published at https://github.com/pehgonzalez/mp-tscflp-parameterized.
 The published campaigns ran with Gurobi 13.0.2 (deterministic settings
 and seeds recorded in the paper and in the campaign scripts) on the
 hardware documented in the manuscript. The verification suite and the
-regeneration scripts need only Python 3 with matplotlib, plus g++ 12 or
-later for the solver.
+regeneration scripts need Python 3 with matplotlib, numpy, scipy and
+networkx, plus g++ 12 or later for the solver.
 
 ## Reproducing the results
 
@@ -45,7 +45,8 @@ later for the solver.
    are deterministic, so a diff against the committed versions is empty
    apart from PDF timestamps.
 4. Statistical analysis. `python3 scripts/analyze_q3_correlation.py`
-   recomputes the Q3 correlations with pinned seeds, and
+   recomputes the Q3 correlations (the permutation and bootstrap seeds
+   are pinned in `scripts/make_paper_tables.py`), and
    `python3 scripts/extract_rootgap.py` re-extracts the root-relaxation
    data of the mediation analysis from the raw logs in
    `results/logs_campanha/`.
@@ -66,7 +67,7 @@ a local copy can be verified before a rerun.
 
 ## Building the solver
 
-    g++ -std=c++20 -O2 -o code/build/xp code/src/solver_xp.cpp code/src/main_xp.cpp
+    mkdir -p code/build && g++ -std=c++20 -O2 -o code/build/xp code/src/solver_xp.cpp code/src/main_xp.cpp
 
 The Gurobi baselines build with CMake, see `code/gurobi_port/README.md`.
 

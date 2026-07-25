@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A3b_w2.py — Verificacao computacional dos resultados W[2] do artigo (W[2]-dureza;
-R6: cota inferior ETH) do projeto MP-TSCFLP-PCA.
+verify_A3b_w2.py — Verificacao computacional dos resultados W[2] do artigo
+(W[2]-dureza e cota inferior ETH).
 
 Reducao COMPOSTA verificada:
 
@@ -10,13 +10,14 @@ Reducao COMPOSTA verificada:
     -> SET COVER por vizinhancas fechadas:
          U = V, familia = { N[v] : v em V }  (mesmo parametro t;
          |U| = |familia| = n = |V|)
-    -> MP-TSCFLP via a construcao Phi do Teorema A2.1 (reutilizada
+    -> MP-TSCFLP via a construcao de cobertura Phi do artigo (reutilizada
        verbatim; ver verify_A2_setcover.py):
          |L| = 1, |I| = 1, f_1 = 0, c = 0, amplificador Q = m + 1 = n + 1,
          depositos = conjuntos (g = 1, p_j = n_U * Q), clientes = elementos
          (q_u = Q), d_{ju} = 0 sse u em N[v_j], senao 1;
        orcamento B = t e cardinalidade k = t + 1 (o +1 e a fabrica unica,
-       que precisa abrir e conta em sum(y) + sum(z) da Def. A1.D2).
+       que precisa abrir e conta em sum(y) + sum(z) da versao parametrizada
+       por cardinalidade).
 
 O lado MP-TSCFLP e resolvido por FORCA BRUTA sobre TODOS os desenhos
 (y, z) — inclusive y_1 = 0 — com ROTEAMENTO EXATO pelo oraculo inteiro de
@@ -79,7 +80,7 @@ def domination_number(n, edges):
 
 
 # ---------------------------------------------------------------------------
-# Set Cover -> MP-TSCFLP (construcao Phi de A2.1, verbatim)
+# Set Cover -> MP-TSCFLP (construcao de cobertura Phi, verbatim)
 # ---------------------------------------------------------------------------
 
 def build_mp_instance(n_U, sets):

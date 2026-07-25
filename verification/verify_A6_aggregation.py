@@ -3,25 +3,25 @@
 Verificacao computacional dos resultados de agregacao e compressao do artigo.
 
 Baterias:
-  [A] Prop. A6.1  - agregacao de clientes com colunas d identicas e exata
+  [A] Agregacao     - agregacao de clientes com colunas d identicas e exata
                     POR DESENHO (custo e viabilidade identicos em todo (y,z)),
                     logo preserva OPT e o conjunto de desenhos otimos.
                     40 instancias aleatorias com sementes + 4 adversariais
                     (demanda nula, empates totais, inviabilidade global,
                     fusao tripla com independencia de ordem).
-  [B] Contraexemplo A6.1.2 - fusao de PRODUTOS com colunas de custo identicas
+  [B] Contraexemplo - fusao de PRODUTOS com colunas de custo identicas
                     NAO e exata: contraexemplo de valor (OPT 10 -> 0) e
                     contraexemplo de viabilidade, verificados numericamente.
   [C] Subaditividade - fusao de produtos nunca AUMENTA o custo de um desenho
                     (v_fundido <= v_l + v_l'), com casos estritos observados.
-  [D] Prop. A6.1.3 - fusao de produtos PROPORCIONAIS ((q,b,p) escalados por
+  [D] Proporcionais - fusao de produtos PROPORCIONAIS ((q,b,p) escalados por
                     lambda, custos iguais) e exata por desenho.
-  [E] Obs. A6.1.4  - capping b_il := min(b_il, D_l), p_jl := min(p_jl, D_l)
+  [E] Capping       - capping b_il := min(b_il, D_l), p_jl := min(p_jl, D_l)
                     e exato por desenho.
 
 Forca bruta: enumeracao de todos os desenhos (y,z) + oraculo MCMF inteiro
-exato da Prop. A1.1 (common_mp_tscfl.routing_value). Nenhuma forma fechada
-da nota e usada como fonte.
+exato do oraculo de roteamento (common_mp_tscfl.routing_value). Nenhuma
+forma fechada das provas e usada como fonte.
 """
 import copy
 from common_mp_tscfl import gen_instance, routing_value, all_designs

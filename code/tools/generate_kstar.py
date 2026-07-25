@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """generate_kstar.py — deterministic MP-TSCFLP instance generator with a k* knob.
 
-Produces PSC-format instances whose root covering lower bound (Lemma A4.1.1,
-root case)
+Produces PSC-format instances whose root covering lower bound (the
+covering-count lemma of the paper, root case)
 
     k* = max_l k*_I(l) + max_l k*_J(l),
     k*_side(l) = min{ s : sum of the s largest capacities of that side for
@@ -24,7 +24,7 @@ Mechanism (per side, binding on product 0):
     [ceil(D_l / t), D_l], so k*_side(l) <= t and the max over l stays at
     product 0's value t (>= is automatic since max >= k*_side(0) = t).
 Total capacity always covers demand on both sides, so instances are feasible
-(Prop. A1.2, complete stages).
+(the feasibility characterisation under complete stages).
 
 Determinism: every datum comes from random.Random seeded with the parameter
 tuple + seed; the same (params, seed) always reproduces byte-identical files
@@ -142,7 +142,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--outdir", default=os.path.join(os.path.dirname(__file__), "..", "data", "kstar"))
     ap.add_argument("--nIJ", default="10,15,20")
-    ap.add_argument("--nK", default="30")       # comma list allowed (Phase C grid)
+    ap.add_argument("--nK", default="30")       # comma list allowed (campaign grid)
     ap.add_argument("--nL", default="3")        # comma list allowed
     ap.add_argument("--targets", default="2,4,6,8")
     ap.add_argument("--seeds", default="1,2,3")

@@ -2,24 +2,24 @@
 Verificacao do algoritmo XP do artigo (algoritmo XP em k como B&B com as
 tres podas P1/P2/P3).
 
-Implementacao de referencia (Python) do Algoritmo A4.1 sobre a arvore
+Implementacao de referencia (Python) do algoritmo do artigo sobre a arvore
 binaria de decisoes abrir/fechar (fabricas primeiro, depois depositos),
 na versao de OTIMIZACAO por cardinalidade: para cada k in {0..n} computa
 OPT_k = min { custo(S) : S viavel, |S| <= k }. Isso subsume TODOS os
 orcamentos B de uma vez (MP-TSCFLP(B,k) e SIM sse OPT_k <= B) — e a
-varredura completa (todas as cardinalidades x todos os orcamentos)
-pedida pela nota.
+varredura completa (todas as cardinalidades x todos os orcamentos).
 
-Podas (exatamente as do Teorema A4.1):
-  P1 (cobertura, Lema A4.2): no no (O,C), com r = k - |O| aberturas
+Podas (exatamente as do artigo):
+  P1 (cobertura, o lema de contagem de cobertura): no no (O,C), com
+     r = k - |O| aberturas
      restantes, se max_l s_I(l;O,C) + max_l s_J(l;O,C) > r, nenhuma
      completacao e viavel dentro da cardinalidade -> descarta. s_side(l)
      e o numero minimo de instalacoes livres do lado, por capacidades
      ordenadas decrescentes (prefixo guloso), para fechar F1/F2.
-  P2 (cota admissivel, Lema A4.3 via A1.3(iii)): LB(O,C) = custo fixo
+  P2 (cota admissivel, via monotonicidade): LB(O,C) = custo fixo
      de O + v(abre O e todos os livres); descarta se v = +inf (nenhuma
-     completacao viavel, A1.3(i)) ou LB >= incumbente.
-  P3 (dominancia CNUF, Lema A4.4): na folha, se o fluxo otimo devolvido
+     completacao viavel, por monotonicidade) ou LB >= incumbente.
+  P3 (dominancia CNUF): na folha, se o fluxo otimo devolvido
      pelo oraculo deixa alguma instalacao aberta sem uso (throughput 0
      em todos os produtos), a folha e descartada sem atualizar o
      incumbente (a testemunha protegida — um otimo de cardinalidade
@@ -165,12 +165,13 @@ def brute_force(cache):
 
 
 # ---------------------------------------------------------------------------
-# B&B do Algoritmo A4.1
+# B&B do algoritmo do artigo
 # ---------------------------------------------------------------------------
 
 def covering_extra(caps_open, caps_free_sorted, D):
     """s = minimo de instalacoes livres (capacidades ja ordenadas desc)
-    para caps_open + prefixo >= D; INF se impossivel (Lema A4.2)."""
+    para caps_open + prefixo >= D; INF se impossivel (lema de contagem
+    de cobertura)."""
     if caps_open >= D:
         return 0
     need = D - caps_open
@@ -232,7 +233,7 @@ def bnb(inst, cache, k, use_prunings):
             upZ = zmask | sum(1 << j for j in range(nJ) if nI + j >= idx)
             feas, _, _, _ = cache.get(upY, upZ)
             if not feas:
-                return                                  # A1.3(i)
+                return                                  # inviavel por monotonicidade
             # LB = custo fixo acumulado de O + v(tudo-livre-aberto)
             fixedO = sum(inst["f"][i] for i in range(nI) if (ymask >> i) & 1)
             fixedO += sum(inst["g"][j] for j in range(nJ) if (zmask >> j) & 1)

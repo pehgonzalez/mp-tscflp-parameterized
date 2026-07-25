@@ -1,4 +1,4 @@
-// instance.hpp — PSC-format parser for the MP-TSCFLP (Phase B, project MP-TSCFL-PCA).
+// instance.hpp — PSC-format parser for the MP-TSCFLP.
 //
 // PSC layout (whitespace-separated text, all integers; mirrors
 // gurobi_port/src/instance.hpp of the exact-methods companion):
@@ -11,7 +11,7 @@
 //
 // All data are read directly as long long (integrality is enforced by the
 // stream parse: any non-integer token aborts). Non-negativity is asserted,
-// matching the standing hypotheses of Note A1 §0.
+// matching the paper's standing hypotheses.
 
 #pragma once
 
@@ -49,7 +49,7 @@ inline long long read_int(std::istream& in, const char* what) {
                                  " (non-integral or missing datum; proof-mode assumptions violated)");
     if (v < 0)
         throw std::runtime_error(std::string("PSC parse error: negative datum for ") + what +
-                                 " (Note A1 assumes non-negative integer data)");
+                                 " (the paper assumes non-negative integer data)");
     return v;
 }
 }  // namespace detail

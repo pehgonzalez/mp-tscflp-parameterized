@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""crossvalidate_xp.py — Phase B validation of the Xp solver (Algorithm A4.1).
+"""crossvalidate_xp.py — cross-validation of the Xp solver (the branch-and-bound of the paper).
 
 Protocol (batteries mirroring verify_A4_xp_bb.py):
   1. compile xp with g++ -std=c++20 -O2;
@@ -12,7 +12,7 @@ Protocol (batteries mirroring verify_A4_xp_bb.py):
   4. determinism: run xp twice on a sample, outputs must be identical up to
      the time= field (wall-clock is the only nondeterministic datum);
   5. kstar consistency: xp's printed kstar must equal the Python-computed
-     root covering bound (Lemma A4.1.1) on every run.
+     root covering bound (the covering-count lemma) on every run.
 
 Exit code 0 iff every assertion passes.
 """
@@ -83,8 +83,8 @@ def kstar_prefix(vals, D):
 
 
 def python_kstar(inst):
-    """Root covering bound of Lemma A4.1.1 on the ORIGINAL instance
-    (invariant under the A6 preprocessing)."""
+    """Root covering bound (the covering-count lemma) on the ORIGINAL
+    instance (invariant under the safe preprocessing)."""
     kI = kJ = 0
     for l in range(inst["nL"]):
         D = demand_total(inst, l)

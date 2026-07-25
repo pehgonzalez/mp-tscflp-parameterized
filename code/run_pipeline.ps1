@@ -27,7 +27,7 @@
 $ErrorActionPreference = "Stop"
 
 # ---- CAMINHOS (ajuste apenas se mover as pastas) --------------------------
-$MPTSCFL_EXE = "..\..\gurobi_port\build\Release\mptscfl.exe"
+$MPTSCFL_EXE = ".\gurobi_port\build\Release\mptscfl.exe"
 $MAURI_DIR   = "..\..\benchmark_data"
 $FAMILY_DIR  = ".\data\instances_kstar"
 $OUT_DIR     = ".\results"

@@ -1,4 +1,4 @@
-# run_mip_mauri.ps1 - Phase C FOCUSED: Mip (method 0) on the 100 Mauri instances for Q3 (kstar predictor). Mauri-first, 3600s. Resumable, same logs/results.csv. (gurobi_port binary)
+# run_mip_mauri.ps1 - Mip (method 0) on the 100 Mauri instances for Q3 (kstar predictor). Mauri-first, 3600s. Resumable, same logs/results.csv. (gurobi_port binary)
 # on the author's Windows machine (i9-14900HX). Run with:
 #   powershell -ExecutionPolicy Bypass -File run_mip_batch.ps1
 #
@@ -7,8 +7,8 @@
 #     lb_method 0 + mode "exact" = compact MIP (1)-(10)  -> labelled Mip
 #     lb_method 1 + mode "exact" = branch-and-Benders-cut -> labelled Bd
 #       (mode "exact" skips the two-steps heuristic warm start, so the runs
-#        measure the pure exact methods; cuts = Prop. A4.3(iii))
-# The binary itself appends one audited row per run to logs\results.csv
+#        measure the pure exact methods; cuts = the disaggregated optimality cuts)
+# The binary itself appends one summary row per run to logs\results.csv
 # (header: datetime,instance,mode,method,seed,threads,time_limit_s,status,obj,
 #  bound,gap,solver_time_s,total_wall_s,...,gurobi_version,gurobi_log).
 # This script only sequences the runs; at the end it copies logs\results.csv

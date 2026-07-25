@@ -1,7 +1,7 @@
-"""Lagrangian relaxation of the MP-TSCFLP (derivation: docs/LAGRANGIAN.md).
+"""Lagrangian relaxation of the MP-TSCFLP (derivation: see the paper's Lagrangian section).
 
 Dualizes flow conservation (4) with multipliers lambda_jl >= 0.
-  A(lmb): closed form over plants (Prop. L1).
+  A(lmb): closed form over plants.
   B(lmb): single-stage multiproduct CFLP over depots, solved as MIP (gurobipy).
 Subgradient with Polyak step + Lagrangian primal heuristic (repair via routing LP).
 
@@ -47,7 +47,7 @@ class SubproblemB:
 
 
 def solve_A(inst, lmb):
-    """Prop. L1: closed form. Returns (value, ybar, xin[j][l] = stage-1 inflow)."""
+    """Closed form over plants. Returns (value, ybar, xin[j][l] = stage-1 inflow)."""
     I, J, L = inst["I"], inst["J"], inst["L"]
     val = 0.0
     ybar = [0] * I
@@ -92,7 +92,7 @@ def routing_value(inst, yv, zv, env):
 
 
 def repair(inst, ybar, zbar, env):
-    """Lagrangian heuristic (LAGRANGIAN.md sec. 3): greedy (F1)/(F2) cover + routing."""
+    """Lagrangian heuristic: greedy (F1)/(F2) cover + routing."""
     I, J, L = inst["I"], inst["J"], inst["L"]
     y, z = list(ybar), list(zbar)
     for l in range(L):
@@ -118,7 +118,7 @@ def repair(inst, ybar, zbar, env):
 
 
 def lp_dual_warmstart(inst, env):
-    """Prop. L3: lambda0 = LP duals of flow conservation => first eval >= v_LP."""
+    """Warm start: lambda0 = LP duals of flow conservation => first eval >= v_LP."""
     from model_gurobipy import build_model
     m, *_ = build_model(inst, env=env)
     m.Params.OutputFlag = 0
@@ -169,7 +169,7 @@ def lagrangian_dual(inst, env, iters=300, mu0=2.0, verbose=False, lmb0=None,
         norm2 = sum(s[j][l] ** 2 for j in range(J) for l in range(L))
         if norm2 < 1e-12:
             break  # dualized constraints satisfied tightly: L(lmb) is optimal dual value
-        # Audit fix: guard against best_ub = inf (infeasible repair) blowing up the step.
+        # Guard against best_ub = inf (infeasible repair) blowing up the step.
         target = best_ub - lb if math.isfinite(best_ub) else max(abs(lb), 1.0)
         t = mu * max(target, 1e-6) / norm2
         for j in range(J):

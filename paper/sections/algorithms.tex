@@ -488,11 +488,12 @@ target $t$, with $|U|\ge 1$ and $1\le t\le m$. Four further classes are
 reserved, one for the malformed inputs, one for the well-formed
 instances with empty universe, one for those with nonempty universe and
 $t=0$, and one for those with nonempty universe and $t>m$.
-Each instance falling in a reserved class is decided individually in
-polynomial time by the stated test, an empty universe being covered by
-the empty subfamily, a target of zero over a nonempty universe admitting
-no cover, and a target above $m$ admitting one exactly when the whole
-family covers the universe. On inputs from those classes the composition
+Each instance falling in one of these four classes is decided
+individually in polynomial time, a malformed input being rejected by
+the syntactic check that recognises it, an empty universe being covered
+by the empty subfamily, a target of zero over a nonempty universe
+admitting no cover, and a target above $m$ admitting one exactly when
+the whole family covers the universe. On inputs from those classes the composition
 therefore answers the OR of those individual answers, emitting a fixed
 yes- or no-instance realising it. Deciding $R$ compares three numbers, and
 the triple $(|U|,m,t)$ takes at most cubically many values in the total

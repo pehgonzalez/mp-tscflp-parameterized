@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdlib>
 #include <map>
 #include <stdexcept>
 
@@ -203,10 +204,23 @@ struct Search {
         return timed_out;
     }
 
+    // Ablation switch. With MPTSCFL_NO_P1=1 in the environment the covering
+    // pruning is disabled while every other component of the search is left
+    // untouched, which isolates the contribution of rule P1. The default is
+    // the full algorithm, and the flag is read once per process.
+    static bool p1_disabled() {
+        static const bool off = [] {
+            const char* e = std::getenv("MPTSCFL_NO_P1");
+            return e != nullptr && e[0] == '1';
+        }();
+        return off;
+    }
+
     // Node P1 quantities (node form of the covering-count lemma): s_I, s_J
     // via prefix counts over the
     // capacities of FREE (undecided) facilities against residual demand.
     bool p1_prune(int r) {
+        if (p1_disabled()) return false;
         long long maxSI = 0, maxSJ = 0;
         std::vector<long long> freeCap;
         for (int l = 0; l < X.nL; ++l) {

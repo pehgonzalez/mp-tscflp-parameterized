@@ -703,7 +703,8 @@ $\mathrm{MP\text{-}TSCFLP}(B)$ is strongly para-NP-hard with respect to
 the pair $(|K|,|L|)$, and unless $\Ppoly=\NP$ no \XP\ algorithm exists
 for it, even under a unary encoding. Under a unary encoding the witness slices of the weak
 groups become polynomial, by Theorem~\ref{thm:partition},
-Observation~\ref{obs:quadrant} and Theorem~\ref{thm:separable},
+Corollary~\ref{cor:partitionmirror}, Observation~\ref{obs:quadrant} and
+Theorem~\ref{thm:separable},
 while the four covering reductions of
 Theorems~\ref{thm:cover}, \ref{thm:products}, \ref{thm:numeric} and
 Corollary~\ref{cor:mirror} are unary-robust, so the covering layer
@@ -716,12 +717,14 @@ $(|K|,|L|)=(1,1)$ is strongly NP-hard by
 Theorem~\ref{thm:numeric}, and the parameterized reading is that of
 Corollary~\ref{cor:coverpara}, now robust under a unary encoding because
 the instance numbers of Theorem~\ref{thm:numeric} are polynomial. For
-the remaining claims of the statement, the three positive results match
+the remaining claims of the statement, the four positive results match
 their slices as follows. The dynamic program of
-Theorem~\ref{thm:partition} covers the group $|J|=|L|=|K|=1$, the
+Theorem~\ref{thm:partition} covers the group $|J|=|L|=|K|=1$, its
+layer-exchanged form in Corollary~\ref{cor:partitionmirror} covers the
+mirror group $|I|=|L|=|K|=1$, the
 knapsack-cover of Observation~\ref{obs:quadrant} covers the quadrant
 $|J|=|L|=1$, and Theorem~\ref{thm:separable} covers the separable
-part of the group $|K|=|L|=1$. Each of the three runs in
+part of the group $|K|=|L|=1$. Each of the four runs in
 pseudo-polynomial time and hence in polynomial time once the data are
 written in unary. The images of the four covering reductions, in
 Theorems~\ref{thm:cover}, \ref{thm:products}, \ref{thm:numeric} and

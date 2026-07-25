@@ -8,6 +8,8 @@ included via \\input in experiments.tex.
   tab_q1_boundary.tex  Q1 boundary extension (solved counts and medians per n x k*)
   tab_q2_codes.tex     comparison of the three codes on the controlled family
   tab_q3_groups.tex    per-group benchmark summary (k*, gap, time, optima, rho)
+  tab_q3_mediation.tex per-group mediation coefficients (k*, terminal gap, root
+                       gap and nodes) with bootstrap intervals
   tab_reductions.tex   static summary of the covering constructions (committed
                        alongside the generated tables; not derived from the CSVs)
 
@@ -238,6 +240,116 @@ group & $\#$ & $k^\ast$ min/med/max & gap (\%%) & opt.\ &
 $\rho$ [$95\%%$ CI] & $p$ \\
 \hline
 """ % (pooled, adj["pooled"]) + "\n".join(lines) + "\n" + r"""\hline
+\end{tabular}
+\end{table}
+""")
+
+# ------------------------------------------------------------- Q3 mediation
+# Same 100 benchmark runs, now joined with the root relaxation and the node
+# count extracted from the stored Gurobi logs. The partial coefficient is the
+# Spearman correlation of k* with the terminal gap once the root gap is held
+# fixed, computed as the Pearson correlation of the two rank residuals.
+def partial_sp(x, y, z):
+    a, b, c = spearman(x, y), spearman(x, z), spearman(y, z)
+    den = (1.0 - b*b) * (1.0 - c*c)
+    return (a - b*c) / math.sqrt(den) if den > 1e-12 else float("nan")
+
+def resid_ranks(v, z):
+    rv, rz = rankdata(v), rankdata(z)
+    n = len(rv); mv, mz = sum(rv)/n, sum(rz)/n
+    szz = sum((t-mz)**2 for t in rz)
+    beta = sum((rz[i]-mz)*(rv[i]-mv) for i in range(n)) / szz if szz > 0 else 0.0
+    return [rv[i] - (mv + beta*(rz[i]-mz)) for i in range(n)]
+
+def pearson(x, y):
+    n = len(x); mx, my = sum(x)/n, sum(y)/n
+    sx = math.sqrt(sum((v-mx)**2 for v in x)); sy = math.sqrt(sum((v-my)**2 for v in y))
+    if sx == 0 or sy == 0: return float("nan")
+    return sum((x[i]-mx)*(y[i]-my) for i in range(n))/(sx*sy)
+
+def perm_p_partial(x, y, z, nperm=20000, seed=20260718):
+    """Residual permutation test for the partial coefficient, fixed seed."""
+    import random as _rnd
+    rx, ry = resid_ranks(x, z), resid_ranks(y, z)
+    obs = pearson(rx, ry); rng = _rnd.Random(seed); cnt = 0; yy = list(ry)
+    for _ in range(nperm):
+        rng.shuffle(yy)
+        if abs(pearson(rx, yy)) >= abs(obs) - 1e-12:
+            cnt += 1
+    return (cnt + 1) / (nperm + 1)
+
+def boot_ci_stat(stat, data, nboot=10000, seed=20260719):
+    """Percentile bootstrap over instances for any statistic of the sample."""
+    import random as _rnd
+    rng = _rnd.Random(seed); n = len(data); vals = []
+    for _ in range(nboot):
+        s = [data[rng.randrange(n)] for _ in range(n)]
+        try:
+            v = stat(s)
+        except ZeroDivisionError:
+            continue  # degenerate resample with a constant column
+        if v == v:
+            vals.append(v)
+    vals.sort()
+    return vals[int(0.025*len(vals))], vals[int(0.975*len(vals))-1]
+
+rootrows = {r["instance"]: r for r in load("mauri_rootgap.csv")}
+med_rows = {}
+for r in mauri:
+    rr = rootrows[r["instance"]]
+    obj, rlp = float(rr["obj"]), float(rr["root_lp"])
+    med_rows.setdefault(group_of(r["instance"]), []).append(
+        (kstar[r["instance"] + ".txt" if r["instance"] + ".txt" in kstar else r["instance"]],
+         float(r["gap"])*100.0, (obj - rlp)/obj*100.0, float(rr["nodes"])))
+col = lambda s, i: [t[i] for t in s]
+STATS = [(r"$\rho(k^\ast,\ \text{gap})$",       lambda s: spearman(col(s,0), col(s,1))),
+         (r"$\rho(k^\ast,\ \text{root gap})$",  lambda s: spearman(col(s,0), col(s,2))),
+         (r"$\rho(\text{gap},\ \text{root gap})$", lambda s: spearman(col(s,1), col(s,2))),
+         (r"$\rho(k^\ast,\ \text{gap}\mid\text{root gap})$",
+          lambda s: partial_sp(col(s,0), col(s,1), col(s,2))),
+         (r"$\rho(k^\ast,\ \text{nodes})$",     lambda s: spearman(col(s,0), col(s,3)))]
+mcols = order + ["pooled"]
+msample = {g: (med_rows[g] if g != "pooled" else [t for g2 in order for t in med_rows[g2]])
+           for g in mcols}
+mvals = {(g, i): st(msample[g]) for g in mcols for i, (_, st) in enumerate(STATS)}
+mci   = {(g, i): boot_ci_stat(st, msample[g]) for g in mcols for i, (_, st) in enumerate(STATS)}
+praw  = {g: perm_p_partial(col(msample[g],0), col(msample[g],1), col(msample[g],2))
+         for g in mcols}
+srt = sorted(praw.items(), key=lambda t: t[1]); m = len(srt); prev = 0.0; padj = {}
+for i, (g, p) in enumerate(srt):
+    a_ = min(1.0, max(prev, (m - i) * p)); prev = a_; padj[g] = a_
+mlines = []
+for i, (lab, _) in enumerate(STATS):
+    mlines.append(lab + " & " +
+                  " & ".join("$%+.2f$" % mvals[(g, i)] for g in mcols) + r" \\")
+    mlines.append(" & " + " & ".join(
+        r"{\scriptsize [$%+.2f$, $%+.2f$]}" % mci[(g, i)] for g in mcols) + r" \\[2pt]")
+mlines.append(r"adjusted $p$ (partial) & " +
+              " & ".join("$%.3f$" % padj[g] for g in mcols) + r" \\")
+with open(os.path.join(OUT, "tab_q3_mediation.tex"), "w") as fh:
+    fh.write(
+r"""\begin{table}[H]
+\centering
+\caption{Mediation coefficients on the $100$ benchmark runs, by size group and
+pooled. Rows give the Spearman correlation of the covering bound with the
+terminal gap, of the bound with the root relaxation gap, of the two gaps with
+each other, the partial correlation of the bound with the terminal gap at fixed
+root gap, and the correlation of the bound with the explored node count.
+Brackets hold percentile bootstrap $95\%$ confidence intervals over
+$10{,}000$ resamples of the instances. The last row reports the Holm-adjusted
+two-sided $p$-value of the partial coefficient, obtained by permuting the rank
+residuals. In the two hundred-factory groups the two gaps correlate at $0.99$
+or above, so barely one per cent of the rank variance of the terminal gap
+survives conditioning and the partial coefficient in those columns rests on
+very little, which its wide interval records.}
+\label{tab:q3mediation}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lccccc}
+\hline
+ & $50$-$5$ & $50$-$10$ & $100$-$5$ & $100$-$10$ & pooled \\
+\hline
+""" + "\n".join(mlines) + "\n" + r"""\hline
 \end{tabular}
 \end{table}
 """)

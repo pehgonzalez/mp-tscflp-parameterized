@@ -53,9 +53,14 @@ networkx, plus g++ 12 or later for the solver.
 5. Campaigns. `code/run_xp_batch.ps1` and `code/run_mip_batch.ps1`
    rerun the Windows campaigns (paths set as variables at the top), and
    `code/run_boundary600_par.sh` is the resumable Linux runner of the
-   budget-600 boundary family. Instances of the generated families are
-   reproduced byte-identically by `code/tools/generate_kstar.py` and
-   checked against the MD5 manifests in `code/data/`.
+   budget-600 boundary family. `code/run_p1_ablation.sh` reruns the
+   covering-pruning ablation of Section 6.2, each boundary instance
+   being solved once with the full algorithm and once with
+   `MPTSCFL_NO_P1=1`, and `python3 scripts/make_p1_ablation_table.py`
+   rebuilds `results/p1_ablation.csv` from the paired records.
+   Instances of the generated families are reproduced byte-identically
+   by `code/tools/generate_kstar.py` and checked against the MD5
+   manifests in `code/data/`.
 
 ## Data
 

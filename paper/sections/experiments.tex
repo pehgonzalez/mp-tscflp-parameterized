@@ -115,17 +115,26 @@ The controlled family was built to probe the boundary that
 Theorem~\ref{thm:xp} predicts, and the outcome is unambiguous. The main grid, whose
 graphs all have $n=|I|+|J|\ge 40$, lies entirely outside the $60$~s regime, so
 all $400$ instances are censored, which is the finding itself and not
-a failure of protocol. At $n\ge 40$ the search processes a median of roughly
-$2{,}500$ nodes before the limit, while a completed search at $n=24$
-already needs a median of roughly $23{,}000$, and the cost of each node
-grows with $|I|$, $|J|$, $|K|$ and $|L|$ through the oracle. The raw
+a failure of protocol. The two node medians we quote cover different
+populations and are not two readings of one quantity. Over the censored
+runs at $n\ge 40$ the search processes a median of roughly $2{,}500$
+nodes before the limit stops it, whereas over the searches that
+complete at $n=24$ the median is roughly $23{,}000$ nodes, so the second
+figure counts a finished enumeration and the first counts what fits in
+a minute. The cost of each node
+grows with $|I|$, $|J|$, $|K|$ and $|L|$ through the oracle, which is
+why the censored searches at $n\ge40$ reach so few nodes. The raw
 per-run records in the archive carry node, pruning and oracle
 counters. Two boundary samples locate the frontier, and
 Table~\ref{tab:q1boundary} reports them side by side. The first holds
 three seeded runs per cell under the $60$~s limit of the main protocol,
 and the second reruns the same grid with ten fresh seeds per cell under
 the tenfold budget of $600$~s, on the same virtual machine. Medians are taken over solved runs only, so the times in
-partially solved cells are biased downward by that conditioning. Under
+partially solved cells are biased downward by that conditioning. Three
+runs fix a cell median only coarsely, so the medians of the $60$~s rows
+are read as orders of magnitude, and the inferences this subsection
+draws about how the border and the covering-bound effect move rest on
+the ten-seed block, where each cell carries ten independent seeds. Under
 $60$~s every instance at $n=20$ solves, seven of twelve solve at
 $n=24$, and none solves from $n=28$ upward, so under this protocol and implementation the $60$~s budget places
 the border of plain optimisation at $n\approx 24$. Under $600$~s both $n=20$ and $n=24$ solve
@@ -171,14 +180,36 @@ one in three at $k^\ast=4$ to three in three at $k^\ast=16$. The
 tenfold budget replicates the pattern one grid step further out, the
 solved count at $n=28$ rising from one in ten to six in ten across the
 same sweep. The
-covering pruning of Lemma~\ref{lem:cover} is the mechanism compatible
-with this pattern. In plain optimisation the
-cardinality never binds, so $k^\ast$ can act on the search only through
-that pruning, and tight capacities let it discard subtrees
-that loose capacities leave standing. The generator, however, varies
-capacities to move the bound and therefore moves other instance
-features with it, so an ablation isolating the pruning is left for
-future work. The mirror pattern expected for the
+covering pruning of Lemma~\ref{lem:cover} is the natural candidate,
+since in plain optimisation the cardinality never binds, so $k^\ast$ can
+reach the search only through a rule that reads it. We tested the
+candidate directly. The enumeration carries a switch that disables the
+covering rule and leaves every other component of the search untouched,
+and we ran the $24$ instances of the two solvable sizes twice under the
+$60$~s protocol, once with the rule and once without it. On the $18$
+pairs whose searches terminate under both settings the two runs agree
+node for node, and in every one of them the counter of the covering rule
+migrates without loss into the counter of the feasibility test. The
+remaining pruning counters and the optimal values are identical as well.
+Nodes that the covering rule discards on this family are therefore nodes
+the feasibility test discards anyway, and the rule removes none that the
+test would leave standing. What it does remove is oracle work, since it
+decides a node by a prefix scan over capacities where the test solves a
+minimum-cost flow, and the share of nodes decided the cheap way climbs
+with the bound, from about one in ten thousand at $k^\ast=4$ to roughly
+one in six at $k^\ast=16$. At these sizes the saving stays inside the
+run-to-run noise, the $18$ terminating pairs costing $242$~s with the
+rule against $245$~s without it, and the slower of the two settings
+splits nine against nine over the individual instances. The six
+remaining pairs are censored on at least one side, where a node count
+measures throughput under the limit rather than a completed tree, and
+their counts differ accordingly.
+
+The ablation reassigns the explanation rather than confirming it. Tight
+capacities are what closes subtrees early, in whichever of the two
+equivalent forms certifies the closure, so $k^\ast$ is best read as an
+index of that tightness and not as a lever acting through the covering
+rule alone. The mirror pattern expected for the
 cardinality sweep, in which the exponent $n^k$ grows with the target count, is
 left for a dedicated run.
 
@@ -288,27 +319,57 @@ The sign is the substantive finding. A naive reading
 of the bound would predict the opposite, a small $k^\ast$ meaning few
 facilities to open and hence an easy instance, but on this benchmark
 larger bounds go with smaller terminal gaps, the same inverse direction
-the enumeration exhibits in Q1, where tight capacities give the covering
-pruning its greatest effect.
+the enumeration exhibits in Q1, where tight capacities let the search
+certify infeasibility soonest.
 
-The stored solver logs admit a mediation-style analysis that points
-to the mechanism, extracted by a pinned script with no further runs. The
-terminal gap on this benchmark is essentially the root relaxation gap,
-the two rank-correlating between $+0.89$ and $+1.00$ within groups and
-at $+0.97$ pooled. The covering bound correlates with the root gap
-between $-0.42$ and $-0.73$ in every group ($-0.36$ pooled), and once
-the root gap is controlled the partial rank correlation of the bound
-with the terminal gap collapses, ranging from $-0.04$ to $+0.52$ across
-groups with no stable sign ($+0.29$ pooled). The bound moreover
-correlates positively with the explored node count in every group. The
-association of the bound with solver effort is therefore consistent
-with mediation through the relaxation. Tight capacities give tight root relaxations, and
-within the $3{,}600$~s budget the solver rarely moves far from its root
-bound. On this benchmark the covering bound annotates relaxation
-tightness rather than search difficulty, its direction stable across
-groups and its strength moderate within the five-product groups and
-weaker pooled. We make no causal claim beyond the controlled
-comparison.
+The stored solver logs let the channel of the association be examined
+with no further runs, the extraction being pinned to a script and its
+coefficients collected in Table~\ref{tab:q3mediation}. The reading rests
+first on how the campaign is built. Ninety-seven of the hundred runs
+stop at the time limit, and a run that stops there reports the distance
+between its incumbent and a dual bound that has moved little from the
+root value, so on this benchmark the terminal gap is close to a
+deterministic image of the root relaxation gap. The measured
+coefficients bear that out, the two quantities rank-correlating at
+$+0.97$ pooled and between $+0.89$ and $+1.00$ within groups. Whatever
+the covering bound is associated with, it is thus associated with it
+through a quantity settled before the branch-and-bound search begins.
+
+\input{tables/tab_q3_mediation.tex}
+
+The bound behaves accordingly. It correlates negatively with the root
+gap in every group, from $-0.42$ to $-0.73$ with $-0.36$ pooled, tight
+capacities going with tight relaxations. Once the root gap is held
+fixed the negative association with the terminal gap does not survive,
+and in no group and not in the pool does the partial coefficient
+reproduce that sign. The partial is indistinguishable from zero in
+three of the four groups, positive at $+0.52$ in the fourth, and
+positive at $+0.29$ pooled with interval $[+0.12,+0.42]$ and
+Holm-adjusted $p=0.019$. The two hundred-factory groups deserve little
+weight on their own here, since their two gaps correlate at $0.99$ or
+above and barely one per cent of the rank variance of the terminal gap
+survives conditioning, an instability their wide intervals record. The
+design of the campaign and the partial coefficients therefore point the
+same way, and the second is a check on the first rather than the
+evidence for it.
+
+The bound also correlates with the explored node count, strongly in the
+two hundred-factory groups, weakly in the two fifty-factory groups and
+not at all pooled. That direction opposes the one Q1 records, where
+larger bounds bought smaller searches, and the two counts are taken
+under different conditions. In Q1 every counted node belongs to a
+search that ran to completion, so the count measures the work the
+algorithm needed. Here almost every search is cut at an hour, so the
+count measures how many nodes the solver managed to process inside a
+fixed budget. A tight relaxation leaves the solver with small
+subproblems and a bound it seldom revises, and it processes many of
+them, so under censoring a positive correlation between the bound and
+the node count is a statement about throughput and carries no claim
+that those instances are harder. On this benchmark the covering bound
+annotates relaxation tightness rather than search difficulty, its
+direction stable across groups and its strength moderate within the
+five-product groups and weaker pooled. We make no causal claim beyond
+the controlled comparison.
 
 \begin{figure}[H]
 \centering

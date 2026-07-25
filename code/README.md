@@ -25,6 +25,8 @@ code/
   run_xp_batch.ps1        campaign (Windows): Xp 60 s on instances_kstar + the 100 benchmark instances
   run_mip_batch.ps1       campaign (Windows): Mip/Bd via gurobi_port mptscfl.exe
   run_boundary600_par.sh  campaign (Linux): budget-600 boundary family, resumable, 2 workers
+  run_p1_ablation.sh      ablation (Linux): each boundary instance run with and
+                          without the covering pruning, resumable, 2 workers
   gurobi_port/            Gurobi-based baselines (compact MIP and Benders), own README
   data/kstar/             pilot family (36 files + MANIFEST.csv)
   data/instances_kstar/   Q1 main grid (400 files + MANIFEST.csv)
@@ -141,3 +143,15 @@ gurobi_port binary and to the benchmark data directory set as variables
 at the top of each script (relative placeholders, adjust to the local
 layout). `run_boundary600_par.sh` is the resumable Linux runner of the
 budget-600 boundary campaign.
+
+`run_p1_ablation.sh` is the resumable Linux runner of the covering-pruning
+ablation. It runs each of the 24 instances of `data/kstar/` (nI=10) and
+`data/kstar_boundary/` (nI=12) twice under the 60 s protocol and writes one
+`.on` and one `.off` record per instance to `results/p1_ablation_lines/`. The
+`.off` leg sets the environment variable `MPTSCFL_NO_P1=1`, which the solver
+reads once per process and which disables rule P1 (the node form of the
+covering-count lemma) while leaving every other component of the search
+untouched. The flag is absent by default, so the ordinary campaign binaries
+run the full algorithm. `scripts/make_p1_ablation_table.py` joins the paired
+records into `results/p1_ablation.csv` and prints the summary quoted in
+Section 6.2 of the paper.

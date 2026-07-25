@@ -84,8 +84,7 @@ incumbent, quoted in percent throughout.
 The enumeration runs were executed under a fixed $60$~s limit. The
 \textsc{Xp} binary is single-threaded C++20, compiled with g++~13.3.0 at
 optimisation level O2, and ran on a Linux virtual machine with an Intel
-Xeon processor at $2.1$~GHz. The budget boundary sample of Q1 ran on a
-second such machine with an Intel Xeon at $2.8$~GHz.
+Xeon processor at $2.8$~GHz.
 The integer programming runs use Gurobi $13.0.2$ on an Intel Core i9-14900HX
 with $24$ cores under Windows, with the controlled family limited to $600$~s
 and the benchmark to $3{,}600$~s. Gurobi ran with default tolerances,
@@ -117,7 +116,7 @@ Theorem~\ref{thm:xp} predicts, and the outcome is unambiguous. The main grid, wh
 graphs all have $n=|I|+|J|\ge 40$, lies entirely outside the $60$~s regime, so
 all $400$ instances are censored. This is the result rather than a failure of
 protocol. At $n\ge 40$ the search processes a median of roughly
-$2{,}700$ nodes before the limit, while a completed search at $n=24$
+$2{,}500$ nodes before the limit, while a completed search at $n=24$
 already needs a median of roughly $23{,}000$, and the cost of each node
 grows with $|I|$, $|J|$, $|K|$ and $|L|$ through the oracle. The raw
 per-run records in the archive carry node, pruning and oracle
@@ -125,10 +124,7 @@ counters. Two boundary samples locate the frontier, and
 Table~\ref{tab:q1boundary} reports them side by side. The first holds
 three seeded runs per cell under the $60$~s limit of the main protocol,
 and the second reruns the same grid with ten fresh seeds per cell under
-the tenfold budget of $600$~s, on the second virtual machine documented
-above. The two samples therefore support the solved-versus-censored
-contrast across budgets and time readings within one budget, and no
-cross-budget time comparison is drawn. Medians are taken over solved runs only, so the times in
+the tenfold budget of $600$~s, on the same virtual machine. Medians are taken over solved runs only, so the times in
 partially solved cells are biased downward by that conditioning. Under
 $60$~s every instance at $n=20$ solves, seven of twelve solve at
 $n=24$, and none solves from $n=28$ upward, so that budget places the
@@ -141,7 +137,7 @@ together, a tenfold budget displacing the partially solved band by one
 grid step, from $n=24$ to $n=28$, in line with the exponential growth
 that Theorem~\ref{thm:xp} prescribes. The same table shows the
 covering-bound effect at fixed size, with the median time at $n=20$
-falling from $13.7$~s at $k^\ast=4$ to $0.6$~s at $k^\ast=16$ under
+falling from $14.2$~s at $k^\ast=4$ to $0.7$~s at $k^\ast=16$ under
 $60$~s. Figure~\ref{fig:q1} shows the three readings graphically, the
 boundary in panel (a), the covering-bound effect in panel (b), and the
 budget displacement in panel (c).

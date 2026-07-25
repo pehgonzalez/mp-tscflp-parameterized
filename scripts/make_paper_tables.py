@@ -78,42 +78,56 @@ def round_half_up(v, nd=2):
 
 # ---------------------------------------------------------------- Q1 boundary
 q1 = load("q1_xp.csv")
-# extensao de fronteira: os 60 runs com nK=30 e nL=3 (o grid principal usa
-# nK em {50,100} e nL em {5,10})
+# extensao de fronteira 60 s: os 60 runs com nK=30 e nL=3 (o grid principal usa
+# nK em {50,100} e nL em {5,10}); familia do orcamento 600 s: 10 sementes por
+# celula sobre a mesma grade (results/q1_boundary600.csv)
 bnd = [r for r in q1 if r["nK"] == "30" and r["nL"] == "3"]
-ns   = sorted({int(r["nI"])+int(r["nJ"]) for r in bnd})
+b600 = load("q1_boundary600.csv")
+ns   = sorted({int(r["nI"])+int(r["nJ"]) for r in bnd} |
+              {int(r["nI"])+int(r["nJ"]) for r in b600})
 kts  = [4, 8, 12, 16]
+def cell_tex(cell, solved):
+    if not cell:
+        return "--"
+    if solved:
+        med = median([float(r["time"]) for r in solved])
+        star = r"$^{\star}$" if len(solved) < 3 else ""
+        return f"{len(solved)}/{len(cell)} ({med:.1f}){star}"
+    return f"0/{len(cell)}"
 rows_tex = []
 for n in ns:
-    cells = []
-    for kt in kts:
-        cell = [r for r in bnd if int(r["nI"])+int(r["nJ"]) == n
-                and r["kstar_target"] == str(kt)]
-        solved = [r for r in cell if r["status"] == "OPTIMAL" and r["timeout"] == "0"]
-        if not cell:
-            cells.append("--")
-        elif solved:
-            med = median([float(r["time"]) for r in solved])
-            # F7b: estrela programatica nas celulas com 0 < resolvidas < 3
-            star = r"$^{\star}$" if len(solved) < 3 else ""
-            cells.append(f"{len(solved)}/{len(cell)} ({med:.1f}){star}")
-        else:
-            cells.append(f"0/{len(cell)}")
-    rows_tex.append(f"${n}$ & " + " & ".join(cells) + r" \\")
+    for label, pool, tsel in (("60", bnd, lambda r: r["kstar_target"]),
+                              ("600", b600, lambda r: str(2*int(r["tI"])))):
+        cells = []
+        for kt in kts:
+            cell = [r for r in pool if int(r["nI"])+int(r["nJ"]) == n
+                    and tsel(r) == str(kt)]
+            solved = [r for r in cell if r["status"] == "OPTIMAL"
+                      and r["timeout"] == "0"]
+            cells.append(cell_tex(cell, solved))
+        head = f"${n}$" if label == "60" else ""
+        rows_tex.append(f"{head} & ${label}$ & " + " & ".join(cells) + r" \\")
+    rows_tex.append(r"\addlinespace[2pt]")
+rows_tex = rows_tex[:-1]
 with open(os.path.join(OUT, "tab_q1_boundary.tex"), "w") as fh:
     fh.write(
 r"""\begin{table}[H]
 \centering
-\caption{The boundary extension of Q1 under the $60$~s limit. Each cell
-reports solved over attempted instances at the given $n=|I|+|J|$ and
-covering-bound target $k^\ast$, with the median time in seconds of the
-solved runs in parentheses. Solved runs vanish beyond $n=24$, and in the
-solvable rows a larger bound solves faster. Starred cells have fewer
-than three solved runs and their medians are individual observations.}
+\caption{The boundary extension of Q1 as a function of the budget. Each
+cell reports solved over attempted instances at the given $n=|I|+|J|$,
+budget and covering-bound target $k^\ast$, with the median time in
+seconds of the solved runs in parentheses. The $60$~s rows use the
+three-seed refinement family and the $600$~s rows the ten-seed budget
+family, both from the same generator. The tenfold budget displaces the
+partially solved band from $n=24$ to $n=28$, where the solved count
+again rises with the bound, and $n=40$ stays fully censored. Starred
+cells have fewer than three solved runs and their medians are
+individual observations.}
 \label{tab:q1boundary}
-\begin{tabular}{lcccc}
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{llcccc}
 \hline
-$n$ & $k^\ast=4$ & $k^\ast=8$ & $k^\ast=12$ & $k^\ast=16$ \\
+$n$ & budget (s) & $k^\ast=4$ & $k^\ast=8$ & $k^\ast=12$ & $k^\ast=16$ \\
 \hline
 """ + "\n".join(rows_tex) + "\n" + r"""\hline
 \end{tabular}

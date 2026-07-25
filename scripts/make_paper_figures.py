@@ -42,8 +42,8 @@ def kt(r): return int(r["kstar_target"])
 BOUND=[r for r in rows if r["nK"]=="30" and r["nL"]=="3"]  # boundary/pilot family (has solves)
 
 # ---------- Figure Q1: full regime picture + inverse k* effect ----------
-fig,(axa,axb)=plt.subplots(1,2,figsize=(7.1,3.1),
-                           gridspec_kw={"width_ratios":[1.25,1]})
+fig,(axa,axb,axc)=plt.subplots(1,3,figsize=(7.1,2.9),
+                           gridspec_kw={"width_ratios":[1.35,0.95,0.95]})
 TL=60.0
 # panel a: ALL 460 runs. Solved (colour+shape by k*) live only at n<=24;
 # censored shown as grey open circles across the whole n range, so the wall of
@@ -101,7 +101,29 @@ axb.set_xticks(KS); axb.set_xlim(2.5,18.5)
 axb.set_xlabel("covering bound $k^\\ast$")
 axb.set_ylabel("median solve time (s)")
 axb.set_title("(b)",fontsize=9,loc="left")
-axis_arrows(axa); axis_arrows(axb)
+# panel c: solved fraction per size under the two budgets (60 s boundary
+# family, 3 seeds/cell; 600 s budget family, 10 seeds/cell)
+b600=list(csv.DictReader(open(os.path.join(RES,"q1_boundary600.csv"))))
+NSC=[20,24,28,30,40]
+frac60=[]; frac600=[]
+for n in NSC:
+    c60=[r for r in BOUND if n_of(r)==n]
+    frac60.append(sum(1 for r in c60 if r["status"]=="OPTIMAL")/len(c60))
+    c6=[r for r in b600 if int(r["nI"])+int(r["nJ"])==n]
+    frac600.append(sum(1 for r in c6 if r["status"]=="OPTIMAL")/len(c6))
+axc.plot(NSC,frac60,ls="-",lw=1.4,color="0.15",marker="o",ms=4.5,
+         mfc="0.15",zorder=3)
+axc.plot(NSC,frac600,ls=(0,(4,2)),lw=1.4,color="0.15",marker="s",ms=4.5,
+         mfc="white",mew=1.0,zorder=3)
+axc.text(21.4,0.72,"$60$ s",fontsize=8,color="0.15",ha="left")
+axc.annotate("$600$ s",xy=(28,frac600[2]),xytext=(8,5),
+             textcoords="offset points",fontsize=8,color="0.15")
+axc.set_xticks([20,24,28,40]); axc.set_xlim(17,43); axc.set_ylim(-0.05,1.1)
+axc.set_yticks([0,0.5,1.0])
+axc.set_xlabel("$n=|I|+|J|$")
+axc.set_ylabel("solved fraction")
+axc.set_title("(c)",fontsize=9,loc="left")
+axis_arrows(axa); axis_arrows(axb); axis_arrows(axc)
 fig.tight_layout(pad=0.4,w_pad=1.2)
 for ext in ("pdf","png"):
     fig.savefig(os.path.join(OUT,f"fig_q1_regime.{ext}"),dpi=200,bbox_inches="tight")

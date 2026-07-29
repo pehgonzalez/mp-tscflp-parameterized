@@ -29,7 +29,10 @@ and a deadline-aware enumerator. The baseline (\textsc{Mip}) is the compact
 model \eqref{eq:obj}--\eqref{eq:dom} solved by Gurobi. A third code
 (\textsc{Bd}) solves the same model by a branch-and-Benders-cut in which the
 per-product transportation subproblems are separated by the disaggregated cuts
-of Proposition~\ref{prop:duals}. All three read the same instance files.
+of Proposition~\ref{prop:duals}. The two baselines are C++20 codes as
+well, built with CMake against Gurobi's C++ interface, and they share
+the instance parser and the exact routing oracle with the enumeration
+code. All three read the same instance files.
 The \textsc{Xp} implementation was cross-validated against an independent
 brute-force enumeration of all designs with an exact per-product min-cost-flow
 oracle, matching it on $180$ small seeded instances and on $1{,}381$ exact

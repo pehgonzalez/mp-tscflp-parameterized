@@ -273,7 +273,7 @@ computed in strongly polynomial time by Proposition~\ref{prop:oracle}.
 \end{proof}
 
 The second polynomial regime fixes one facility on each side. There the
-routing is forced and the optimum admits a closed form.
+design is forced and the optimum admits a closed form.
 
 \begin{proposition}[single factory and depot]\label{prop:onebyone}
 If $|I|=|J|=1$, then MP-TSCFLP is solvable in $O(|K|\,|L|)$ time after
@@ -284,8 +284,9 @@ $f_1+g_1+\sum_{l}\bigl(c_{11l}D_l+\sum_k d_{1kl}q_{kl}\bigr)$, and when all
 demand is zero the optimum is $0$, attained by opening nothing.
 \end{proposition}
 \begin{proof}
-Feasibility forces the design, and the design in turn forces the
-routing. By Proposition~\ref{prop:feas}, a design $(y_1,z_1)$
+Feasibility forces the design, and nonnegativity of the costs then
+makes the cheapest routing explicit. By
+Proposition~\ref{prop:feas}, a design $(y_1,z_1)$
 is feasible if and only if $b_{1l}y_1\ge D_l$ and $p_{1l}z_1\ge D_l$ for
 every $l$, which is what (F1) and (F2) read with one facility per side.
 If all demand is zero, these conditions hold for every design and the
@@ -319,7 +320,7 @@ Time Hypothesis, match up to the constant in the exponent.
 
 \begin{observation}[membership in \XP]\label{obs:xp}
 $\mathrm{MP\text{-}TSCFLP}(B,k)$ is decidable in time
-$n^{k+O(1)}\cdot\mathrm{poly}(|I|,|J|,|K|,|L|)$. When $n=0$ the empty
+$n^{k+O(1)}\cdot\mathrm{poly}(N)$, with $N$ the instance size. When $n=0$ the empty
 design is the only design, one application of
 Propositions~\ref{prop:oracle} and~\ref{prop:feas} to it decides the
 instance in polynomial time, and the counting below is not needed, so

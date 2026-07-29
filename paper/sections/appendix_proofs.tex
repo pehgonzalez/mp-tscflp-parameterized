@@ -378,17 +378,23 @@ than its parent, so the search tree has depth at most $n$ and finitely
 many nodes, and the loop terminates. At termination the stack is empty,
 so the invariant leaves only $\mathrm{best}=\OPT_k$.
 
-\emph{Conclusion.} If $\OPT_k\le B$ then $\mathrm{best}=\OPT_k\le B$ and
-the algorithm returns \textsc{yes}. If $\OPT_k>B$ then
-$\mathrm{best}\ge\OPT_k>B$ by soundness and it returns \textsc{no}, and
-the answer \textsc{no} of line 3, when that return fires instead, is
-correct by the early-return argument. Either
+\emph{Conclusion.} If $\OPT_k\le B$ then completeness gives
+$\mathrm{best}=\OPT_k\le B$, a finite value since the budget $B$ of the
+decision problem is a nonnegative integer, so both tests of line 14 pass
+and the algorithm returns \textsc{yes}. If $\OPT_k>B$ then
+$\mathrm{best}\ge\OPT_k>B$ by soundness, one of the two tests fails
+whether $\mathrm{best}$ is finite or not, and the algorithm returns
+\textsc{no}, and the answer \textsc{no} of line 3, when that return
+fires instead, is correct by the early-return argument. Either
 way the algorithm decides $\mathrm{MP\text{-}TSCFLP}(B,k)$. Running with
 $B=+\infty$ makes $\OPT_k\le B$ hold whenever $\OPT_k$ is finite, so
 completeness gives $\mathrm{best}=\OPT_k$ in the finite case. When
 $\OPT_k=+\infty$ soundness keeps $\mathrm{best}$ unassigned, so it
-retains its initial value $+\infty=\OPT_k$, and when the early return
-fires instead line 3 reports the same infinite optimum.
+retains its initial value $+\infty=\OPT_k$, the finiteness test of
+line 14 fails and the label is \textsc{no}, and when the early return
+fires instead line 3 reports the same infinite optimum. In every mode
+the returned $\OPT_k$ equals $\mathrm{best}$, so the run with
+$B=+\infty$ reads the optimum off either branch.
 \end{proof}
 
 \medskip\noindent
@@ -473,8 +479,10 @@ Proposition~\ref{prop:feas}.
 $d_{jkl}=d_{jk'l}$ for all $j,l$, then merging $k'$ into $k$ and adding
 their demands preserves feasibility, routing value and cost of every
 design, hence the optimal value, the set of optimal designs and the
-answers of both decision versions, while complete solutions correspond
-under the explicit merge and split maps of the proof. Consequently one
+answers of both decision versions. Feasible complete solutions
+map in both directions under the explicit merge and split maps of the
+proof, which never raise the cost and preserve the optimal routing
+value of every design, and consequently one
 may assume $|K|\le\tau$, where $\tau$
 is the number of distinct second-stage cost columns, computable in
 polynomial time.}
@@ -499,8 +507,13 @@ $\sum_j w_{jkl}=q_{kl}$ and $\sum_j w_{jk'l}=q_{k'l}$, which is possible
 because only the totals are constrained. The cost is again unchanged.
 The two instances therefore have the same feasible designs with the same
 routing values and costs, hence the same optimal value, the same
-optimal designs and the same decision answers, and the merge and split
-maps just exhibited carry the complete solutions across. Iterating over
+optimal designs and the same decision answers. The merge map preserves
+the cost exactly, and the split map, run after the trim, never raises
+it, so the two maps carry feasible complete solutions across in both
+directions and preserve the optimal routing value of every design,
+although the trim may strictly lower the cost of a routing that
+carries surplus, so the correspondence is not a cost-preserving
+bijection on all complete solutions. Iterating over
 equal columns leaves at most one customer per
 distinct column, so $|K|\le\tau$.
 \end{proof}

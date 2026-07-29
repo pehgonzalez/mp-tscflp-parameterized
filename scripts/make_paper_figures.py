@@ -101,15 +101,17 @@ axb.set_xticks(KS); axb.set_xlim(2.5,18.5)
 axb.set_xlabel("covering bound $k^\\ast$")
 axb.set_ylabel("median solve time (s)")
 axb.set_title("(b)",fontsize=9,loc="left")
-# panel c: solved fraction per size under the two budgets (60 s boundary
-# family, 3 seeds/cell; 600 s budget family, 10 seeds/cell)
+# panel c: solved fraction per size under the two budgets, both curves read
+# inside the ten-seed 600 s sample. A run counts as solved at 60 s exactly
+# when its recorded time is <= 60 s (deterministic single-thread code), so
+# the two curves compare the same instances and only the budget varies.
 b600=list(csv.DictReader(open(os.path.join(RES,"q1_boundary600.csv"))))
 NSC=[20,24,28,30,40]
 frac60=[]; frac600=[]
 for n in NSC:
-    c60=[r for r in BOUND if n_of(r)==n]
-    frac60.append(sum(1 for r in c60 if r["status"]=="OPTIMAL")/len(c60))
     c6=[r for r in b600 if int(r["nI"])+int(r["nJ"])==n]
+    frac60.append(sum(1 for r in c6 if r["status"]=="OPTIMAL"
+                      and float(r["time"])<=60.0)/len(c6))
     frac600.append(sum(1 for r in c6 if r["status"]=="OPTIMAL")/len(c6))
 axc.plot(NSC,frac60,ls="-",lw=1.4,color="0.15",marker="o",ms=4.5,
          mfc="0.15",zorder=3)

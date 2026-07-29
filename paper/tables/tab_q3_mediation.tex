@@ -1,14 +1,20 @@
 \begin{table}[H]
 \centering
-\caption{Mediation coefficients on the $100$ benchmark runs, by size group and
-pooled. Rows give the Spearman correlation of the covering bound with the
-terminal gap, of the bound with the root relaxation gap, of the two gaps with
-each other, the partial correlation of the bound with the terminal gap at fixed
-root gap, and the correlation of the bound with the explored node count.
-Brackets hold percentile bootstrap $95\%$ confidence intervals over
-$10{,}000$ resamples of the instances. The last row reports the Holm-adjusted
-two-sided $p$-value of the partial coefficient, obtained by permuting the rank
-residuals. In the two hundred-factory groups the two gaps correlate at $0.99$
+\caption{Conditional association coefficients on the $100$ benchmark runs, by
+size group and pooled. Rows give the Spearman correlation of the covering
+bound with the terminal gap, of the bound with the root relaxation gap, of the
+two gaps with each other, the partial rank correlation of the bound with the
+terminal gap at fixed root gap, and the correlation of the bound with the
+explored node count. The partial coefficient is the Pearson correlation of the
+residuals of the two rank-on-rank regressions on the root-gap ranks, and the
+pooled column conditions on the root gap only, not on the group. Brackets hold
+percentile bootstrap $95\%$ confidence intervals over
+$10{,}000$ resamples of the instances (seed $20260719$), not adjusted for
+multiplicity. The last row reports the Holm-adjusted
+two-sided $p$-value of the partial coefficient from a Freedman--Lane residual
+permutation test with $20{,}000$ permutations (seed $20260718$), permutations
+running within each size group in the pooled column. In the two
+hundred-factory groups the two gaps correlate at $0.99$
 or above, so barely one per cent of the rank variance of the terminal gap
 survives conditioning and the partial coefficient in those columns rests on
 very little, which its wide interval records.}
@@ -29,7 +35,7 @@ $\rho(k^\ast,\ \text{gap}\mid\text{root gap})$ & $-0.04$ & $+0.52$ & $+0.30$ & $
  & {\scriptsize [$-0.35$, $+0.19$]} & {\scriptsize [$+0.28$, $+0.71$]} & {\scriptsize [$-0.34$, $+0.67$]} & {\scriptsize [$-0.04$, $+0.41$]} & {\scriptsize [$+0.12$, $+0.42$]} \\[2pt]
 $\rho(k^\ast,\ \text{nodes})$ & $+0.41$ & $+0.22$ & $+0.83$ & $+0.79$ & $+0.02$ \\
  & {\scriptsize [$-0.10$, $+0.75$]} & {\scriptsize [$-0.38$, $+0.66$]} & {\scriptsize [$+0.60$, $+0.93$]} & {\scriptsize [$+0.53$, $+0.92$]} & {\scriptsize [$-0.21$, $+0.22$]} \\[2pt]
-adjusted $p$ (partial) & $0.862$ & $0.039$ & $0.433$ & $0.678$ & $0.019$ \\
+adjusted $p$ (partial) & $1.000$ & $0.049$ & $0.577$ & $1.000$ & $1.000$ \\
 \hline
 \end{tabular}
 \end{table}

@@ -18,8 +18,8 @@ which facilities to open. Bounding that freedom by $k$ leaves at most
 $e\,n^{k}$ candidate supports, and each is priced by one oracle call.
 The next theorem promotes the brute-force membership of
 Observation~\ref{obs:xp} to a running time whose exponent is linear in
-$k$, and the branch-and-bound that follows keeps the same worst case
-while pruning aggressively in practice.
+$k$, and the branch-and-bound that follows stays within the same
+$n^{k+O(1)}$ regime while pruning aggressively in practice.
 
 The \emph{support} of a design is the set of facilities it opens. We
 identify each set $S\subseteq I\cup J$ with the design that opens exactly
@@ -35,7 +35,8 @@ Write $T_{\mathrm{orac}}$ for the time of one routing-oracle call and
 normalise $k\le n$. Then $\mathrm{MP\text{-}TSCFLP}(B,k)$ is decidable,
 and the least cost $\OPT_k$ over feasible designs opening at most $k$
 facilities is computable, in time $O\bigl(n^{k}\cdot
-T_{\mathrm{orac}}\bigr)$ for $k\ge 1$, and in time $O(T_{\mathrm{orac}})$
+(T_{\mathrm{orac}}+n|L|)\bigr)$ for $k\ge 1$, and in time
+$O(T_{\mathrm{orac}}+n|L|)$
 for $k=0$. In particular the problem lies in \XP\ in the parameter $k$.
 \end{theorem}
 \begin{proof}
@@ -55,14 +56,15 @@ $\sum_{t=0}^{k}\binom{n}{t}\le\sum_{t=0}^{k}\frac{n^{t}}{t!}
 for $k\le n$ and $k\ge 1$. The middle inequality uses $n^{t}\le n^{k}$
 for $t\le k$, valid since $n\ge 1$, and extending the sum adds
 nonnegative terms. The case $n=0$ needs no counting, since it leaves
-only the empty design and is decided by one oracle call. Each support costs $O(T_{\mathrm{orac}})$, and
-one oracle call already reads the $n|L|$ capacities, so
-$T_{\mathrm{orac}}=\Omega(n|L|)$ and the oracle time dominates the
-feasibility test, giving $O(n^{k}\,T_{\mathrm{orac}})$ in total. For
+only the empty design and is decided by one oracle call. Each support
+costs one $O(n|L|)$ feasibility test plus at most one oracle call, and
+$T_{\mathrm{orac}}$ is left as a stated quantity rather than bounded
+below, since an implementation may share preprocessed data across calls,
+giving $O\bigl(n^{k}(T_{\mathrm{orac}}+n|L|)\bigr)$ in total. For
 $k=0$ only the empty design is priced. That design is feasible exactly
 when every $D_l=0$, since for it the left-hand sums of (F1) and (F2) are
 empty, so one feasibility test and at most one oracle call suffice,
-within $O(T_{\mathrm{orac}})$. Comparing the minimum
+within $O(T_{\mathrm{orac}}+n|L|)$. Comparing the minimum
 against $B$ decides $\mathrm{MP\text{-}TSCFLP}(B,k)$.
 \end{proof}
 
@@ -164,9 +166,10 @@ step.
 \item \algin\algin $\mathrm{best}\gets\min(\mathrm{best},LB(O,C))$
 \item \algin \kw{else} pick $e\in F$ of least index and push
   $(O\cup\{e\},C)$ and $(O,C\cup\{e\})$
-\item \kw{if} $\mathrm{best}\le B$ \kw{then} \kw{return} \textsc{yes} with
-  $\OPT_k=\mathrm{best}$ \kw{else} \kw{return} \textsc{no}
-  \algcomment{run with $B=\infty$ to return $\OPT_k$ unconditionally}
+\item \kw{if} $\mathrm{best}<+\infty$ \kw{and} $\mathrm{best}\le B$
+  \kw{then} \kw{return} \textsc{yes} \kw{else} \kw{return} \textsc{no},
+  either way with $\OPT_k=\mathrm{best}$
+  \algcomment{run with $B=\infty$ to read $\OPT_k$ off either branch}
 \end{pseudolines}
 \end{algorithm}
 
@@ -230,7 +233,20 @@ the cardinality budget ever reach a leaf, and bound it above by tracking
 a minimum-cardinality optimum down the tree, checking that no prune ever
 discards the node carrying it.
 
-None of the prunes changes the worst case. On the seeded validation suite
+The prunes only discard nodes, and the tree they act on is itself
+small. Branching always selects the free facility of least index, so at
+every node the decided set $O\cup C$ is a prefix of the facility order
+and the node is determined by the prefix length $m$ together with
+$O\subseteq\{1,\dots,m\}$. Children are pushed only from nodes with
+$|O|\le k$, so every node ever created has $|O|\le k+1$ and the tree
+holds at most
+$\sum_{m=0}^{n}\sum_{t=0}^{k+1}\binom{m}{t}=O(n^{k+2})$ nodes. Each
+node performs the sorts and prefix scans of P1 and at most one oracle
+call, so the whole search runs in
+$O\bigl(n^{k+2}(T_{\mathrm{orac}}+n|L|\log n)\bigr)$ time, a
+polynomial factor above the enumeration bound of Theorem~\ref{thm:xp}
+and within the same $n^{k+O(1)}$ regime, which is all the
+classification uses. On the seeded validation suite
 recorded in the accompanying code, the reference implementation visited
 roughly ninety per cent fewer nodes than the plain enumeration and returned
 the brute-force optimum on every instance. The
@@ -238,6 +254,28 @@ linear exponent is essentially the best one can hope for, since under the
 Exponential Time Hypothesis no algorithm decides the problem in time
 $f(k)\cdot N^{o(k)}$ (Theorem~\ref{thm:eth}), so the enumeration of
 supports is tight up to the constant in the exponent.
+
+One relation among the prunes has consequences that
+Section~\ref{sec:exp-q1} meets again on the machine, so we record it
+here.
+
+\begin{observation}[the covering prune in plain optimisation]
+\label{obs:p1redundant}
+Run with $k=n$, prune P1 discards no node beyond the infeasibility
+branch of P2, since at any node $r=n-|O|=|F|+|C|\ge|F|$. If the
+all-open
+completion $O\cup F$ is feasible, then for every product the free
+facilities of each side supply that side's residual demand, so
+Lemma~\ref{lem:cover} gives $\max_l s_I(l;O,C)\le|F\cap I|$ and
+$\max_l s_J(l;O,C)\le|F\cap J|$, the two maxima add to at most
+$|F|\le r$, and P1 does not fire. When P1 fires, therefore, the
+all-open completion is infeasible, so $v^{\uparrow}=+\infty$ and the
+infeasibility branch of P2 discards the same node at the price of one
+oracle call. Under a binding cardinality $k<n$ the subsumption fails,
+since a node may admit a feasible all-open completion while no
+completion within the remaining budget $r$ exists, which P1 detects
+and the infeasibility branch of P2 cannot.
+\end{observation}
 
 \subsection{Fixed-parameter tractability and the size-parameter
 dichotomy}\label{sec:fpt}
@@ -391,18 +429,21 @@ If customers $k\ne k'$ have identical cost columns, that is
 $d_{jkl}=d_{jk'l}$ for all $j,l$, then merging $k'$ into $k$ and adding
 their demands preserves feasibility, routing value and cost of every
 design, hence the optimal value, the set of optimal designs and the
-answers of both decision versions, while complete solutions correspond
-under the explicit merge and split maps of the proof. Consequently one
+answers of both decision versions. Feasible complete solutions
+map in both directions under the explicit merge and split maps of the
+proof, which never raise the cost and preserve the optimal routing
+value of every design, and consequently one
 may assume $|K|\le\tau$, where $\tau$
 is the number of distinct second-stage cost columns, computable in
 polynomial time.
 \end{proposition}
 The proof, given in \ref{app:tech}, exhibits the two maps directly. The
-merge adds the flow rows of the two customers, the split expands the
-merged row by the northwest-corner procedure, and both preserve every
-constraint and every cost term, so the two instances agree design by
-design, and a companion reduction bounds the capacities without
-touching any design.
+merge adds the flow rows of the two customers and preserves every
+constraint and every cost term. The split trims any surplus of the
+merged row and expands it by the northwest-corner procedure, which
+preserves feasibility at no cost increase, so the optimal routing
+values agree design by design, and a companion reduction bounds the
+capacities without touching any design.
 
 \begin{observation}[capacity capping]\label{obs:capping}
 Replacing every capacity $b_{il}$ by $\min(b_{il},D_l)$ and every

@@ -8,7 +8,7 @@ included via \\input in experiments.tex.
   tab_q1_boundary.tex  Q1 boundary extension (solved counts and medians per n x k*)
   tab_q2_codes.tex     comparison of the three codes on the controlled family
   tab_q3_groups.tex    per-group benchmark summary (k*, gap, time, optima, rho)
-  tab_q3_mediation.tex per-group mediation coefficients (k*, terminal gap, root
+  tab_q3_mediation.tex per-group conditional association coefficients (k*, terminal gap, root
                        gap and nodes) with bootstrap intervals
   tab_reductions.tex   static summary of the covering constructions (committed
                        alongside the generated tables; not derived from the CSVs)
@@ -98,19 +98,27 @@ def cell_tex(cell, solved):
         star = r"$^{\star}$" if len(solved) < 3 else ""
         return f"{len(solved)}/{len(cell)} ({med:.1f}){star}"
     return f"0/{len(cell)}"
+# The middle row of each block reclassifies the ten-seed 600 s sample by the
+# recorded time (deterministic single-thread code), so the 60-versus-600
+# contrast is read on the same instances and does not confound budget with
+# seeds. The nearest recorded solve time is more than seven seconds from the
+# 60 s threshold, so the reclassification is stable.
 rows_tex = []
+SPECS = (("$60$", bnd, lambda r: r["kstar_target"], None),
+         ("$60$ (ten-seed)", b600, lambda r: str(2*int(r["tI"])), 60.0),
+         ("$600$", b600, lambda r: str(2*int(r["tI"])), None))
 for n in ns:
-    for label, pool, tsel in (("60", bnd, lambda r: r["kstar_target"]),
-                              ("600", b600, lambda r: str(2*int(r["tI"])))):
+    for label, pool, tsel, cap in SPECS:
         cells = []
         for kt in kts:
             cell = [r for r in pool if int(r["nI"])+int(r["nJ"]) == n
                     and tsel(r) == str(kt)]
             solved = [r for r in cell if r["status"] == "OPTIMAL"
-                      and r["timeout"] == "0"]
+                      and r["timeout"] == "0"
+                      and (cap is None or float(r["time"]) <= cap)]
             cells.append(cell_tex(cell, solved))
-        head = f"${n}$" if label == "60" else ""
-        rows_tex.append(f"{head} & ${label}$ & " + " & ".join(cells) + r" \\")
+        head = f"${n}$" if label == "$60$" else ""
+        rows_tex.append(f"{head} & {label} & " + " & ".join(cells) + r" \\")
     rows_tex.append(r"\addlinespace[2pt]")
 rows_tex = rows_tex[:-1]
 with open(os.path.join(OUT, "tab_q1_boundary.tex"), "w") as fh:
@@ -121,14 +129,18 @@ r"""\begin{table}[H]
 cell reports solved over attempted instances at the given $n=|I|+|J|$,
 budget and covering-bound target $k^\ast$, with the median time in
 seconds of the solved runs in parentheses. The $60$~s rows use the
-three-seed boundary extension and the $600$~s rows the ten-seed budget
-sample, both from the same generator. The tenfold budget displaces the
+three-seed boundary extension. The ten-seed rows both draw on the
+$600$~s budget sample, the middle row counting a run as solved under
+$60$~s exactly when its recorded time is at most $60$~s, which the
+deterministic single-threaded code permits, so the budget contrast of
+the last two rows compares the same instances and only the budget
+varies. The tenfold budget displaces the
 partially solved band from $n=24$ to $n=28$, where the solved count
 again rises with the bound, and $n=40$ stays fully censored. Starred
 cells have fewer than three solved runs, so their medians rest on one
 or two observations.}
 \label{tab:q1boundary}
-\setlength{\tabcolsep}{4.5pt}
+\setlength{\tabcolsep}{3.2pt}
 \begin{tabular}{llcccc}
 \hline
 $n$ & budget (s) & $k^\ast=4$ & $k^\ast=8$ & $k^\ast=12$ & $k^\ast=16$ \\
@@ -267,13 +279,23 @@ def pearson(x, y):
     if sx == 0 or sy == 0: return float("nan")
     return sum((x[i]-mx)*(y[i]-my) for i in range(n))/(sx*sy)
 
-def perm_p_partial(x, y, z, nperm=20000, seed=20260718):
-    """Residual permutation test for the partial coefficient, fixed seed."""
+def perm_p_partial(x, y, z, strata=None, nperm=20000, seed=20260718):
+    """Freedman-Lane residual permutation test for the partial coefficient,
+    fixed seed. Both variables are rank-regressed on the conditioning
+    variable and the residuals of the second are permuted, within strata
+    when a stratum label list is given (used for the pooled column, where
+    permutations run inside each size group)."""
     import random as _rnd
     rx, ry = resid_ranks(x, z), resid_ranks(y, z)
     obs = pearson(rx, ry); rng = _rnd.Random(seed); cnt = 0; yy = list(ry)
+    n = len(yy)
+    pos = [list(range(n))] if strata is None else           [[i for i in range(n) if strata[i] == g] for g in sorted(set(strata))]
     for _ in range(nperm):
-        rng.shuffle(yy)
+        for ps in pos:
+            vals = [yy[i] for i in ps]
+            rng.shuffle(vals)
+            for i, v in zip(ps, vals):
+                yy[i] = v
         if abs(pearson(rx, yy)) >= abs(obs) - 1e-12:
             cnt += 1
     return (cnt + 1) / (nperm + 1)
@@ -313,7 +335,9 @@ msample = {g: (med_rows[g] if g != "pooled" else [t for g2 in order for t in med
            for g in mcols}
 mvals = {(g, i): st(msample[g]) for g in mcols for i, (_, st) in enumerate(STATS)}
 mci   = {(g, i): boot_ci_stat(st, msample[g]) for g in mcols for i, (_, st) in enumerate(STATS)}
-praw  = {g: perm_p_partial(col(msample[g],0), col(msample[g],1), col(msample[g],2))
+pooled_strata = [g2 for g2 in order for _ in med_rows[g2]]
+praw  = {g: perm_p_partial(col(msample[g],0), col(msample[g],1), col(msample[g],2),
+                           strata=(pooled_strata if g == "pooled" else None))
          for g in mcols}
 srt = sorted(praw.items(), key=lambda t: t[1]); m = len(srt); prev = 0.0; padj = {}
 for i, (g, p) in enumerate(srt):
@@ -330,15 +354,21 @@ with open(os.path.join(OUT, "tab_q3_mediation.tex"), "w") as fh:
     fh.write(
 r"""\begin{table}[H]
 \centering
-\caption{Mediation coefficients on the $100$ benchmark runs, by size group and
-pooled. Rows give the Spearman correlation of the covering bound with the
-terminal gap, of the bound with the root relaxation gap, of the two gaps with
-each other, the partial correlation of the bound with the terminal gap at fixed
-root gap, and the correlation of the bound with the explored node count.
-Brackets hold percentile bootstrap $95\%$ confidence intervals over
-$10{,}000$ resamples of the instances. The last row reports the Holm-adjusted
-two-sided $p$-value of the partial coefficient, obtained by permuting the rank
-residuals. In the two hundred-factory groups the two gaps correlate at $0.99$
+\caption{Conditional association coefficients on the $100$ benchmark runs, by
+size group and pooled. Rows give the Spearman correlation of the covering
+bound with the terminal gap, of the bound with the root relaxation gap, of the
+two gaps with each other, the partial rank correlation of the bound with the
+terminal gap at fixed root gap, and the correlation of the bound with the
+explored node count. The partial coefficient is the Pearson correlation of the
+residuals of the two rank-on-rank regressions on the root-gap ranks, and the
+pooled column conditions on the root gap only, not on the group. Brackets hold
+percentile bootstrap $95\%$ confidence intervals over
+$10{,}000$ resamples of the instances (seed $20260719$), not adjusted for
+multiplicity. The last row reports the Holm-adjusted
+two-sided $p$-value of the partial coefficient from a Freedman--Lane residual
+permutation test with $20{,}000$ permutations (seed $20260718$), permutations
+running within each size group in the pooled column. In the two
+hundred-factory groups the two gaps correlate at $0.99$
 or above, so barely one per cent of the rank variance of the terminal gap
 survives conditioning and the partial coefficient in those columns rests on
 very little, which its wide interval records.}

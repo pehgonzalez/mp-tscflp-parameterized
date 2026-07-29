@@ -122,10 +122,10 @@ with an independent brute-force solver across all $1{,}381$
 comparisons. The computational study asks in what regime the
 enumeration is practical and how it stands against Gurobi, the
 mixed-integer baseline of Section~\ref{sec:experiments}. It then asks
-whether the pruning threshold $k^{\ast}$ that our branch-and-bound
-derives, available before any optimisation is run, tracks the
-empirical difficulty of an instance, and through what mechanism it
-does so. The protocol, instances and seeds are fixed in advance so
+how the pruning threshold $k^{\ast}$ that our branch-and-bound
+derives, available before any optimisation is run, relates to the
+gaps a mixed-integer solver reaches under a fixed limit, and at which
+stage of the solving process the association is anchored. The protocol, instances and seeds are fixed in advance so
 that every figure can be regenerated.
 
 The remainder of this paper is organised as follows.

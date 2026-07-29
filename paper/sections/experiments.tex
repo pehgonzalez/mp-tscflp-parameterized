@@ -4,15 +4,17 @@
 The experiments pursue three questions. (Q1) Is the enumeration algorithm of
 Theorem~\ref{thm:xp} practical in its predicted regime, and where does that
 regime end. (Q2) How does it compare with the standard mixed-integer approach.
-(Q3) Does the covering bound $k^\ast$ track instance difficulty beyond the
-algorithm that motivated it, and through which mechanism. The remainder of the section is organised so that
+(Q3) How does the covering bound $k^\ast$, available before anything is
+solved, relate to the gaps a mixed-integer solver reaches under a fixed
+limit, and at which stage of the solving process is the association
+anchored. The remainder of the section is organised so that
 the reader can locate each answer directly. Section~\ref{sec:exp-setup}
 describes the codes, the instance families and the machines.
 Section~\ref{sec:exp-q1} answers Q1 on the family whose covering bound is
 controlled by construction, Section~\ref{sec:exp-q2} addresses Q2 against
 the integer programming baseline, and Section~\ref{sec:exp-q3} addresses
 Q3 by
-confronting $k^\ast$ with the effort of a solver that makes no use of it.
+confronting $k^\ast$ with the gaps of a solver that makes no use of it.
 
 \subsection{Setup}
 \label{sec:exp-setup}
@@ -54,9 +56,25 @@ $k^\ast\in\{4,8,12,16\}$ and $n=|I|+|J|$ over $\{20,24,28,30,40\}$, probes where
 the regime ends, adding $60$ instances for $460$ runs in all. A second
 boundary sample, built for the budget question of Q1, reruns the same
 boundary grid with ten fresh seeds per cell under a tenfold budget, for
-$200$ further instances with their own manifest. The
-generator records the recomputed bound alongside each instance, and on
-all $660$ instances the recomputed $k^\ast$ equals the target exactly.
+$200$ further instances with their own manifest. The pin is
+guaranteed by the construction and not only checked afterwards. On a
+side with target $t\ge 2$ and binding demand $D$, the $t-1$
+designated facilities carry capacities of
+$\lfloor(D-1)/(t-1)\rfloor$ or one more that sum to exactly $D-1$,
+every other facility of the side carries at most
+$\lfloor(D-1)/(t-1)\rfloor$, and every capacity is at least one. The
+largest $t-1$ capacities therefore sum to exactly $D-1$ while the
+largest
+$t$ sum to at least $D$, and Lemma~\ref{lem:cover} puts the covering
+count of the binding product at exactly $t$. Every other product
+receives capacities of at least its total demand divided by $t$,
+rounded up, so its count is at most $t$, the per-side maximum stays at
+the target, and $k^\ast$ equals the sum of the two targets on every
+instance and every seed. The
+generator additionally records the recomputed bound alongside each
+instance, and on
+all $660$ instances the recomputed $k^\ast$ equals the target
+exactly, an implementation check of the construction just stated.
 The second family is the classical
 benchmark of \citet{MauriEtAl2021}, its $100$ instances split into four size
 groups $|I|$-$|J|$-$|K|$ of $50$-$100$-$200$ and $100$-$200$-$400$ with
@@ -111,8 +129,9 @@ submission as supplementary material and is released at
 \subsection{The regime of the enumeration algorithm (Q1)}
 \label{sec:exp-q1}
 
-The controlled family was built to probe the boundary that
-Theorem~\ref{thm:xp} predicts, and the outcome is unambiguous. The main grid, whose
+The controlled family was built to probe the boundary that the
+support-enumeration bound of Theorem~\ref{thm:xp} motivates, and the
+outcome is unambiguous. The main grid, whose
 graphs all have $n=|I|+|J|\ge 40$, lies entirely outside the $60$~s regime, so
 all $400$ instances are censored, which is the finding itself and not
 a failure of protocol. The two node medians we quote cover different
@@ -126,24 +145,30 @@ grows with $|I|$, $|J|$, $|K|$ and $|L|$ through the oracle, which is
 why the censored searches at $n\ge40$ reach so few nodes. The raw
 per-run records in the archive carry node, pruning and oracle
 counters. Two boundary samples locate the frontier, and
-Table~\ref{tab:q1boundary} reports them side by side. The first holds
+Table~\ref{tab:q1boundary} reports them together. The first holds
 three seeded runs per cell under the $60$~s limit of the main protocol,
 and the second reruns the same grid with ten fresh seeds per cell under
-the tenfold budget of $600$~s, on the same virtual machine. Medians are taken over solved runs only, so the times in
-partially solved cells are biased downward by that conditioning. Three
-runs fix a cell median only coarsely, so the medians of the $60$~s rows
-are read as orders of magnitude, and the inferences this subsection
-draws about how the border and the covering-bound effect move rest on
-the ten-seed block, where each cell carries ten independent seeds. Under
-$60$~s every instance at $n=20$ solves, seven of twelve solve at
-$n=24$, and none solves from $n=28$ upward, so under this protocol and implementation the $60$~s budget places
-the border of plain optimisation at $n\approx 24$. Under $600$~s both $n=20$ and $n=24$ solve
-in full, $n=28$ solves in thirteen of forty runs, $n=30$ yields one
-solve in forty, and $n=40$ stays fully censored. The border of the
+the tenfold budget of $600$~s, on the same virtual machine. The two
+samples draw different seeds, so reading the budget effect across them
+would confound the budget with the sampling, and the budget contrast is
+therefore read inside the ten-seed sample alone. The code is
+deterministic and single-threaded and every record stores its solve
+time, so a run of that sample counts as solved under $60$~s exactly
+when its recorded time is at most $60$~s, and the reclassification is
+stable because the nearest recorded solve time lies more than seven
+seconds from the threshold. Medians are taken over solved runs only, so
+the times in partially solved cells are biased downward by that
+conditioning, and three runs fix a cell median only coarsely, so the
+medians of the three-seed rows are read as orders of magnitude. On the
+same ten seeds per cell, the $60$~s budget solves every instance at
+$n=20$, twenty-two of forty at $n=24$ and none from $n=28$ upward,
+while $600$~s solves both $n=20$ and $n=24$ in full, thirteen of forty
+at $n=28$, one of forty at $n=30$ and none at $n=40$. The border of the
 regime is therefore a property of the implementation and the budget
 together, a tenfold budget displacing the partially solved band by one
-grid step, from $n=24$ to $n=28$, in line with the exponential growth
-that Theorem~\ref{thm:xp} prescribes. The same table shows the
+grid step on identical instances, from $n=24$ to $n=28$, consistent
+with the exponential sensitivity that the support-enumeration bound of
+Theorem~\ref{thm:xp} motivates. The same table shows the
 covering-bound effect at fixed size, with the median time at $n=20$
 falling from $14.2$~s at $k^\ast=4$ to $0.7$~s at $k^\ast=16$ under
 $60$~s. Figure~\ref{fig:q1} shows the three readings graphically, the
@@ -164,36 +189,44 @@ circles on the limit line, including the whole $400$-instance main grid,
 which lies at $n\ge 40$. Panel (b) gives the median solve time against
 $k^\ast$ at $n=20$ and $n=24$, where instances with a larger bound solve
 faster, with medians taken over solved runs only. Open markers in panel
-(b) are medians over fewer than three solved runs. Panel (c) adds the
-ten-seed budget sample and reports the solved fraction per size under
-the two budgets, the tenfold budget displacing the censoring wall from
+(b) are medians over fewer than three solved runs. Panel (c) reads
+both budgets inside the ten-seed budget sample, a run counting as
+solved at $60$~s exactly when its recorded time is at most $60$~s, so
+the two curves compare the same instances and the tenfold budget
+displaces the censoring wall from
 $n\approx 24$ to $n\approx 28$. Lower is better in panels (a) and (b),
-and the walls of panel (c) are the observed borders of the regime that
-Theorem~\ref{thm:xp} delimits.}
+and the walls of panel (c) are the observed borders of the regime
+motivated by Theorem~\ref{thm:xp}.}
 \label{fig:q1}
 \end{figure}
 
 Within the solvable range the covering bound acts in a direction that
 requires explanation. Under the $60$~s budget, time and node counts decrease as $k^\ast$
-grows, and the solved count at $n=24$ in Table~\ref{tab:q1boundary} rises from
-one in three at $k^\ast=4$ to three in three at $k^\ast=16$. The
+grows, and the solved count at $n=24$ in Table~\ref{tab:q1boundary}
+rises with the bound in both samples, from one in three to three in
+three over the three-seed rows, and from one in ten at $k^\ast=4$
+through two in ten and nine in ten to ten in ten at $k^\ast=16$ on the
+reclassified ten-seed row. The
 tenfold budget replicates the pattern one grid step further out, the
 solved count at $n=28$ rising from one in ten to six in ten across the
 same sweep. The
-covering pruning of Lemma~\ref{lem:cover} is the natural candidate,
-since in plain optimisation the cardinality never binds, so $k^\ast$ can
-reach the search only through a rule that reads it. We tested the
-candidate directly. The enumeration carries a switch that disables the
-covering rule and leaves every other component of the search untouched,
-and we ran the $24$ instances of the two solvable sizes twice under the
-$60$~s protocol, once with the rule and once without it. On the $18$
+covering pruning of Lemma~\ref{lem:cover} might seem the natural
+mechanism, but Observation~\ref{obs:p1redundant} rules that reading out
+in advance, for these runs perform plain optimisation, and there every
+node the covering rule discards is discarded by the infeasibility
+branch of P2 as well, so the rule can change which counter certifies a
+closure and what certifying it costs, never the tree. An ablation
+confirms the account on the machine. The enumeration carries a switch
+that disables the covering rule and leaves every other component of the
+search untouched, and we ran the $24$ instances of the two solvable
+sizes twice under the $60$~s protocol, once with the rule and once
+without it. On the $18$
 pairs whose searches terminate under both settings the two runs agree
 node for node, and in every one of them the counter of the covering rule
 migrates without loss into the counter of the feasibility test. The
-remaining pruning counters and the optimal values are identical as well.
-Nodes that the covering rule discards on this family are therefore nodes
-the feasibility test discards anyway, and the rule removes none that the
-test would leave standing. What it does remove is oracle work, since it
+remaining pruning counters and the optimal values are identical as well,
+exactly as the observation prescribes. What the rule removes is oracle
+work, since it
 decides a node by a prefix scan over capacities where the test solves a
 minimum-cost flow, and the share of nodes decided the cheap way climbs
 with the bound, from about one in ten thousand at $k^\ast=4$ to roughly
@@ -205,11 +238,13 @@ remaining pairs are censored on at least one side, where a node count
 measures throughput under the limit rather than a completed tree, and
 their counts differ accordingly.
 
-The ablation reassigns the explanation rather than confirming it. Tight
-capacities are what closes subtrees early, in whichever of the two
-equivalent forms certifies the closure, so $k^\ast$ is best read as an
-index of that tightness and not as a lever acting through the covering
-rule alone. The mirror pattern expected for the
+The explanation of the effect therefore does not run through the
+covering rule. The capacities that define $k^\ast$ keep shaping the
+search through the feasibility test and through the routing oracle,
+tight capacities closing subtrees early in whichever form certifies
+the closure, so $k^\ast$ is best read as an index of that tightness
+and not as a lever acting through the rule that computes it. The
+mirror pattern expected for the
 cardinality sweep, in which the exponent $n^k$ grows with the target count, is
 left for a dedicated run.
 
@@ -259,9 +294,10 @@ on optimal values they jointly certify.
 \label{sec:exp-q3}
 
 The last question confronts the covering bound with a solver that
-makes no use of it, asking not only whether $k^\ast$ correlates with
-solver effort but through what channel the association runs, so we
-confront the covering bound with the integer
+makes no use of it, asking whether $k^\ast$ is associated with the
+gaps the solver reports under a fixed limit and at which stage of the
+solving process the association is anchored. We therefore
+confront the bound with the integer
 solver on the benchmark that the original study left without a single proven
 optimum. The bound is available
 before anything is solved, at the cost of sorting each capacity vector
@@ -286,10 +322,10 @@ equal size, so its variation is not a proxy for instance size.}
 \label{fig:q3}
 \end{figure}
 
-The completed campaign lets the correlation between $k^\ast$ and the
-effort \textsc{Mip} spends on the $100$ benchmark instances be read
-directly, with a within-group reading that separates the association
-of the bound from the association of size. Pooled over the benchmark, the covering
+The completed campaign lets the association between $k^\ast$ and the
+terminal gaps \textsc{Mip} reports on the $100$ benchmark instances be
+read directly, with a within-group reading that separates the
+association of the bound from the association of size. Pooled over the benchmark, the covering
 bound and the terminal gap are rank-correlated with Spearman
 $\rho=-0.28$. Ninety-seven of the hundred runs end at the limit, so
 solving time carries no usable signal on this benchmark and the analysis
@@ -302,7 +338,9 @@ $-0.39$ to $-0.70$ with descriptive mean $-0.52$, as the $\rho$ column
 of Table~\ref{tab:q3groups}
 shows. Significance was assessed by a two-sided permutation test on the
 Spearman statistic. The test is Monte Carlo with $20{,}000$
-permutations under a fixed seed, the $p$-value uses the add-one
+permutations under the fixed seed $20260718$, every bootstrap interval
+of the section uses $10{,}000$ resamples under the fixed seed
+$20260719$, the $p$-value uses the add-one
 convention so it cannot vanish, ties including zero gaps are handled by
 mid-ranks, and every reported $p$-value is Holm-adjusted over the five
 gap correlations. The pooled correlation and the two five-product
@@ -322,7 +360,8 @@ larger bounds go with smaller terminal gaps, the same inverse direction
 the enumeration exhibits in Q1, where tight capacities let the search
 certify infeasibility soonest.
 
-The stored solver logs let the channel of the association be examined
+The stored solver logs let the association be examined conditionally
+on the root relaxation
 with no further runs, the extraction being pinned to a script and its
 coefficients collected in Table~\ref{tab:q3mediation}. The reading rests
 first on how the campaign is built. Ninety-seven of the hundred runs
@@ -332,8 +371,10 @@ root value, so on this benchmark the terminal gap is close to a
 deterministic image of the root relaxation gap. The measured
 coefficients bear that out, the two quantities rank-correlating at
 $+0.97$ pooled and between $+0.89$ and $+1.00$ within groups. Whatever
-the covering bound is associated with, it is thus associated with it
-through a quantity settled before the branch-and-bound search begins.
+the covering bound is associated with, it is thus associated with a
+quantity settled before the branch-and-bound search begins, and the
+conditional coefficients below are a descriptive check consistent with
+that reading, not a causal identification.
 
 \input{tables/tab_q3_mediation.tex}
 
@@ -342,14 +383,29 @@ gap in every group, from $-0.42$ to $-0.73$ with $-0.36$ pooled, tight
 capacities going with tight relaxations. Once the root gap is held
 fixed the negative association with the terminal gap does not survive,
 and in no group and not in the pool does the partial coefficient
-reproduce that sign. The partial is indistinguishable from zero in
-three of the four groups, positive at $+0.52$ in the fourth, and
-positive at $+0.29$ pooled with interval $[+0.12,+0.42]$ and
-Holm-adjusted $p=0.019$. The two hundred-factory groups deserve little
+reproduce that sign. The partial coefficient is the Pearson
+correlation of the residuals of the two rank-on-rank regressions on
+the root-gap ranks, and its $p$-value comes from a Freedman--Lane
+permutation of those residuals, run within each size group in the
+pooled column so that pooled inference does not draw on group
+composition. The partial is indistinguishable from zero in
+three of the four groups and positive at $+0.52$ in the fourth, the
+only value that survives the Holm correction, at adjusted $p=0.049$.
+The pooled partial is positive at $+0.29$ descriptively, but the two
+residual series rise together across the four groups, the
+hundred-factory groups carrying the larger residuals of both, and
+once permutations respect the groups the pooled value is not
+distinguishable from zero. The intervals of the table are percentile
+bootstrap intervals over instances and are not adjusted for
+multiplicity, and each instance was run once under automatic thread
+count and a wall-clock limit, so they quantify sampling variability
+across instances and not solver noise. The two hundred-factory groups
+deserve little
 weight on their own here, since their two gaps correlate at $0.99$ or
 above and barely one per cent of the rank variance of the terminal gap
 survives conditioning, an instability their wide intervals record. The
-design of the campaign and the partial coefficients therefore point the
+design of the campaign and the conditional coefficients therefore
+point the
 same way, and the second is a check on the first rather than the
 evidence for it.
 

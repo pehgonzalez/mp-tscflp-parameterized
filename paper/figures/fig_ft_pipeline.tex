@@ -9,45 +9,61 @@
         font=\footnotesize},
       flow/.style={draw=black,line width=0.5pt,->}
     ]
-    \node[res,text width=1.7cm] (I) at (0,0)
+    \node[res,text width=1.9cm] (I) at (0,0)
       {instance\\
-       \textcolor{black!60}{\scriptsize costs, totals
+       \textcolor{black!60}{\scriptsize one-sided bound
        $\le\kappa^{c^\star}$}};
-    \node[res,text width=2.2cm] (A) at (2.95,0)
+    \node[res,text width=2.2cm] (A) at (3.0,0)
       {customer aggregation\\
        \textcolor{black!60}{\scriptsize Prop.~\ref{prop:aggregation},
        $|K|\le\tau$}};
-    \node[res,text width=2.0cm] (C) at (5.95,0)
+    \node[res,text width=2.0cm] (C) at (6.2,1.5)
       {capacity capping\\
        \textcolor{black!60}{\scriptsize Obs.~\ref{obs:capping}, caps
        $\le\max_l D_l$}};
-    \node[res,text width=2.3cm] (S) at (8.95,0)
+    \node[res,text width=2.2cm] (U) at (9.3,1.5)
+      {all-open test, budget cap\\
+       \textcolor{black!60}{\scriptsize $B\ge U$ decides,
+       else $B<3\kappa^{2c^\star+1}$}};
+    \node[res,text width=2.0cm] (K) at (12.35,1.5)
+      {polynomial kernel\\
+       \textcolor{black!60}{\scriptsize instance of
+       MP-TSCFLP$(B)$}};
+    \node[res,text width=2.3cm] (S) at (6.2,-1.5)
       {bounded coefficient forms\\
        \textcolor{black!60}{\scriptsize basic flows,
        $|a|\le\Delta_{\max}$}};
-    \node[res,text width=2.0cm] (F) at (11.95,0)
+    \node[res,text width=2.0cm] (F) at (9.3,-1.5)
       {Frank--Tardos\\
-       \textcolor{black!60}{\scriptsize $\Phi\mapsto\Phi'$,
+       \textcolor{black!60}{\scriptsize $\Psi\mapsto\Psi'$,
        $\mathrm{poly}(\kappa)$ bits}};
-    \node[res,text width=2.0cm] (L) at (14.85,0)
+    \node[res,text width=2.0cm] (L) at (12.35,-1.5)
       {sign-condition language\\
        \textcolor{black!60}{\scriptsize equivalent output}};
     \draw[flow] (I) -- (A);
-    \draw[flow] (A) -- (C);
-    \draw[flow] (C) -- (S);
+    \draw[flow] (A.north) |- node[pos=0.75,above,font=\scriptsize,
+      text=black!60]{costs, totals small} (C.west);
+    \draw[flow] (C) -- (U);
+    \draw[flow] (U) -- (K);
+    \draw[flow] (A.south) |- node[pos=0.75,below,font=\scriptsize,
+      text=black!60]{costs, $B$ small} (S.west);
     \draw[flow] (S) -- (F);
     \draw[flow] (F) -- (L);
   \end{tikzpicture}%
   }
-  \caption{The compression pipeline of
-  Proposition~\ref{prop:ftcompress}. Aggregation and capping
-  (Prop.~\ref{prop:aggregation}, Obs.~\ref{obs:capping}) bound the
-  entities and the numeric entries by $\mathrm{poly}(\kappa)$, total
+  \caption{The two preprocessing routes of
+  Proposition~\ref{prop:ftcompress}. Aggregation
+  (Prop.~\ref{prop:aggregation}) bounds the customers by $\tau$ in both
+  routes. When costs and total demands are bounded, capping
+  (Obs.~\ref{obs:capping}) bounds every capacity, the all-open cost $U$
+  either decides the instance or caps the budget, and the output is a
+  polynomial kernel, an instance of the problem itself. When costs and
+  budget are bounded instead, total
   unimodularity of the oracle networks of
   Proposition~\ref{prop:oracle} turns acceptance into sign conditions
   on integer forms with coefficients of magnitude at most
-  $\Delta_{\max}$, and the Frank--Tardos step replaces the cost vector
-  $\Phi$ by an equivalent $\Phi'$ of $\mathrm{poly}(\kappa)$ bits, so
-  the bounded subclass compresses in $\kappa$.}
+  $\Delta_{\max}$, and the Frank--Tardos step replaces the numeric
+  vector $\Psi$ by an equivalent $\Psi'$ of $\mathrm{poly}(\kappa)$
+  bits, onto a language that is not itself a location problem.}
   \label{fig:ftpipeline}
 \end{figure}

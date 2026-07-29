@@ -216,15 +216,18 @@ duality for the certificates, exchange arguments for the two
 preprocessing reductions, dynamic programming for the separable
 subclass, and the weight-reduction technique of \citet{FrankTardos1987}
 for the compression. The statements remain in the body, each with a
-paragraph naming the route of its proof, and the proofs appear here in
-statement order.
+paragraph naming the route of its proof, and the proofs appear here
+grouped by result, one subsection each, so that a remission from the
+body lands directly on the argument it names.
 
-\medskip\noindent
+\subsection{The separable first stage}\label{app:sep}
+
+\noindent
 \textbf{Theorem~\ref{thm:separable} (separable first stage).}
 \emph{On the group $|K|=|L|=1$, if the first-stage matrix is separable, that is
 $c_{ij}=\gamma_i+\delta_j$ for integers $\gamma,\delta$ with the costs
 nonnegative, then the problem is solvable in pseudo-polynomial time
-$O\bigl(|I||J|+(|I|+|J|)\cdot D\cdot\max(b_{\max},p_{\max})\bigr)$.
+$O\bigl(|I||J|+(|I|+|J|)\cdot D\bigr)$.
 Separability is decidable in $O(|I||J|)$ time.}
 
 \begin{proof}[Proof of Theorem~\ref{thm:separable}]
@@ -285,12 +288,24 @@ $V(i-1,s-a)=+\infty$ when $s<a$, and with $s$ ranging over
 $0,\dots,D$. The first branch closes factory $i$ and the second opens it
 with load $a$. The optimum of the factory problem is $V(|I|,D)$, the
 value $+\infty$ signalling that no factory loads reach $D$ within the
-capacities, in which case the instance is infeasible. The table is
-computed
-in $O(|I|\cdot D\cdot b_{\max})$ time, since each of the $|I|\cdot(D+1)$
-states scans at most $b_{\max}+1$ values of $a$. The depot problem is the
+capacities, in which case the instance is infeasible. Substituting
+$t=s-a$ linearises the inner minimum, since
+\[
+\min_{1\le a\le b_i}V(i-1,s-a)+f_i+\gamma_i a
+= f_i+\gamma_i s+\min_{\max(0,s-b_i)\le t\le s-1}
+\bigl(V(i-1,t)-\gamma_i t\bigr).
+\]
+As $s$ runs from $0$ to $D$ the window of admissible $t$ slides
+monotonically to the right, so a monotone double-ended queue over the
+keys $V(i-1,t)-\gamma_i t$ returns each window minimum in $O(1)$
+amortised time, every index entering and leaving the queue once per
+row. The device works whatever the sign of $\gamma_i$, and the
+infinite entries are skipped since they can never attain a finite
+minimum. Each row therefore
+costs $O(D)$ and the factory table $O(|I|\cdot D)$ time. The depot
+problem is the
 same recurrence with $g_j$, $\delta_j+d_j$ and $p_j$, in $O(|J|\cdot
-D\cdot p_{\max})$ time, its value $+\infty$ likewise signalling
+D)$ time, its value $+\infty$ likewise signalling
 infeasibility. Their sum is the instance optimum, within the
 stated bound. The matrix is separable exactly when
 $c_{ij}+c_{11}=c_{i1}+c_{1j}$ for all $i,j$, the condition being necessary by
@@ -301,7 +316,9 @@ $O(|I||J|)$ time. The $O(|I||J|)$ term of the stated running time reads
 the matrix, checks separability and recovers $\gamma$ and $\delta$.
 \end{proof}
 
-\medskip\noindent
+\subsection{Correctness of the branch-and-bound}\label{app:bb}
+
+\noindent
 \textbf{Proposition~\ref{prop:bbcorrect} (correctness).}
 \emph{Algorithm~\ref{alg:xpbb} decides $\mathrm{MP\text{-}TSCFLP}(B,k)$, and when
 run with $B=+\infty$ it returns $\mathrm{best}=\OPT_k$.}
@@ -397,7 +414,9 @@ the returned $\OPT_k$ equals $\mathrm{best}$, so the run with
 $B=+\infty$ reads the optimum off either branch.
 \end{proof}
 
-\medskip\noindent
+\subsection{Routing certificates and Benders cuts}\label{app:duals}
+
+\noindent
 \textbf{Proposition~\ref{prop:duals} (routing certificate and Benders cuts).}
 \emph{Fix a product $l$ and let $\Delta_l$ be the dual polyhedron of its
 transportation block, which is independent of $(y,z)$. If the block is
@@ -473,7 +492,9 @@ these two rays has positive objective, recovering the aggregate test of
 Proposition~\ref{prop:feas}.
 \end{proof}
 
-\medskip\noindent
+\subsection{Customer aggregation}\label{app:agg}
+
+\noindent
 \textbf{Proposition~\ref{prop:aggregation} (customer aggregation).}
 \emph{If customers $k\ne k'$ have identical cost columns, that is
 $d_{jkl}=d_{jk'l}$ for all $j,l$, then merging $k'$ into $k$ and adding
@@ -518,7 +539,9 @@ equal columns leaves at most one customer per
 distinct column, so $|K|\le\tau$.
 \end{proof}
 
-\medskip\noindent
+\subsection{Capacity capping}\label{app:cap}
+
+\noindent
 \textbf{Observation~\ref{obs:capping} (capacity capping).}
 \emph{Replacing every capacity $b_{il}$ by $\min(b_{il},D_l)$ and every
 $p_{jl}$ by $\min(p_{jl},D_l)$ preserves feasibility, routing value and
@@ -542,15 +565,21 @@ The two instances therefore share feasible designs, routing values and
 costs, hence the optimum and both decision answers.
 \end{proof}
 
-\medskip\noindent
-\textbf{Proposition~\ref{prop:ftcompress} (one-sided compression).}
+\subsection{Kernel and compression under one-sided bounds}\label{app:ft}
+
+\noindent
+\textbf{Proposition~\ref{prop:ftcompress} (kernel and compression
+under one-sided bounds).}
 \emph{Fix $c^\star$ and let $\kappa=|I|+|J|+|L|+\tau$. The subclass of
 $\mathrm{MP\text{-}TSCFLP}(B)$ whose opening and transport costs
 $f,g,c,d$ and whose total demands $D_1,\dots,D_{|L|}$ are integers at
-most $\kappa^{c^\star}$, with capacities unrestricted, admits a
+most $\kappa^{c^\star}$, with capacities and budget unrestricted,
+admits a polynomial kernel in $\kappa$, an equivalent instance of
+$\mathrm{MP\text{-}TSCFLP}(B)$ itself of $\mathrm{poly}(\kappa)$
+bits. The subclass with $\max(f,g,c,d,B)\le\kappa^{c^\star}$ and
+capacities and demands unrestricted admits a
 polynomial compression in $\kappa$ into a fixed sign-condition
-language, which is not itself a location problem, and so does the
-subclass with $\max(f,g,c,d,B)\le\kappa^{c^\star}$. The first subclass is nontrivial.
+language, which is not itself a location problem. The first subclass is nontrivial.
 The strongly hard slice with $|K|=|L|=1$ of Theorem~\ref{thm:numeric}
 has costs in $\{0,1\}$ and a single customer whose demand, the only
 product total, is $|I|\,(|J|+1)\le\kappa^{2}$, so the slice lies in the
@@ -565,66 +594,51 @@ merged demand entry is a sum of original entries of the same product
 and hence at most $D_l\le\kappa^{c^\star}$, and the totals $D_l$
 themselves survive the merge unchanged. The capping of
 Observation~\ref{obs:capping} then bounds every capacity by
-$\max_l D_l\le\kappa^{c^\star}$. After these two reductions the
-entities number $\mathrm{poly}(\kappa)$, every capacity and demand
-entry is an integer at most $\kappa^{c^\star}$, and within the cost
-vector $\Phi=(f,g,c,d,B)$ only the budget escapes the bound. The
-compression treats the whole of $\Phi$ at once.
+$\max_l D_l\le\kappa^{c^\star}$. After these two reductions at most
+$\kappa$ facilities, $\tau\le\kappa$ customers and $|L|\le\kappa$
+products remain and every datum except the budget is an integer at
+most $\kappa^{c^\star}$, so the instance without its budget occupies
+$\mathrm{poly}(\kappa)$ bits and only $B$ stands in the way of a
+kernel.
 
-For any fixed design $S$ the routing value is the sum over products $l$
-of a minimum-cost flow in the
-network $N_l(S)$ of Proposition~\ref{prop:oracle}, each per-product
-minimum is attained at a basic (vertex) flow, and a basic flow of the
-design means one basic flow per product, each of value $D_l$. The
+The budget is capped against the all-open design. If that design is
+infeasible then no design is feasible, since every design lies
+componentwise below it and feasibility is monotone by
+Proposition~\ref{prop:mono}, and the kernel outputs a fixed
+no-instance, a single facility pair of zero capacities facing one unit
+of demand. Otherwise one oracle call prices the all-open design in
+polynomial time (Proposition~\ref{prop:oracle}) at
+$U=f(I)+g(J)+v(\mathbf 1,\mathbf 1)$. The fixed charges total at most
+$\kappa\cdot\kappa^{c^\star}$, at most
+$\sum_l D_l\le\kappa^{c^\star+1}$ units of flow move in all, and each
+unit traverses one first-stage and one second-stage arc of costs at
+most $\kappa^{c^\star}$ each, so
+$U\le\kappa^{c^\star+1}+2\kappa^{2c^\star+1}\le
+3\kappa^{2c^\star+1}$. If $B\ge U$ the all-open design already
+witnesses acceptance and the kernel outputs a fixed yes-instance, one
+facility pair of zero costs and zero demand with budget zero. Otherwise
+$B<U\le 3\kappa^{2c^\star+1}$, the budget fits in $O(\log\kappa)$
+bits for fixed $c^\star$, and the reduced instance, an ordinary
+instance of $\mathrm{MP\text{-}TSCFLP}(B)$ equivalent to the original
+one, occupies $\mathrm{poly}(\kappa)$ bits in total, which is the
+kernel claimed.
+
+In the second subclass the costs and the budget are at most
+$\kappa^{c^\star}$ and the large numbers are the capacities and
+demands, so no polynomially bounded cost of a witness design is
+available to cap them and the argument changes tool. The compression
+treats the extended vector
+$\Psi=(b,p,q,1)$ at once, whose final coordinate absorbs the additive
+constants below, and customer aggregation brings the dimension of
+$\Psi$ down to $\mathrm{poly}(\kappa)$. For any fixed design $S$ the
+routing value is the sum over products $l$ of a minimum-cost flow in
+the network $N_l(S)$ of Proposition~\ref{prop:oracle}, and each
+per-product minimum is attained at a basic (vertex) flow. The
 node--arc incidence matrix of each $N_l(S)$ is totally unimodular
 \citep{Schrijver1986}, so every subdeterminant lies in $\{-1,0,1\}$, a
 nonsingular basis matrix $M$ has determinant $\pm 1$, and by Cramer's
 rule each entry of $M^{-1}$, a cofactor divided by that determinant,
-lies in $\{-1,0,1\}$ as well. Each basic-flow value is therefore a
-$\{-1,0,1\}$-combination of the right-hand sides of its network. After
-the two reductions that network carries at most a fixed multiple of
-$\kappa^{2}$ rows and arc bounds, every right-hand side is at most
-$\max_l D_l\le\kappa^{c^\star}$, and every basic-flow value is an
-integer of magnitude at most a fixed multiple of $\kappa^{c^\star+2}$.
-
-The instance is a yes-instance if and only if some pair of a design and a
-basic flow of its network has total cost at most $B$. Each such test
-reads $a\cdot\Phi\le 0$, where the coefficient vector $a$ collects the
-design bits on the entries $f,g$, the basic-flow
-values on the entries $c,d$, and the entry $-1$ on the budget $B$. These
-coefficients are integers of magnitude at most a bound
-$\Delta_{\max}$ that is a fixed multiple of $\kappa^{c^\star+2}$, and
-they are fixed independently of $\Phi$ once the design and basis are
-fixed, so acceptance is a Boolean combination of sign conditions on
-integer linear forms in $\Phi$ of dimension $\nu=\mathrm{poly}(\kappa)$
-with coefficients bounded by $\Delta_{\max}$. The Frank--Tardos theorem
-\citep{FrankTardos1987,EtscheidKratschMnichRoeglin2017} produces, for
-any prescribed bound $N_0$, in time
-polynomial in $\nu$ and $\log N_0$, an integer vector $\Phi'$ of
-$\mathrm{poly}(\nu,\log N_0)$ bits such that
-$\operatorname{sign}(a\cdot\Phi')=\operatorname{sign}(a\cdot\Phi)$ for
-every integer vector $a$ whose $\ell_1$-norm is strictly below $N_0$.
-We invoke it with $N_0=\nu\,\Delta_{\max}+1$. Every acceptance form has
-$\lVert a\rVert_{\infty}\le\Delta_{\max}$ and hence
-$\lVert a\rVert_{1}\le\nu\,\Delta_{\max}=N_0-1$, so every form is
-strictly covered, and $\log N_0=O(\log\kappa)$ for fixed $c^\star$, so
-$\Phi'$ has $\mathrm{poly}(\kappa)$ bits. Replacing $\Phi$ by $\Phi'$
-preserves the sign of every acceptance form at once and thus the
-answer. The output couples the reduced numeric data with $\Phi'$, and
-it is a compression onto the fixed language of these sign conditions
-rather than a well-formed instance of $\mathrm{MP\text{-}TSCFLP}(B)$,
-because entries of $\Phi'$ may be negative, while its encoding length
-is $\mathrm{poly}(\kappa)$. For each fixed $c^\star$ that target
-language is a fixed problem, and the compression framework places no
-requirement that it lie in \NP.
-
-In the second subclass the costs and the budget are at most
-$\kappa^{c^\star}$ and the large numbers are the capacities and
-demands, so the theorem applies instead to the extended vector
-$\Psi=(b,p,q,1)$, whose final coordinate absorbs the additive constants
-below. Customer aggregation again brings the dimension of $\Psi$ down
-to $\mathrm{poly}(\kappa)$. For a fixed design and a fixed basis of each
-product's network, every basic-flow value is again a
+lies in $\{-1,0,1\}$ as well. Every basic-flow value is therefore a
 $\{-1,0,1\}$-combination of right-hand sides drawn from $\Psi$, so the
 nonnegativity of a basic flow and the comparison of its routing cost
 against the budget $B$ minus the fixed charge of the design are sign
@@ -633,12 +647,30 @@ forms on the capacity--demand entries are signed sums of the small cost
 entries, of magnitude $\mathrm{poly}(\kappa)$, the coefficient on the
 final entry is an integer of magnitude at most $B$ plus the total fixed
 charge, again $\mathrm{poly}(\kappa)$, and the tests (F1) and (F2)
-contribute further forms with coefficients in $\{-1,0,1\}$. Invoked as
-above, the theorem compresses $\Psi$ to $\mathrm{poly}(\kappa)$ bits
-while preserving every sign at once. The output pairs the unchanged
+contribute further forms with coefficients in $\{-1,0,1\}$. Acceptance
+is thus a Boolean combination of sign conditions on integer linear
+forms in $\Psi$ of dimension $\nu=\mathrm{poly}(\kappa)$ with
+coefficients bounded by some
+$\Delta_{\max}=\mathrm{poly}(\kappa)$. The Frank--Tardos theorem
+\citep{FrankTardos1987,EtscheidKratschMnichRoeglin2017} produces, for
+any prescribed bound $N_0$, in time
+polynomial in $\nu$ and $\log N_0$, an integer vector $\Psi'$ of
+$\mathrm{poly}(\nu,\log N_0)$ bits such that
+$\operatorname{sign}(a\cdot\Psi')=\operatorname{sign}(a\cdot\Psi)$ for
+every integer vector $a$ whose $\ell_1$-norm is strictly below $N_0$.
+We invoke it with $N_0=\nu\,\Delta_{\max}+1$. Every acceptance form
+has $\lVert a\rVert_{\infty}\le\Delta_{\max}$ and hence
+$\lVert a\rVert_{1}\le\nu\,\Delta_{\max}=N_0-1$, so every form is
+strictly covered, and $\log N_0=O(\log\kappa)$ for fixed $c^\star$,
+so $\Psi'$ has $\mathrm{poly}(\kappa)$ bits and replacing $\Psi$ by
+$\Psi'$ preserves the answer. The output pairs the unchanged
 small data with the compressed vector, the Boolean combination of sign
-conditions still decides acceptance, and the map is again a polynomial
-compression onto such a sign-condition language. With
+conditions still decides acceptance, and the map is a polynomial
+compression onto the fixed language of these sign conditions rather
+than a well-formed instance of $\mathrm{MP\text{-}TSCFLP}(B)$, because
+entries of $\Psi'$ may be negative. For each fixed $c^\star$ that
+target language is a fixed problem, and the compression framework
+places no requirement that it lie in \NP. With
 both sides free the acceptance condition compares products of a large cost
 with a large capacity, the forms become bilinear, and the tool no longer
 applies.

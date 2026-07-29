@@ -682,11 +682,11 @@ matrices, remains open.
 On the group $|K|=|L|=1$, if the first-stage matrix is separable, that is
 $c_{ij}=\gamma_i+\delta_j$ for integers $\gamma,\delta$ with the costs
 nonnegative, then the problem is solvable in pseudo-polynomial time
-$O\bigl(|I||J|+(|I|+|J|)\cdot D\cdot\max(b_{\max},p_{\max})\bigr)$.
+$O\bigl(|I||J|+(|I|+|J|)\cdot D\bigr)$.
 Separability is decidable in $O(|I||J|)$ time.
 \end{theorem}
 
-The proof, given in \ref{app:tech}, reduces the routing cost to a
+The proof, given in \ref{app:sep}, reduces the routing cost to a
 function of the two load marginals, realises any consistent pair of
 loads by a northwest-corner plan, and solves each facility layer by a
 dynamic program over integer loads, integrality of the split optima

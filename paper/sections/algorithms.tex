@@ -2,7 +2,7 @@
 
 The hardness map of Section~\ref{sec:complexity} is dense, yet it leaves
 positive windows, and this section fills them. We give an \XP\ algorithm
-in the number of opened facilities together with the branch-and-bound
+in the number of opened facilities, the branch-and-bound
 refinement we implement, the fixed-parameter algorithm that pins down the
 size-parameter dichotomy, the routing certificates that bridge the
 enumeration to the exact formulation, and the two sides of the
@@ -68,9 +68,14 @@ within $O(T_{\mathrm{orac}}+n|L|)$. Comparing the minimum
 against $B$ decides $\mathrm{MP\text{-}TSCFLP}(B,k)$.
 \end{proof}
 
-The enumeration is wasteful whenever a partial design already cannot be
+\subsection{A practical branch-and-bound refinement}\label{sec:bb}
+
+Theorem~\ref{thm:xp} settles the classification, and the rest is
+implementation. The enumeration it counts is wasteful whenever a
+partial design already cannot be
 completed within the budget, and the branch-and-bound of
-Algorithm~\ref{alg:xpbb} closes such subtrees early. Its principal device
+Algorithm~\ref{alg:xpbb}, the code the computational study runs,
+closes such subtrees early. Its principal device
 is a covering count. Because both stages are complete, feasibility of a
 product needs only enough open capacity on each side, and a sorted prefix
 determines the fewest facilities that supply a demand from a nonnegative
@@ -226,7 +231,7 @@ surviving search still reaches an optimum.
 Algorithm~\ref{alg:xpbb} decides $\mathrm{MP\text{-}TSCFLP}(B,k)$, and when
 run with $B=+\infty$ it returns $\mathrm{best}=\OPT_k$.
 \end{proposition}
-The full argument appears in \ref{app:tech}. Its three steps justify
+The full argument appears in \ref{app:bb}. Its three steps justify
 the early return of line 3 through Lemma~\ref{lem:cover}, bound
 $\mathrm{best}$ below by $\OPT_k$ because only feasible designs within
 the cardinality budget ever reach a leaf, and bound it above by tracking
@@ -399,7 +404,7 @@ rays of $\Delta_l$ certify infeasibility, and their objectives are
 positive exactly when (F1), respectively (F2), of
 Proposition~\ref{prop:feas} fails.
 \end{proposition}
-The proof, given in \ref{app:tech}, writes the block dual explicitly.
+The proof, given in \ref{app:duals}, writes the block dual explicitly.
 No dual constraint mentions the design, which yields the independence of
 $\Delta_l$, weak duality yields the displayed inequality, strong duality
 supplies the attaining point $u^\ast$, and the two recession rays are
@@ -418,7 +423,9 @@ needs the master's own bounds.
 \subsection{Kernelization}\label{sec:kernel}
 
 Preprocessing is the last algorithmic question, and it divides cleanly.
-Customers with identical cost columns aggregate exactly, products do not, a partial bound on the data admits a polynomial
+Customers with identical cost columns aggregate exactly, products do
+not, a bound on costs and total demands yields a polynomial kernel
+outright, a bound on costs and budget still yields a polynomial
 compression through the weight-reduction technique of
 \citet{FrankTardos1987}, and yet no polynomial kernel exists in
 the winning parameter unless the polynomial hierarchy collapses. The first
@@ -437,7 +444,7 @@ may assume $|K|\le\tau$, where $\tau$
 is the number of distinct second-stage cost columns, computable in
 polynomial time.
 \end{proposition}
-The proof, given in \ref{app:tech}, exhibits the two maps directly. The
+The proof, given in \ref{app:agg}, exhibits the two maps directly. The
 merge adds the flow rows of the two customers and preserves every
 constraint and every cost term. The split trims any surplus of the
 merged row and expands it by the northwest-corner procedure, which
@@ -445,12 +452,33 @@ preserves feasibility at no cost increase, so the optimal routing
 values agree design by design, and a companion reduction bounds the
 capacities without touching any design.
 
+\begin{remark}[aggregation up to additive shifts]\label{rem:addshift}
+The exact-equality hypothesis can be relaxed at the price of a budget
+shift. Suppose the columns of $k$ and $k'$ differ by a product-wise
+constant, $d_{jk'l}=d_{jkl}+\alpha_l$ for all $j,l$. In a routing
+trimmed as in the proof of Proposition~\ref{prop:aggregation},
+customer $k'$ receives exactly $q_{k'l}$ units of product $l$, each
+paying $\alpha_l$ more than under the column of $k$ at the same
+depot. Replacing the column of $k'$ by that of $k$ therefore shifts
+the
+routing value of every feasible design by exactly
+$-\sum_l\alpha_l q_{k'l}$, and the shift reaches the optima because
+they are attained at trimmed routings, trimming never raising the
+cost in either instance. The merge of
+Proposition~\ref{prop:aggregation} then applies to the now identical
+columns once the budget is replaced by
+$B-\sum_l\alpha_l q_{k'l}$, the answer being \textsc{no} outright
+when that quantity is negative, since costs are nonnegative. We keep
+$\tau$ as defined, the refined count of columns distinct up to
+product-wise shifts not being needed elsewhere.
+\end{remark}
+
 \begin{observation}[capacity capping]\label{obs:capping}
 Replacing every capacity $b_{il}$ by $\min(b_{il},D_l)$ and every
 $p_{jl}$ by $\min(p_{jl},D_l)$ preserves feasibility, routing value and
 cost of every design, hence the optimum and both decision answers.
 \end{observation}
-The proof, given in \ref{app:tech}, trims any routing until every
+The proof, given in \ref{app:cap}, trims any routing until every
 product moves exactly $D_l$ across each stage, at no cost increase,
 after which no capacity beyond $D_l$ can carry flow and the cap changes
 nothing.
@@ -475,32 +503,42 @@ instance is infeasible, (F1) failing for $l'$ at every design, while the
 merged product has demand $2$ against the column $(2,0)$ and the first
 factory serves it. The natural rule that adds demands and capacity
 columns is therefore unsound, and the paper advances no product-side
-aggregation. A partial bound on the data still buys
-a genuine compression, along the route that
+aggregation. A one-sided bound on the data still buys genuine
+preprocessing, a kernel on one side and a compression on the other,
+along the two routes that
 Figure~\ref{fig:ftpipeline} lays out.
 
 \input{figures/fig_ft_pipeline.tex}
 
-\begin{proposition}[one-sided compression]\label{prop:ftcompress}
+\begin{proposition}[kernel and compression under one-sided
+bounds]\label{prop:ftcompress}
 Fix $c^\star$ and let $\kappa=|I|+|J|+|L|+\tau$. The subclass of
 $\mathrm{MP\text{-}TSCFLP}(B)$ whose opening and transport costs
 $f,g,c,d$ and whose total demands $D_1,\dots,D_{|L|}$ are integers at
-most $\kappa^{c^\star}$, with capacities unrestricted, admits a
+most $\kappa^{c^\star}$, with capacities and budget unrestricted,
+admits a polynomial kernel in $\kappa$, an equivalent instance of
+$\mathrm{MP\text{-}TSCFLP}(B)$ itself of $\mathrm{poly}(\kappa)$
+bits. The subclass with $\max(f,g,c,d,B)\le\kappa^{c^\star}$ and
+capacities and demands unrestricted admits a
 polynomial compression in $\kappa$ into a fixed sign-condition
-language, which is not itself a location problem, and so does the
-subclass with $\max(f,g,c,d,B)\le\kappa^{c^\star}$. The first subclass is nontrivial.
+language, which is not itself a location problem. The first subclass is nontrivial.
 The strongly hard slice with $|K|=|L|=1$ of Theorem~\ref{thm:numeric}
 has costs in $\{0,1\}$ and a single customer whose demand, the only
 product total, is $|I|\,(|J|+1)\le\kappa^{2}$, so the slice lies in the
 subclass for every $c^\star\ge 2$.
 \end{proposition}
-The proof, given in \ref{app:tech}, first aggregates customers and caps
-capacities, so that acceptance becomes a Boolean combination of sign
-conditions on integer linear forms in the cost vector, with coefficients
-that total unimodularity bounds by a fixed power of $\kappa$. The
-Frank--Tardos theorem then replaces the vector by one of
-$\mathrm{poly}(\kappa)$ bits preserving every sign at once, and the
-second subclass exchanges the roles of the two data groups.
+The proof, given in \ref{app:ft}, is elementary for the first
+subclass. Aggregation and capping leave every datum except the budget
+within $\kappa^{c^\star}$, the all-open design decides feasibility
+outright, and its cost, itself polynomially bounded in $\kappa$, caps
+the budget, so the output is an ordinary instance of the problem. No
+such cap exists in the second subclass, whose large numbers are the
+capacities and demands, and there acceptance becomes a Boolean
+combination of sign conditions on integer linear forms with
+coefficients that total unimodularity bounds by a fixed power of
+$\kappa$, which the
+Frank--Tardos theorem compresses to
+$\mathrm{poly}(\kappa)$ bits preserving every sign at once.
 
 The matching negative result completes the account. Two cross-compositions
 of \textsc{Set Cover} show that, unless

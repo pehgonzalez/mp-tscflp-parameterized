@@ -286,6 +286,53 @@ def side_dp(items, D):
     return T[D]
 
 
+def side_dp_deque(items, D):
+    """Mesmo problema de side_dp em O(len(items) * D) via minimo de janela
+    deslizante com deque monotonica (substituicao t = s - u, chave
+    T[t] - gam * t), valida para gam de qualquer sinal. Entradas INF nao
+    entram na deque, nunca atingem minimo finito."""
+    from collections import deque
+    T = [0] + [INF] * D
+    for (F, gam, cap) in items:
+        newT = list(T)
+        dq = deque()
+        for s in range(1, D + 1):
+            t_new = s - 1
+            if T[t_new] < INF:
+                key = T[t_new] - gam * t_new
+                while dq and (T[dq[-1]] - gam * dq[-1]) >= key:
+                    dq.pop()
+                dq.append(t_new)
+            lo = s - cap
+            while dq and dq[0] < lo:
+                dq.popleft()
+            if dq:
+                cand = F + gam * s + (T[dq[0]] - gam * dq[0])
+                if cand < newT[s]:
+                    newT[s] = cand
+        T = newT
+    return T[D]
+
+
+def battery_DEQ(n=600, seed0=8000):
+    """side_dp_deque == side_dp em listas aleatorias, gam com ambos os
+    sinais, capacidades e D variados, incluindo casos inviaveis."""
+    n_ok = n_bad = 0
+    for s in range(seed0, seed0 + n):
+        rng = random.Random(s)
+        m = rng.randint(1, 6)
+        items = [(rng.randint(0, 10), rng.randint(-5, 5), rng.randint(1, 9))
+                 for _ in range(m)]
+        D = rng.randint(0, 40)
+        a, b = side_dp(items, D), side_dp_deque(items, D)
+        if a == b:
+            n_ok += 1
+        else:
+            n_bad += 1
+            print(f"  [DEQ] DIVERGENCIA seed={s}: naive={a} deque={b}")
+    return n_ok, n_bad
+
+
 def sep_opt(inst, gamma, delta):
     D = inst["q"][0][0]
     if D == 0:
@@ -336,6 +383,8 @@ def battery_SEP(n=60, seed0=7000):
 # ---------------------------------------------------------------------------
 
 def main():
+    okd, badd = battery_DEQ()
+    print(f"== [DEQ] janela deslizante vs DP ingenuo: {okd} ok, {badd} divergencias ==")
     # 150 instancias 4x4 + 40 instancias 5x5 (sementes fixas)
     small = [(s, gen_cell(s, 4, 4)) for s in range(1000, 1150)]
     big = [(s, gen_cell(s, 5, 5)) for s in range(2000, 2040)]

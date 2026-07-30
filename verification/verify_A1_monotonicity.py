@@ -1,20 +1,20 @@
 """
-Verificacao computacional da proposicao de monotonicidade do artigo.
+Computational verification of the monotonicity proposition from the paper.
 
-Para >= 20 instancias aleatorias pequenas com semente fixa
-(|I|,|J| <= 3 para manter a enumeracao de pares tratavel), calcula
-v_l(y,z) para TODOS os desenhos (convencao: +infinito se inviavel) e
-checa exaustivamente, para todo par comparavel (y,z) <= (y',z')
-componente a componente e todo produto l:
+For >= 20 small random instances with fixed seed
+(|I|,|J| <= 3 to keep the pair enumeration tractable), computes
+v_l(y,z) for ALL designs (convention: +infinity if infeasible) and
+checks exhaustively, for every componentwise comparable pair
+(y,z) <= (y',z') and every product l:
 
     v_l(y', z') <= v_l(y, z)
 
-o que inclui, em particular: (y,z) viavel => (y',z') viavel.
-Valores por implementacao propria de MCMF com aritmetica inteira.
+which includes, in particular: (y,z) feasible => (y',z') feasible.
+Values via a self-contained MCMF implementation with integer arithmetic.
 
-Checagem cruzada independente: pares reflexivos (y,z) = (y',z')
-tornam a desigualdade tautologica; sao EXCLUIDOS da contagem de
-checks (contados a parte, apenas para registro de cobertura).
+Independent cross-check: reflexive pairs (y,z) = (y',z')
+make the inequality tautological; they are EXCLUDED from the check
+count (counted separately, for coverage bookkeeping only).
 """
 
 import sys
@@ -49,8 +49,8 @@ def main():
                 if all(a <= b for a, b in zip(y, y2)) and \
                    all(a <= b for a, b in zip(z, z2)):
                     if (tuple(y), tuple(z)) == (tuple(y2), tuple(z2)):
-                        # C1: par reflexivo -- desigualdade tautologica,
-                        # nao conta como verificacao efetiva.
+                        # C1: reflexive pair -- tautological inequality,
+                        # does not count as an effective check.
                         reflexive_skipped += nL
                         continue
                     va = values[(tuple(y), tuple(z))]
@@ -61,15 +61,15 @@ def main():
                             fails += 1
                             print(f"[FAIL] seed={seed} l={l} "
                                   f"(y,z)={y},{z} v={va[l]} <= "
-                                  f"(y',z')={y2},{z2} v'={vb[l]} VIOLADO")
+                                  f"(y',z')={y2},{z2} v'={vb[l]} VIOLATED")
 
-    print(f"\nverify_A1_monotonicity: {n_instances} instancias, "
-          f"{checks} desigualdades (par comparavel ESTRITO x produto): "
+    print(f"\nverify_A1_monotonicity: {n_instances} instances, "
+          f"{checks} inequalities (STRICT comparable pair x product): "
           f"{checks - fails} PASS, {fails} FAIL "
-          f"({reflexive_skipped} checagens reflexivas tautologicas puladas)")
+          f"({reflexive_skipped} tautological reflexive checks skipped)")
     if fails:
         sys.exit(1)
-    print("TODOS OS TESTES PASSARAM")
+    print("ALL TESTS PASSED")
 
 
 if __name__ == "__main__":

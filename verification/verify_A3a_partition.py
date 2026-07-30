@@ -1,57 +1,57 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A3a_partition.py — Verificacao computacional da reducao de PARTITION
-do artigo: NP-dificuldade FRACA do MP-TSCFLP com |J| = |L| = |K| = 1 (via PARTITION)
-e resolubilidade pseudo-polinomial da mesma celula (DP knapsack-cover).
+verify_A3a_partition.py -- Computational verification of the paper's PARTITION
+reduction: WEAK NP-hardness of the MP-TSCFLP with |J| = |L| = |K| = 1 (via PARTITION)
+and pseudo-polynomial solvability of the same cell (knapsack-cover DP).
 
-Reducao verificada (item (i) do teorema), de PARTITION (a_1..a_m, A = sum a_i,
-WLOG A par, alvo D = A/2):
-  * fabricas = itens: I = {1..m}, b_i = a_i, f_i = a_i;
-  * 1 deposito: g_1 = 0, p_1 = D;
-  * 1 cliente, 1 produto: q = D;
-  * todos os custos de transporte nulos (c = d = 0);
-  * orcamento B = D = A/2.
-Afirmacao: existe S com sum_{i in S} a_i = A/2  <=>  OPT_MP <= A/2.
-(Estrutural: OPT_MP = min { sum_{i in S} a_i : S subconjunto, sum >= D },
-pois toda solucao viavel custa exatamente a soma dos f_i abertos — a
-condicao F1 de viabilidade exige sum b_i y_i >= D e o transporte e
-gratuito.)
+Reduction being verified (item (i) of the theorem), from PARTITION (a_1..a_m, A = sum a_i,
+WLOG A even, target D = A/2):
+  * plants = items: I = {1..m}, b_i = a_i, f_i = a_i;
+  * 1 depot: g_1 = 0, p_1 = D;
+  * 1 customer, 1 product: q = D;
+  * all transport costs zero (c = d = 0);
+  * budget B = D = A/2.
+Claim: there exists S with sum_{i in S} a_i = A/2  <=>  OPT_MP <= A/2.
+(Structural: OPT_MP = min { sum_{i in S} a_i : S subset, sum >= D },
+since every feasible solution costs exactly the sum of the open f_i -- the
+feasibility condition F1 requires sum b_i y_i >= D and transport is
+free.)
 
-O otimo do MP-TSCFLP reduzido e computado por forca bruta INDEPENDENTE da
-formula: enumeracao de TODOS os desenhos (y,z) via common_mp_tscfl.all_designs
-com roteamento exato pelo MCMF inteiro de common_mp_tscfl.routing_value
-(o oraculo de roteamento do artigo — nenhuma forma fechada da prova e
-usada aqui).
+The optimum of the reduced MP-TSCFLP is computed by brute force INDEPENDENT of
+the formula: enumeration of ALL designs (y,z) via common_mp_tscfl.all_designs
+with exact routing by the integer MCMF of common_mp_tscfl.routing_value
+(the paper's routing oracle -- no closed form from the proof is
+used here).
 
-DP verificado (item (ii) do teorema), celula |J| = |K| = |L| = 1 com dados
-GERAIS (f, g, c, d, b, p, q inteiros >= 0):
-  OPT = g_1 + d_111 * D + DP(D), onde DP(t) = custo minimo de abrir um
-  subconjunto de fabricas e enviar exatamente t unidades (u_i <= b_i,
-  custo f_i + c_i * u_i por fabrica usada), com os casos D = 0 (OPT = 0)
-  e inviabilidade (p_1 < D ou sum b_i < D) a parte.
+DP being verified (item (ii) of the theorem), cell |J| = |K| = |L| = 1 with
+GENERAL data (integer f, g, c, d, b, p, q >= 0):
+  OPT = g_1 + d_111 * D + DP(D), where DP(t) = minimum cost of opening a
+  subset of plants and sending exactly t units (u_i <= b_i,
+  cost f_i + c_i * u_i per used plant), with the cases D = 0 (OPT = 0)
+  and infeasibility (p_1 < D or sum b_i < D) handled separately.
 
-Tambem verificados (celula SIMETRICA |I| = |K| = |L| = 1 do item (iii)
-do mesmo teorema): a reducao espelhada de PARTITION (itens = DEPOSITOS:
-p_j = g_j = a_j; fabrica unica gratuita com b_1 = D) e o DP simetrico
-(fabrica forcada aberta; custo unitario via deposito j = c_1j1 + d_j11).
+Also verified (SYMMETRIC cell |I| = |K| = |L| = 1 of item (iii)
+of the same theorem): the mirrored PARTITION reduction (items = DEPOTS:
+p_j = g_j = a_j; single free plant with b_1 = D) and the symmetric DP
+(plant forced open; unit cost via depot j = c_1j1 + d_j11).
 
-Baterias:
-  (A) EXAUSTIVO: todos os multiconjuntos com 1 <= m <= 5, valores em 0..8
-      (deduplicados por combinations_with_replacement). Para A par: testa
-      a dupla implicacao com orcamento EXATO B = A/2 + a identidade
-      estrutural OPT_MP = min{sum_S : sum_S >= D}. Para A impar: confirma
-      que PARTITION responde "nao" (validacao da convencao WLOG).
-  (B) ALEATORIO: >= 100 instancias semeadas, m <= 10, valores <= 40;
-      se a soma A sai impar, forca-se paridade com a[0] += 1 (por isso
-      valores <= 41), mesmos testes de (A).
-  (C) DP: >= 120 instancias semeadas da celula geral |J|=|K|=|L|=1
-      (custos de transporte NAO nulos), DP + offsets == forca bruta
-      (all_designs + MCMF), incluindo casos D = 0 e inviaveis.
-  (D) ESPELHO: reducao simetrica (itens = depositos) nas MESMAS instancias
-      exaustivas de (A) com A par + as 100 de (B).
-  (E) DP SIMETRICO: >= 120 instancias semeadas da celula |I|=|K|=|L|=1.
-Saida: contagens e PASS/FAIL; codigo de saida != 0 em falha.
+Batteries:
+  (A) EXHAUSTIVE: all multisets with 1 <= m <= 5, values in 0..8
+      (deduplicated via combinations_with_replacement). For even A: tests
+      the double implication with EXACT budget B = A/2 + the structural
+      identity OPT_MP = min{sum_S : sum_S >= D}. For odd A: confirms
+      that PARTITION answers "no" (validation of the WLOG convention).
+  (B) RANDOM: >= 100 seeded instances, m <= 10, values <= 40;
+      if the sum A comes out odd, parity is forced with a[0] += 1 (hence
+      values <= 41), same tests as (A).
+  (C) DP: >= 120 seeded instances of the general cell |J|=|K|=|L|=1
+      (NONZERO transport costs), DP + offsets == brute force
+      (all_designs + MCMF), including D = 0 and infeasible cases.
+  (D) MIRROR: symmetric reduction (items = depots) on the SAME exhaustive
+      instances of (A) with even A + the 100 of (B).
+  (E) SYMMETRIC DP: >= 120 seeded instances of the cell |I|=|K|=|L|=1.
+Output: counts and PASS/FAIL; exit code != 0 on failure.
 """
 
 import itertools
@@ -62,13 +62,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common_mp_tscfl import all_designs, routing_value
 
 # ---------------------------------------------------------------------------
-# Reducao de PARTITION (item (i))
+# PARTITION reduction (item (i))
 # ---------------------------------------------------------------------------
 
 def build_partition_instance(a):
-    """Instancia MP-TSCFLP da reducao (A par obrigatorio). Retorna (inst, B)."""
+    """MP-TSCFLP instance of the reduction (even A required). Returns (inst, B)."""
     A = sum(a)
-    assert A % 2 == 0, "reducao definida apenas para A par (WLOG do teorema)"
+    assert A % 2 == 0, "reduction defined only for even A (theorem's WLOG)"
     D = A // 2
     m = len(a)
     inst = {
@@ -85,8 +85,8 @@ def build_partition_instance(a):
 
 
 def brute_force_mp_opt(inst):
-    """OPT do MP-TSCFLP por forca bruta: todos os (y,z), roteamento MCMF
-    exato (oraculo de roteamento). Retorna None se nenhum desenho e viavel."""
+    """OPT of the MP-TSCFLP by brute force: all (y,z), exact MCMF routing
+    (the routing oracle). Returns None if no design is feasible."""
     best = None
     for y, z in all_designs(inst["nI"], inst["nJ"]):
         total = sum(inst["f"][i] * y[i] for i in range(inst["nI"])) \
@@ -104,7 +104,7 @@ def brute_force_mp_opt(inst):
 
 
 def brute_force_partition(a):
-    """Existe subconjunto com soma exatamente sum(a)/2? (forca bruta)."""
+    """Is there a subset with sum exactly sum(a)/2? (brute force)."""
     A = sum(a)
     if A % 2 == 1:
         return False
@@ -116,7 +116,7 @@ def brute_force_partition(a):
 
 
 def structural_opt(a):
-    """min { sum_{i in S} a_i : sum_{i in S} a_i >= D } (identidade do lema)."""
+    """min { sum_{i in S} a_i : sum_{i in S} a_i >= D } (the lemma's identity)."""
     D = sum(a) // 2
     best = None
     m = len(a)
@@ -128,7 +128,7 @@ def structural_opt(a):
 
 
 def check_partition_instance(a, failures):
-    """Testa a reducao numa instancia com A par. Retorna #checks."""
+    """Tests the reduction on an instance with even A. Returns #checks."""
     A = sum(a)
     D = A // 2
     inst, B = build_partition_instance(a)
@@ -136,21 +136,21 @@ def check_partition_instance(a, failures):
     part_yes = brute_force_partition(a)
     checks = 0
 
-    # (1) instancia sempre viavel (sum b = A >= D)
+    # (1) instance always feasible (sum b = A >= D)
     checks += 1
     if opt is None:
-        failures.append((a, "reducao inviavel (esperado viavel)"))
+        failures.append((a, "reduction infeasible (expected feasible)"))
         return checks
-    # (2) identidade estrutural do lema: OPT = min{sum_S : sum_S >= D}
+    # (2) structural identity of the lemma: OPT = min{sum_S : sum_S >= D}
     checks += 1
     if opt != structural_opt(a):
-        failures.append((a, "OPT=%s != estrutural=%s" % (opt, structural_opt(a))))
-    # (3) dupla implicacao com orcamento exato B = D
+        failures.append((a, "OPT=%s != structural=%s" % (opt, structural_opt(a))))
+    # (3) double implication with exact budget B = D
     checks += 1
     if (opt <= B) != part_yes:
-        failures.append((a, "OPT=%s<=B=%s e %s, mas PARTITION e %s"
+        failures.append((a, "OPT=%s<=B=%s is %s, but PARTITION is %s"
                          % (opt, B, opt <= B, part_yes)))
-    # (4) minorante: OPT >= D sempre
+    # (4) lower bound: OPT >= D always
     checks += 1
     if opt < D:
         failures.append((a, "OPT=%s < D=%s" % (opt, D)))
@@ -158,7 +158,7 @@ def check_partition_instance(a, failures):
 
 
 def build_partition_mirror_instance(a):
-    """Reducao simetrica (item (iii) do teorema): itens = depositos."""
+    """Symmetric reduction (item (iii) of the theorem): items = depots."""
     A = sum(a)
     assert A % 2 == 0
     D = A // 2
@@ -177,34 +177,34 @@ def build_partition_mirror_instance(a):
 
 
 def check_partition_mirror(a, failures):
-    """Testa a reducao espelhada numa instancia com A par. Retorna #checks."""
+    """Tests the mirrored reduction on an instance with even A. Returns #checks."""
     inst, B = build_partition_mirror_instance(a)
     opt = brute_force_mp_opt(inst)
     part_yes = brute_force_partition(a)
     checks = 0
     checks += 1
     if opt is None:
-        failures.append((a, "espelho: reducao inviavel (esperado viavel)"))
+        failures.append((a, "mirror: reduction infeasible (expected feasible)"))
         return checks
     checks += 1
     if opt != structural_opt(a):
-        failures.append((a, "espelho: OPT=%s != estrutural=%s"
+        failures.append((a, "mirror: OPT=%s != structural=%s"
                          % (opt, structural_opt(a))))
     checks += 1
     if (opt <= B) != part_yes:
-        failures.append((a, "espelho: OPT=%s<=B=%s e %s, mas PARTITION e %s"
+        failures.append((a, "mirror: OPT=%s<=B=%s is %s, but PARTITION is %s"
                          % (opt, B, opt <= B, part_yes)))
     return checks
 
 
 # ---------------------------------------------------------------------------
-# DP pseudo-polinomial (item (ii) do teorema)
+# Pseudo-polynomial DP (item (ii) of the theorem)
 # ---------------------------------------------------------------------------
 
 def knapsack_cover_dp(f, c, b, D):
-    """DP(t): custo minimo de enviar exatamente t unidades, t = 0..D.
-    Fabrica i usada com u em 1..b_i unidades custa f_i + c_i*u.
-    Retorna DP(D) ou None (inviavel: sum b < D)."""
+    """DP(t): minimum cost of sending exactly t units, t = 0..D.
+    Plant i used with u in 1..b_i units costs f_i + c_i*u.
+    Returns DP(D) or None (infeasible: sum b < D)."""
     dp = [None] * (D + 1)
     dp[0] = 0
     for i in range(len(f)):
@@ -222,23 +222,23 @@ def knapsack_cover_dp(f, c, b, D):
 
 
 def dp_cell_opt(inst):
-    """OPT da celula |J|=|K|=|L|=1 pela formula do item (ii) do teorema."""
+    """OPT of the cell |J|=|K|=|L|=1 via the formula of item (ii) of the theorem."""
     D = inst["q"][0][0]
     if D == 0:
         return 0
     if inst["p"][0][0] < D:
-        return None  # condicao F2 de viabilidade falha para todo desenho
+        return None  # feasibility condition F2 fails for every design
     core = knapsack_cover_dp(inst["f"],
                              [inst["c"][i][0][0] for i in range(inst["nI"])],
                              [inst["b"][i][0] for i in range(inst["nI"])],
                              D)
     if core is None:
-        return None  # condicao F1 de viabilidade falha
+        return None  # feasibility condition F1 fails
     return inst["g"][0] + inst["d"][0][0][0] * D + core
 
 
 def gen_cell_instance(seed):
-    """Instancia aleatoria da celula geral |J|=|K|=|L|=1."""
+    """Random instance of the general cell |J|=|K|=|L|=1."""
     rng = random.Random(seed)
     m = rng.randint(1, 6)
     D = rng.randint(0, 12)
@@ -255,14 +255,14 @@ def gen_cell_instance(seed):
 
 
 def dp_cell_opt_mirror(inst):
-    """OPT da celula simetrica |I|=|K|=|L|=1 (item (iii) do teorema):
-    OPT = f_1 + DP(D) sobre depositos, custo unitario via j = c_1j1 + d_j11,
-    capacidade p_j, custo fixo g_j; inviavel se b_1 < D ou sum p < D."""
+    """OPT of the symmetric cell |I|=|K|=|L|=1 (item (iii) of the theorem):
+    OPT = f_1 + DP(D) over depots, unit cost via j = c_1j1 + d_j11,
+    capacity p_j, fixed cost g_j; infeasible if b_1 < D or sum p < D."""
     D = inst["q"][0][0]
     if D == 0:
         return 0
     if inst["b"][0][0] < D:
-        return None  # condicao F1 de viabilidade falha para todo desenho
+        return None  # feasibility condition F1 fails for every design
     m = inst["nJ"]
     core = knapsack_cover_dp(inst["g"],
                              [inst["c"][0][j][0] + inst["d"][j][0][0]
@@ -270,12 +270,12 @@ def dp_cell_opt_mirror(inst):
                              [inst["p"][j][0] for j in range(m)],
                              D)
     if core is None:
-        return None  # condicao F2 de viabilidade falha
+        return None  # feasibility condition F2 fails
     return inst["f"][0] + core
 
 
 def gen_cell_instance_mirror(seed):
-    """Instancia aleatoria da celula simetrica |I|=|K|=|L|=1."""
+    """Random instance of the symmetric cell |I|=|K|=|L|=1."""
     rng = random.Random(seed)
     m = rng.randint(1, 6)
     D = rng.randint(0, 12)
@@ -294,7 +294,7 @@ def gen_cell_instance_mirror(seed):
 def main():
     failures = []
 
-    # (A) exaustivo: multiconjuntos m <= 5, valores 0..8
+    # (A) exhaustive: multisets m <= 5, values 0..8
     n_even = n_odd = checks_A = 0
     for m in range(1, 6):
         for a in itertools.combinations_with_replacement(range(9), m):
@@ -302,16 +302,16 @@ def main():
             if sum(a) % 2 == 1:
                 n_odd += 1
                 checks_A += 1
-                if brute_force_partition(a):  # convencao WLOG: A impar => nao
-                    failures.append((a, "A impar mas PARTITION respondeu sim"))
+                if brute_force_partition(a):  # WLOG convention: odd A => no
+                    failures.append((a, "odd A but PARTITION answered yes"))
             else:
                 n_even += 1
                 checks_A += check_partition_instance(a, failures)
-    print("[A] exaustivo: %d multiconjuntos (m<=5, valores<=8): %d com A par "
-          "(reducao testada), %d com A impar (trivialidade confirmada); "
-          "%d checagens" % (n_even + n_odd, n_even, n_odd, checks_A))
+    print("[A] exhaustive: %d multisets (m<=5, values<=8): %d with even A "
+          "(reduction tested), %d with odd A (triviality confirmed); "
+          "%d checks" % (n_even + n_odd, n_even, n_odd, checks_A))
 
-    # (B) aleatorio semeado: >= 100 instancias, m <= 10, A par
+    # (B) seeded random: >= 100 instances, m <= 10, even A
     rng = random.Random(20260710)
     n_B = 0
     checks_B = 0
@@ -319,13 +319,13 @@ def main():
         m = rng.randint(2, 10)
         a = [rng.randint(0, 40) for _ in range(m)]
         if sum(a) % 2 == 1:
-            a[0] += 1  # forca A par sem viciar a distribuicao relevante
+            a[0] += 1  # forces even A without biasing the relevant distribution
         checks_B += check_partition_instance(a, failures)
         n_B += 1
-    print("[B] aleatorio: %d instancias (semente 20260710, m<=10, valores<=41), "
-          "%d checagens" % (n_B, checks_B))
+    print("[B] random: %d instances (seed 20260710, m<=10, values<=41), "
+          "%d checks" % (n_B, checks_B))
 
-    # (C) DP pseudo-polinomial da celula geral |J|=|K|=|L|=1
+    # (C) pseudo-polynomial DP of the general cell |J|=|K|=|L|=1
     n_C = 120
     stats = {"feas": 0, "infeas": 0, "D0": 0}
     for s in range(n_C):
@@ -340,11 +340,11 @@ def main():
             stats["feas"] += 1
         if opt_bf != opt_dp:
             failures.append((inst, "DP=%s != brute=%s" % (opt_dp, opt_bf)))
-    print("[C] DP: %d instancias da celula |J|=|K|=|L|=1 com transporte geral "
-          "(sementes 300..%d): %d viaveis, %d inviaveis, %d com D=0"
+    print("[C] DP: %d instances of the cell |J|=|K|=|L|=1 with general transport "
+          "(seeds 300..%d): %d feasible, %d infeasible, %d with D=0"
           % (n_C, 300 + n_C - 1, stats["feas"], stats["infeas"], stats["D0"]))
 
-    # (D) reducao espelhada (itens = depositos) nas mesmas instancias
+    # (D) mirrored reduction (items = depots) on the same instances
     n_D = checks_D = 0
     for m in range(1, 6):
         for a in itertools.combinations_with_replacement(range(9), m):
@@ -361,10 +361,10 @@ def main():
             a[0] += 1
         checks_D += check_partition_mirror(a, failures)
         n_Drand += 1
-    print("[D] espelho (itens=depositos): %d exaustivas (A par) + %d "
-          "aleatorias, %d checagens" % (n_D, n_Drand, checks_D))
+    print("[D] mirror (items=depots): %d exhaustive (even A) + %d "
+          "random, %d checks" % (n_D, n_Drand, checks_D))
 
-    # (E) DP simetrico da celula |I|=|K|=|L|=1
+    # (E) symmetric DP of the cell |I|=|K|=|L|=1
     n_E = 120
     stats_E = {"feas": 0, "infeas": 0, "D0": 0}
     for s in range(n_E):
@@ -378,19 +378,19 @@ def main():
         else:
             stats_E["feas"] += 1
         if opt_bf != opt_dp:
-            failures.append((inst, "DP espelho=%s != brute=%s"
+            failures.append((inst, "mirror DP=%s != brute=%s"
                              % (opt_dp, opt_bf)))
-    print("[E] DP simetrico: %d instancias da celula |I|=|K|=|L|=1 "
-          "(sementes 800..%d): %d viaveis, %d inviaveis, %d com D=0"
+    print("[E] symmetric DP: %d instances of the cell |I|=|K|=|L|=1 "
+          "(seeds 800..%d): %d feasible, %d infeasible, %d with D=0"
           % (n_E, 800 + n_E - 1, stats_E["feas"], stats_E["infeas"],
              stats_E["D0"]))
 
     if failures:
-        print("\nFALHAS (%d):" % len(failures))
+        print("\nFAILURES (%d):" % len(failures))
         for f in failures[:20]:
             print("  %s : %s" % (f[0], f[1]))
         sys.exit(1)
-    print("\nTODOS OS TESTES PASSARAM.")
+    print("\nALL TESTS PASSED.")
 
 
 if __name__ == "__main__":

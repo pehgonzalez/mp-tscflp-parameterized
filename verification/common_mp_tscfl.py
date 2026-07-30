@@ -1,15 +1,15 @@
 """
-Modulo comum de verificacao para os resultados estruturais do artigo (MP-TSCFLP).
+Common verification module for the structural results of the paper (MP-TSCFLP).
 
-Conteudo:
-  - gerador de instancias aleatorias com semente (inteiros pequenos);
-  - min-cost flow exato por caminhos aumentantes mais curtos (SSP),
-    aritmetica 100% inteira (Bellman-Ford/SPFA no grafo residual);
-  - construtor da rede em camadas N_l(y,z) do oraculo de roteamento do artigo;
-  - oraculo de roteamento por produto (viabilidade + valor otimo).
+Contents:
+  - seeded random instance generator (small integers);
+  - exact min-cost flow via successive shortest paths (SSP),
+    100% integer arithmetic (Bellman-Ford/SPFA on the residual graph);
+  - builder of the layered network N_l(y,z) of the paper's routing oracle;
+  - per-product routing oracle (feasibility + optimal value).
 
-Somente stdlib. networkx / scipy sao usados apenas nos scripts de
-verificacao, como implementacoes independentes de contraste.
+Stdlib only. networkx / scipy are used only in the verification
+scripts, as independent contrast implementations.
 """
 
 import random
@@ -18,15 +18,15 @@ INF = float("inf")
 
 
 # ---------------------------------------------------------------------------
-# Geracao de instancias
+# Instance generation
 # ---------------------------------------------------------------------------
 
 def gen_instance(seed, max_i=4, max_j=4, max_k=4, max_l=3, vmax=9):
-    """Instancia MP-TSCFLP aleatoria com dados inteiros em [0, vmax].
+    """Random MP-TSCFLP instance with integer data in [0, vmax].
 
-    Com probabilidade 0.2 um produto tem demanda identicamente nula
-    (para exercitar o caso de borda D_l = 0). Capacidades e demandas
-    nulas surgem naturalmente do intervalo [0, vmax].
+    With probability 0.2 a product has identically zero demand
+    (to exercise the edge case D_l = 0). Zero capacities and demands
+    arise naturally from the range [0, vmax].
     """
     rng = random.Random(seed)
     nI = rng.randint(1, max_i)
@@ -45,7 +45,7 @@ def gen_instance(seed, max_i=4, max_j=4, max_k=4, max_l=3, vmax=9):
     q = [[rng.randint(0, vmax) for _ in range(nL)] for _ in range(nK)]
 
     for l in range(nL):
-        if rng.random() < 0.2:  # produto sem demanda (caso de borda)
+        if rng.random() < 0.2:  # product with no demand (edge case)
             for k in range(nK):
                 q[k][l] = 0
 
@@ -61,13 +61,13 @@ def demand_total(inst, l):
 
 
 # ---------------------------------------------------------------------------
-# Min-cost flow exato (successive shortest paths, aritmetica inteira)
+# Exact min-cost flow (successive shortest paths, integer arithmetic)
 # ---------------------------------------------------------------------------
 
 class MinCostFlow:
-    """MCMF por caminhos aumentantes de custo minimo (SPFA no residual).
+    """MCMF via minimum-cost augmenting paths (SPFA on the residual).
 
-    Todos os dados sao inteiros; todos os calculos permanecem em Z.
+    All data are integers; all computations stay in Z.
     """
 
     def __init__(self, n):
@@ -80,17 +80,17 @@ class MinCostFlow:
         self.graph[v].append([u, 0, -cost, len(self.graph[u]) - 1])
 
     def flow(self, s, t, target):
-        """Envia ate `target` unidades de s a t com custo minimo.
+        """Sends up to `target` units from s to t at minimum cost.
 
-        Retorna (fluxo_enviado, custo_total). fluxo_enviado < target
-        significa que o fluxo maximo s-t e inferior a target
-        (SSP so para quando nao ha caminho aumentante).
+        Returns (sent_flow, total_cost). sent_flow < target
+        means the maximum s-t flow is below target
+        (SSP only stops when there is no augmenting path).
         """
         total_flow = 0
         total_cost = 0
         n = self.n
         while total_flow < target:
-            dist = [None] * n           # None = +infinito (tudo inteiro)
+            dist = [None] * n           # None = +infinity (all integer)
             in_queue = [False] * n
             prev_v = [-1] * n
             prev_e = [-1] * n
@@ -110,15 +110,15 @@ class MinCostFlow:
                             queue.append(v)
                             in_queue[v] = True
             if dist[t] is None:
-                break  # sem caminho aumentante: fluxo maximo atingido
-            # gargalo
+                break  # no augmenting path: maximum flow reached
+            # bottleneck
             push = target - total_flow
             v = t
             while v != s:
                 e = self.graph[prev_v[v]][prev_e[v]]
                 push = min(push, e[1])
                 v = prev_v[v]
-            # atualiza residual
+            # update residual
             v = t
             while v != s:
                 e = self.graph[prev_v[v]][prev_e[v]]
@@ -131,18 +131,18 @@ class MinCostFlow:
 
 
 # ---------------------------------------------------------------------------
-# Rede em camadas N_l(y,z) do oraculo de roteamento
+# Layered network N_l(y,z) of the routing oracle
 # ---------------------------------------------------------------------------
 
 def build_network(inst, l, y, z):
-    """Constroi N_l(y,z). Retorna (mcmf, S, T, D_l, BIG).
+    """Builds N_l(y,z). Returns (mcmf, S, T, D_l, BIG).
 
-    Nos: S | F_i | Din_j | Dout_j | C_k | T.
-    Arcos: S->F_i        cap b_il*y_i, custo 0
-           F_i->Din_j    cap BIG,      custo c_ijl
-           Din_j->Dout_j cap p_jl*z_j, custo 0
-           Dout_j->C_k   cap BIG,      custo d_jkl
-           C_k->T        cap q_kl,     custo 0
+    Nodes: S | F_i | Din_j | Dout_j | C_k | T.
+    Arcs:  S->F_i        cap b_il*y_i, cost 0
+           F_i->Din_j    cap BIG,      cost c_ijl
+           Din_j->Dout_j cap p_jl*z_j, cost 0
+           Dout_j->C_k   cap BIG,      cost d_jkl
+           C_k->T        cap q_kl,     cost 0
     """
     nI, nJ, nK = inst["nI"], inst["nJ"], inst["nK"]
     S = 0
@@ -175,11 +175,11 @@ def build_network(inst, l, y, z):
 
 
 def routing_value(inst, l, y, z):
-    """Oraculo de roteamento do artigo para o produto l e desenho (y,z).
+    """The paper's routing oracle for product l and design (y,z).
 
-    Retorna (viavel: bool, valor: int|None). Viavel sse o fluxo maximo
-    S-T em N_l(y,z) atinge D_l; nesse caso, valor = custo minimo de um
-    fluxo de valor D_l (inteiro).
+    Returns (feasible: bool, value: int|None). Feasible iff the maximum
+    S-T flow in N_l(y,z) reaches D_l; in that case, value = minimum cost
+    of a flow of value D_l (integer).
     """
     mc, S, T, D, _ = build_network(inst, l, y, z)
     if D == 0:
@@ -191,16 +191,16 @@ def routing_value(inst, l, y, z):
 
 
 def max_flow_value(inst, l, y, z):
-    """Fluxo maximo S-T em N_l(y,z), truncado em D_l (basta para a
-    caracterizacao de viabilidade)."""
+    """Maximum S-T flow in N_l(y,z), truncated at D_l (sufficient for the
+    feasibility characterization)."""
     mc, S, T, D, _ = build_network(inst, l, y, z)
     sent, _ = mc.flow(S, T, D)
     return sent
 
 
 def aggregate_condition(inst, y, z):
-    """Condicao da proposicao de viabilidade do artigo: para todo l,
-    sum_i b_il y_i >= D_l  e  sum_j p_jl z_j >= D_l."""
+    """Condition of the paper's feasibility proposition: for all l,
+    sum_i b_il y_i >= D_l  and  sum_j p_jl z_j >= D_l."""
     for l in range(inst["nL"]):
         D = demand_total(inst, l)
         cap_b = sum(inst["b"][i][l] * y[i] for i in range(inst["nI"]))
@@ -211,7 +211,7 @@ def aggregate_condition(inst, y, z):
 
 
 def flow_feasible(inst, y, z):
-    """Viabilidade real do desenho (y,z): fluxo maximo >= D_l em todo l."""
+    """Actual feasibility of design (y,z): maximum flow >= D_l for all l."""
     for l in range(inst["nL"]):
         D = demand_total(inst, l)
         if D == 0:
@@ -222,7 +222,7 @@ def flow_feasible(inst, y, z):
 
 
 def all_designs(nI, nJ):
-    """Enumera todos os (y,z) em {0,1}^nI x {0,1}^nJ."""
+    """Enumerates all (y,z) in {0,1}^nI x {0,1}^nJ."""
     for my in range(1 << nI):
         y = [(my >> i) & 1 for i in range(nI)]
         for mz in range(1 << nJ):

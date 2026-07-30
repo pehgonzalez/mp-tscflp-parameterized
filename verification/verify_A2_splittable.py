@@ -1,55 +1,55 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A2_splittable.py — Verificacao adversarial do "servico divisivel"
-nos teoremas de cobertura e de inaproximabilidade do artigo.
+verify_A2_splittable.py -- Adversarial verification of "splittable service"
+in the paper's covering and inapproximability theorems.
 
-PERGUNTA ADVERSARIAL: nas instancias produzidas pela reducao de Set Cover,
-fluxos FRACIONARIOS/DIVIDIDOS (servico repartido entre varios depositos, ou
-entre deposito cobridor e nao-cobridor) poderiam custar menos do que o valor
-|D| + Q * #{u nao coberto por D} afirmado nas provas?
+ADVERSARIAL QUESTION: on the instances produced by the Set Cover reduction,
+could FRACTIONAL/SPLIT flows (service shared among several depots, or
+between a covering and a non-covering depot) cost less than the value
+|D| + Q * #{u not covered by D} claimed in the proofs?
 
-METODO (documentando a escolha):
-Para cada instancia reduzida e cada subconjunto D de depositos abertos
-(enumeracao COMPLETA), resolvemos o subproblema de roteamento como um
-PROGRAMA LINEAR generico via scipy.optimize.linprog (metodo "highs"),
-com TODAS as variaveis continuas x_{1j}, w_{ju} e TODAS as restricoes do
-MP-TSCFLP (demanda, conservacao no deposito, capacidade da fabrica,
-capacidade dos depositos) — ou seja, sem usar em nenhum momento o argumento
-"greedy" das provas. Comparamos o valor do LP com a formula fechada
-    transporte(D) = Q * #{u : u nao coberto por D}
-e com o roteamento inteiro guloso. Assim o LP e um verificador INDEPENDENTE.
+METHOD (documenting the choice):
+For each reduced instance and each subset D of open depots
+(COMPLETE enumeration), we solve the routing subproblem as a generic
+LINEAR PROGRAM via scipy.optimize.linprog (method "highs"),
+with ALL variables x_{1j}, w_{ju} continuous and ALL constraints of the
+MP-TSCFLP (demand, depot conservation, plant capacity,
+depot capacities) -- that is, without using the proofs' "greedy" argument
+at any point. We compare the LP value with the closed formula
+    transport(D) = Q * #{u : u not covered by D}
+and with the greedy integer routing. The LP is thus an INDEPENDENT verifier.
 
-Nota teorica registrada (nao usada pelo verificador, apenas contexto):
-para (y,z) fixos o subproblema de roteamento e um fluxo de custo minimo com
-dados inteiros, logo possui otimo INTEIRO (integralidade do politopo de
-fluxos / matriz totalmente unimodular); testar apenas fluxos inteiros ja
-seria legitimo. Preferimos o LP continuo porque ele ataca diretamente a
-brecha "fracionaria" sem depender desse lema.
+Theoretical note on record (not used by the verifier, context only):
+for fixed (y,z) the routing subproblem is a min-cost flow with integer
+data, hence it has an INTEGER optimum (integrality of the flow polytope /
+totally unimodular matrix); testing only integer flows would already be
+legitimate. We prefer the continuous LP because it directly attacks the
+"fractional" gap without relying on that lemma.
 
-LP resolvido, para D fixo (1 fabrica, 1 produto):
-  min  sum_{j,u} d_{ju} w_{ju}                     (c = 0 no estagio 1)
-  s.a. sum_{j em D} w_{ju} >= Q          (u em U)   [demanda]
-       sum_u w_{ju} - x_{1j} <= 0        (j em D)   [conservacao no deposito]
-       sum_{j em D} x_{1j} <= b_1                   [capacidade fabrica]
-       sum_u w_{ju} <= p_j               (j em D)   [capacidade deposito]
+LP solved, for fixed D (1 plant, 1 product):
+  min  sum_{j,u} d_{ju} w_{ju}                     (c = 0 in stage 1)
+  s.t. sum_{j in D} w_{ju} >= Q          (u in U)   [demand]
+       sum_u w_{ju} - x_{1j} <= 0        (j in D)   [depot conservation]
+       sum_{j in D} x_{1j} <= b_1                   [plant capacity]
+       sum_u w_{ju} <= p_j               (j in D)   [depot capacity]
        x, w >= 0
-com b_1 = p_j = |U|*Q. Depositos fechados nao recebem variaveis (w=x=0
-forcado por z_j = 0). Tolerancia numerica: 1e-6 (dados pequenos, HiGHS
-resolve exato nesses tamanhos).
+with b_1 = p_j = |U|*Q. Closed depots get no variables (w=x=0
+forced by z_j = 0). Numerical tolerance: 1e-6 (small data, HiGHS
+solves exactly at these sizes).
 
-Baterias (ampliadas por checagem cruzada independente,
-para casar com as faixas de verify_A2_setcover.py, de modo que a formula
-fechada nunca rode "sem contraste" em instancia coberta so pelo outro script):
-  (A) TODAS as familias deduplicadas com |U| <= 4, |S| <= 4 (mesma
-      enumeracao da bateria [A] de verify_A2_setcover.py), ambos os
-      amplificadores Q = m+1 (cobertura) e Q' = nm+m+1 (inaproximabilidade),
-      todos os D
-      nao vazios.
-  (B) 50 instancias aleatorias semeadas com |U| <= 6, |S| <= 6, idem.
-Criterio: LP_otimo == Q * #descobertos(D) em toda combinacao (=> fracionar
-nunca ajuda, e a formula fechada usada nas provas e exata).
-Codigo de saida != 0 em falha.
+Batteries (extended via independent cross-check, to match the ranges of
+verify_A2_setcover.py, so that the closed formula never runs "without
+contrast" on an instance covered only by the other script):
+  (A) ALL deduplicated families with |U| <= 4, |S| <= 4 (same
+      enumeration as battery [A] of verify_A2_setcover.py), both
+      amplifiers Q = m+1 (covering) and Q' = nm+m+1 (inapproximability),
+      all nonempty
+      D.
+  (B) 50 seeded random instances with |U| <= 6, |S| <= 6, likewise.
+Criterion: LP_optimum == Q * #uncovered(D) in every combination (=> splitting
+never helps, and the closed formula used in the proofs is exact).
+Exit code != 0 on failure.
 """
 
 import itertools
@@ -61,19 +61,19 @@ from scipy.optimize import linprog
 
 
 def lp_routing_cost(n, sets, Q, depots):
-    """Custo otimo de roteamento CONTINUO com D = depots aberto (LP generico).
+    """Optimal CONTINUOUS routing cost with D = depots open (generic LP).
 
-    Variaveis: x_j (j em D) e w_{ju} (j em D, u em U), todas >= 0.
-    Retorna o valor otimo do LP, ou None se inviavel.
+    Variables: x_j (j in D) and w_{ju} (j in D, u in U), all >= 0.
+    Returns the optimal LP value, or None if infeasible.
     """
     D = list(depots)
     dn = len(D)
     if dn == 0:
         return None if n >= 1 else 0.0
-    nv = dn + dn * n  # x depois w
+    nv = dn + dn * n  # x then w
     cap = n * Q       # b_1 = p_j = |U|*Q
 
-    def wi(a, u):  # indice de w_{D[a], u}
+    def wi(a, u):  # index of w_{D[a], u}
         return dn + a * n + u
 
     obj = np.zeros(nv)
@@ -82,24 +82,24 @@ def lp_routing_cost(n, sets, Q, depots):
             obj[wi(a, u)] = 0.0 if u in sets[j] else 1.0
 
     A_ub, b_ub = [], []
-    # demanda: -sum_a w_{a,u} <= -Q
+    # demand: -sum_a w_{a,u} <= -Q
     for u in range(n):
         row = np.zeros(nv)
         for a in range(dn):
             row[wi(a, u)] = -1.0
         A_ub.append(row); b_ub.append(-float(Q))
-    # conservacao no deposito: sum_u w_{a,u} - x_a <= 0
+    # depot conservation: sum_u w_{a,u} - x_a <= 0
     for a in range(dn):
         row = np.zeros(nv)
         row[a] = -1.0
         for u in range(n):
             row[wi(a, u)] = 1.0
         A_ub.append(row); b_ub.append(0.0)
-    # capacidade da fabrica: sum_a x_a <= b_1
+    # plant capacity: sum_a x_a <= b_1
     row = np.zeros(nv)
     row[:dn] = 1.0
     A_ub.append(row); b_ub.append(float(cap))
-    # capacidade dos depositos: sum_u w_{a,u} <= p_j
+    # depot capacities: sum_u w_{a,u} <= p_j
     for a in range(dn):
         row = np.zeros(nv)
         for u in range(n):
@@ -114,7 +114,7 @@ def lp_routing_cost(n, sets, Q, depots):
 
 
 def closed_form_cost(n, sets, Q, depots):
-    """Formula fechada usada nas provas: Q * #{u nao coberto por D}."""
+    """Closed formula used in the proofs: Q * #{u not covered by D}."""
     return float(Q * sum(1 for u in range(n)
                          if not any(u in sets[j] for j in depots)))
 
@@ -122,14 +122,14 @@ def closed_form_cost(n, sets, Q, depots):
 def check_family(n, fam, failures, tol=1e-6):
     m = len(fam)
     checks = 0
-    for Q in (m + 1, n * m + m + 1):  # os dois amplificadores dos teoremas
+    for Q in (m + 1, n * m + m + 1):  # the theorems' two amplifiers
         for mask in range(1, 1 << m):
             depots = [j for j in range(m) if (mask >> j) & 1]
             lp = lp_routing_cost(n, fam, Q, depots)
             cf = closed_form_cost(n, fam, Q, depots)
             checks += 1
             if lp is None:
-                failures.append((n, fam, "LP inviavel, D=%s Q=%d" % (depots, Q)))
+                failures.append((n, fam, "LP infeasible, D=%s Q=%d" % (depots, Q)))
             elif abs(lp - cf) > tol:
                 failures.append((n, fam, "LP=%.9f != formula=%.1f, D=%s Q=%d"
                                  % (lp, cf, depots, Q)))
@@ -165,23 +165,23 @@ def main():
     for n, fam in enumerate_all_families(4, 4):
         n_inst_A += 1
         n_checks_A += check_family(n, fam, failures)
-    print("[A] exaustivo (|U|<=4, |S|<=4): %d familias, %d LPs comparados "
-          "(2 amplificadores x todos os D)" % (n_inst_A, n_checks_A))
+    print("[A] exhaustive (|U|<=4, |S|<=4): %d families, %d LPs compared "
+          "(2 amplifiers x all D)" % (n_inst_A, n_checks_A))
 
     rand = random_instances(50, 6, 6, seed=20260710)
     n_checks_B = 0
     for n, fam in rand:
         n_checks_B += check_family(n, fam, failures)
-    print("[B] aleatorio (semente 20260710, |U|<=6, |S|<=6): %d instancias, "
-          "%d LPs comparados" % (len(rand), n_checks_B))
+    print("[B] random (seed 20260710, |U|<=6, |S|<=6): %d instances, "
+          "%d LPs compared" % (len(rand), n_checks_B))
 
     if failures:
-        print("\nFALHAS (%d):" % len(failures))
+        print("\nFAILURES (%d):" % len(failures))
         for f in failures[:20]:
             print("  n=%d fam=%s : %s" % (f[0], [sorted(s) for s in f[1]], f[2]))
         sys.exit(1)
-    print("\nTODOS OS TESTES PASSARAM: fracionar/dividir servico nunca "
-          "melhora o valor previsto pela formula fechada das provas.")
+    print("\nALL TESTS PASSED: splitting/fractionating service never "
+          "improves on the value predicted by the proofs' closed formula.")
 
 
 if __name__ == "__main__":

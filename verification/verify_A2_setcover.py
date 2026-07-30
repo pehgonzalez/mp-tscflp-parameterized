@@ -1,56 +1,56 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A2_setcover.py — Verificacao computacional do teorema de cobertura do
-artigo e da aritmetica do gap do teorema de inaproximabilidade.
+verify_A2_setcover.py -- Computational verification of the paper's covering
+theorem and of the gap arithmetic of the inapproximability theorem.
 
-Reducao verificada (teorema de cobertura), de SET COVER (U, S = {S_1..S_m}, t):
-  * 1 produto (|L| = 1), 1 fabrica (|I| = 1), f_1 = 0, c_{1j} = 0 p/ todo j;
-  * depositos = conjuntos S_j, custo fixo g_j = 1, capacidade p_j = |U|*Q;
-  * capacidade da fabrica b_1 = |U|*Q;
-  * clientes = elementos u de U, demanda q_u = Q := |S| + 1 (amplificador);
-  * d_{ju} = 0 se u pertence a S_j, senao 1;
-  * orcamento B = t (WLOG 1 <= t <= m).
-Afirmacao: existe cobertura de tamanho <= t  <=>  OPT_MP <= t.
+Reduction being verified (covering theorem), from SET COVER (U, S = {S_1..S_m}, t):
+  * 1 product (|L| = 1), 1 plant (|I| = 1), f_1 = 0, c_{1j} = 0 for all j;
+  * depots = sets S_j, fixed cost g_j = 1, capacity p_j = |U|*Q;
+  * plant capacity b_1 = |U|*Q;
+  * customers = elements u of U, demand q_u = Q := |S| + 1 (amplifier);
+  * d_{ju} = 0 if u belongs to S_j, else 1;
+  * budget B = t (WLOG 1 <= t <= m).
+Claim: a cover of size <= t exists  <=>  OPT_MP <= t.
 
-RESOLUCAO EXATA DO MP-TSCFLP RESTRITO (justificativa do "greedy"):
-Com (y, z) fixados (y_1 = 1, D = conjunto de depositos abertos, D nao vazio),
-o roteamento otimo e trivial nesta subclasse:
-  (i)   estagio 1 tem custo zero (c = 0) e a capacidade da fabrica
-        b_1 = |U|*Q cobre a demanda total |U|*Q, logo nunca restringe;
-  (ii)  cada capacidade de deposito p_j = |U|*Q tambem cobre sozinha toda a
-        demanda total, logo nenhuma capacidade de deposito e ativa;
-  (iii) o custo de transporte e separavel por unidade de fluxo: cada unidade
-        da demanda do cliente u enviada pelo deposito aberto j custa
-        exatamente d_{ju} (estagio 2) + 0 (estagio 1).
-Portanto toda unidade da demanda de u custa >= min_{j em D} d_{ju}, e esse
-custo por unidade e atingivel roteando toda a demanda Q de u por um deposito
-aberto que minimize d_{ju} (viavel por (i)-(ii)). Logo o roteamento otimo
-— inclusive sobre fluxos FRACIONARIOS/DIVIDIDOS — vale exatamente
-      sum_u Q * min_{j em D} d_{ju},
-e como d in {0,1}: custo de transporte = Q * #{u : u nao coberto por D}.
-(O script verify_A2_splittable.py confirma isso contra um LP independente.)
+EXACT SOLUTION OF THE RESTRICTED MP-TSCFLP (justification of the "greedy"):
+With (y, z) fixed (y_1 = 1, D = set of open depots, D nonempty),
+optimal routing is trivial in this subclass:
+  (i)   stage 1 has zero cost (c = 0) and the plant capacity
+        b_1 = |U|*Q covers the total demand |U|*Q, so it never binds;
+  (ii)  each depot capacity p_j = |U|*Q likewise covers the entire total
+        demand on its own, so no depot capacity is active;
+  (iii) transport cost is separable per unit of flow: each unit
+        of customer u's demand sent through open depot j costs
+        exactly d_{ju} (stage 2) + 0 (stage 1).
+Hence every unit of u's demand costs >= min_{j in D} d_{ju}, and this
+per-unit cost is attainable by routing all of u's demand Q through an open
+depot minimizing d_{ju} (feasible by (i)-(ii)). Thus the optimal routing
+-- including over FRACTIONAL/SPLIT flows -- equals exactly
+      sum_u Q * min_{j in D} d_{ju},
+and since d in {0,1}: transport cost = Q * #{u : u not covered by D}.
+(The script verify_A2_splittable.py confirms this against an independent LP.)
 
-O otimo global e obtido por forca bruta sobre TODOS os subconjuntos D
-(nao vazios; D vazio e inviavel pois sum_j w_{ju} >= Q > 0 exige deposito
-aberto com capacidade): OPT_MP = min_D [ |D| + Q * #{u nao coberto por D} ].
+The global optimum is obtained by brute force over ALL subsets D
+(nonempty; empty D is infeasible since sum_j w_{ju} >= Q > 0 requires an
+open depot with capacity): OPT_MP = min_D [ |D| + Q * #{u not covered by D} ].
 
-SET COVER tambem e resolvido por forca bruta independente (todos os
-subconjuntos da familia).
+SET COVER is also solved by independent brute force (all
+subsets of the family).
 
-Baterias:
-  (A) TODAS as instancias de Set Cover com |U| <= 4, |S| <= 4
-      (familias = combinacoes de subconjuntos distintos de U, ja
-      deduplicadas por construcao; conjuntos vazios permitidos),
-      para todo t em {1..m}: testa a dupla implicacao do teorema de cobertura.
-  (B) >= 50 instancias aleatorias com semente fixa, |U| <= 6, |S| <= 6.
-  (C) Aritmetica do gap do teorema de inaproximabilidade com Q' := |U|*|S| + |S| + 1:
-      - se coberto: OPT_MP(Q') = t* (tamanho da cobertura minima);
-      - Q' > (1 + ln|U|) * |S|  (>= max{1, alpha} * t* para todo
-        alpha <= ln|U| e t* <= |S|; e o enunciado do teorema usa o fator
-        max{1, (1-eps) ln|U|} — confirmado por checagem cruzada independente);
-      - para todo D: custo(D; Q') < Q'  =>  D cobre U.
-Saida: contagens e PASS/FAIL por bateria; codigo de saida != 0 em falha.
+Batteries:
+  (A) ALL Set Cover instances with |U| <= 4, |S| <= 4
+      (families = combinations of distinct subsets of U, already
+      deduplicated by construction; empty sets allowed),
+      for every t in {1..m}: tests the covering theorem's double implication.
+  (B) >= 50 random instances with fixed seed, |U| <= 6, |S| <= 6.
+  (C) Gap arithmetic of the inapproximability theorem with Q' := |U|*|S| + |S| + 1:
+      - if coverable: OPT_MP(Q') = t* (size of the minimum cover);
+      - Q' > (1 + ln|U|) * |S|  (>= max{1, alpha} * t* for all
+        alpha <= ln|U| and t* <= |S|; the theorem statement uses the factor
+        max{1, (1-eps) ln|U|} -- confirmed by independent cross-check);
+      - for every D: cost(D; Q') < Q'  =>  D covers U.
+Output: counts and PASS/FAIL per battery; exit code != 0 on failure.
 """
 
 import itertools
@@ -60,15 +60,15 @@ import sys
 
 
 # ---------------------------------------------------------------------------
-# Solucionadores exatos
+# Exact solvers
 # ---------------------------------------------------------------------------
 
 def mp_cost_given_depots(n, sets, Q, depots):
-    """Custo exato da solucao do MP-TSCFLP reduzido com D = depots aberto.
+    """Exact cost of the reduced MP-TSCFLP solution with D = depots open.
 
-    Exato inclusive sobre fluxos fracionarios — ver justificativa (i)-(iii)
-    no cabecalho. Retorna |D| (custos fixos g=1; f=0) + Q por elemento de U
-    nao coberto por nenhum deposito aberto.
+    Exact even over fractional flows -- see justification (i)-(iii)
+    in the header. Returns |D| (fixed costs g=1; f=0) + Q per element of U
+    not covered by any open depot.
     """
     cost = len(depots)
     for u in range(n):
@@ -78,11 +78,11 @@ def mp_cost_given_depots(n, sets, Q, depots):
 
 
 def solve_mp_bruteforce(n, sets, Q):
-    """OPT do MP-TSCFLP reduzido: forca bruta sobre todos os (y,z).
+    """OPT of the reduced MP-TSCFLP: brute force over all (y,z).
 
-    y_1 = 1 sempre (f=0, sem custo; necessario para escoar fluxo).
-    D vazio e inviavel para n >= 1 (demanda positiva sem deposito aberto).
-    Retorna None se m = 0 (inviavel).
+    y_1 = 1 always (f=0, no cost; needed to carry flow).
+    Empty D is infeasible for n >= 1 (positive demand with no open depot).
+    Returns None if m = 0 (infeasible).
     """
     m = len(sets)
     best = None
@@ -95,13 +95,13 @@ def solve_mp_bruteforce(n, sets, Q):
 
 
 def solve_setcover_bruteforce(n, sets):
-    """Tamanho minimo de cobertura, ou None se a familia nao cobre U."""
+    """Minimum cover size, or None if the family does not cover U."""
     m = len(sets)
     universe = set(range(n))
     best = None
     for r in range(1, m + 1):
         if best is not None:
-            break  # combinacoes em ordem crescente de tamanho
+            break  # combinations in increasing order of size
         for combo in itertools.combinations(range(m), r):
             if set().union(*(sets[j] for j in combo)) >= universe:
                 best = r
@@ -110,26 +110,26 @@ def solve_setcover_bruteforce(n, sets):
 
 
 # ---------------------------------------------------------------------------
-# Baterias de teste
+# Test batteries
 # ---------------------------------------------------------------------------
 
 def check_instance_A21(n, sets, failures):
-    """Testa a dupla implicacao do teorema de cobertura para todo t em {1..m};
-    retorna #testes."""
+    """Tests the covering theorem's double implication for every t in {1..m};
+    returns #tests."""
     m = len(sets)
     Q = m + 1
     opt_mp = solve_mp_bruteforce(n, sets, Q)
     tstar = solve_setcover_bruteforce(n, sets)
 
-    # Sanidade estrutural (usada na prova do teorema de cobertura):
+    # Structural sanity (used in the covering theorem's proof):
     if tstar is not None:
-        # instancia cobrivel: OPT_MP = t* exatamente
+        # coverable instance: OPT_MP = t* exactly
         if opt_mp != tstar:
             failures.append((n, sets, "OPT_MP=%s != t*=%s (Q=%d)" % (opt_mp, tstar, Q)))
     else:
-        # nao cobrivel: todo D deixa elemento descoberto => custo >= Q + 1
-        if opt_mp is not None and opt_mp <= m:  # em particular opt_mp < Q
-            failures.append((n, sets, "nao-cobrivel mas OPT_MP=%s <= m=%d" % (opt_mp, m)))
+        # not coverable: every D leaves an element uncovered => cost >= Q + 1
+        if opt_mp is not None and opt_mp <= m:  # in particular opt_mp < Q
+            failures.append((n, sets, "not coverable but OPT_MP=%s <= m=%d" % (opt_mp, m)))
 
     tests = 0
     for t in range(1, m + 1):  # WLOG 1 <= t <= m
@@ -137,39 +137,39 @@ def check_instance_A21(n, sets, failures):
         mp_yes = (opt_mp is not None and opt_mp <= t)
         tests += 1
         if cover_exists != mp_yes:
-            failures.append((n, sets, "t=%d: cobre<=t e %s mas OPT_MP<=t e %s"
+            failures.append((n, sets, "t=%d: cover<=t is %s but OPT_MP<=t is %s"
                              % (t, cover_exists, mp_yes)))
     return tests
 
 
 def check_instance_A23_gap(n, sets, failures):
-    """Verifica a aritmetica do gap do teorema de inaproximabilidade com
+    """Verifies the gap arithmetic of the inapproximability theorem with
     Q' = n*m + m + 1."""
     m = len(sets)
     Qp = n * m + m + 1
     tstar = solve_setcover_bruteforce(n, sets)
 
-    # (c2) Q' domina (1 + ln|U|) * m: assim max{1, alpha} * t* <= (1+ln n)*m
-    #      < Q' para todo alpha <= ln n e t* <= m (cadeia da prova do teorema
-    #      de inaproximabilidade com o fator max{1, (1-eps) ln|U|}).
+    # (c2) Q' dominates (1 + ln|U|) * m: hence max{1, alpha} * t* <= (1+ln n)*m
+    #      < Q' for all alpha <= ln n and t* <= m (chain from the proof of the
+    #      inapproximability theorem with the factor max{1, (1-eps) ln|U|}).
     if not (Qp > (1 + math.log(n)) * m):
         failures.append((n, sets, "Q'=%d <= (1+ln(n))*m=%.4f"
                          % (Qp, (1 + math.log(n)) * m)))
 
     checks = 1
-    # (c3) toda solucao de custo < Q' cobre U  (enumeracao completa de D)
+    # (c3) every solution of cost < Q' covers U  (complete enumeration of D)
     for mask in range(1, 1 << m):
         depots = [j for j in range(m) if (mask >> j) & 1]
         c = mp_cost_given_depots(n, sets, Qp, depots)
         covers = all(any(u in sets[j] for j in depots) for u in range(n))
         checks += 1
         if c < Qp and not covers:
-            failures.append((n, sets, "D=%s custo=%d < Q'=%d mas nao cobre" % (depots, c, Qp)))
-        # (c3') se cobre, custo = |D| >= t*
+            failures.append((n, sets, "D=%s cost=%d < Q'=%d but does not cover" % (depots, c, Qp)))
+        # (c3') if it covers, cost = |D| >= t*
         if covers and c != len(depots):
-            failures.append((n, sets, "D cobre mas custo=%d != |D|=%d" % (c, len(depots))))
+            failures.append((n, sets, "D covers but cost=%d != |D|=%d" % (c, len(depots))))
 
-    # (c1) se cobrivel, OPT_MP(Q') = t*
+    # (c1) if coverable, OPT_MP(Q') = t*
     if tstar is not None:
         opt_mp = solve_mp_bruteforce(n, sets, Qp)
         checks += 1
@@ -179,9 +179,9 @@ def check_instance_A23_gap(n, sets, failures):
 
 
 def enumerate_all_families(max_n, max_m):
-    """Todas as familias (deduplicadas) de ate max_m subconjuntos distintos
-    de um universo de tamanho n, para n = 1..max_n. Combinacoes de conjuntos
-    DISTINTOS => sem familias duplicadas nem conjuntos repetidos."""
+    """All (deduplicated) families of up to max_m distinct subsets
+    of a universe of size n, for n = 1..max_n. Combinations of DISTINCT
+    sets => no duplicate families and no repeated sets."""
     for n in range(1, max_n + 1):
         candidates = [frozenset(c)
                       for r in range(n + 1)
@@ -207,36 +207,36 @@ def random_instances(count, max_n, max_m, seed):
 def main():
     failures = []
 
-    # (A) exaustivo |U| <= 4, |S| <= 4
+    # (A) exhaustive |U| <= 4, |S| <= 4
     n_inst_A = 0
     n_tests_A = 0
     for n, fam in enumerate_all_families(4, 4):
         n_inst_A += 1
         n_tests_A += check_instance_A21(n, fam, failures)
-    print("[A] exaustivo: %d instancias (|U|<=4, |S|<=4), %d testes de "
-          "equivalencia (todos os t em 1..m)" % (n_inst_A, n_tests_A))
+    print("[A] exhaustive: %d instances (|U|<=4, |S|<=4), %d equivalence "
+          "tests (all t in 1..m)" % (n_inst_A, n_tests_A))
 
-    # (B) aleatorio semeado |U| <= 6, |S| <= 6
+    # (B) seeded random |U| <= 6, |S| <= 6
     rand = random_instances(60, 6, 6, seed=20260710)
     n_tests_B = 0
     for n, fam in rand:
         n_tests_B += check_instance_A21(n, fam, failures)
-    print("[B] aleatorio: %d instancias (semente 20260710, |U|<=6, |S|<=6), "
-          "%d testes de equivalencia" % (len(rand), n_tests_B))
+    print("[B] random: %d instances (seed 20260710, |U|<=6, |S|<=6), "
+          "%d equivalence tests" % (len(rand), n_tests_B))
 
-    # (C) aritmetica do gap do teorema de inaproximabilidade nas mesmas instancias
+    # (C) gap arithmetic of the inapproximability theorem on the same instances
     n_checks_C = 0
     for n, fam in itertools.chain(enumerate_all_families(4, 4), rand):
         n_checks_C += check_instance_A23_gap(n, fam, failures)
-    print("[C] gap de inaproximabilidade: %d verificacoes (Q'=nm+m+1; OPT=t*; custo<Q' => cobre; "
+    print("[C] inapproximability gap: %d checks (Q'=nm+m+1; OPT=t*; cost<Q' => covers; "
           "Q'>(1+ln(n))*m)" % n_checks_C)
 
     if failures:
-        print("\nFALHAS (%d):" % len(failures))
+        print("\nFAILURES (%d):" % len(failures))
         for f in failures[:20]:
             print("  n=%d fam=%s : %s" % (f[0], [sorted(s) for s in f[1]], f[2]))
         sys.exit(1)
-    print("\nTODOS OS TESTES PASSARAM.")
+    print("\nALL TESTS PASSED.")
 
 
 if __name__ == "__main__":

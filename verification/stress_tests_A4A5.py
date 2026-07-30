@@ -1,34 +1,34 @@
 """
 Independent stress tests complementing verify_A4_* and verify_A5_*.
 
-TESTE 1 (estacionamento/saturacao na reducao da celula numerica, via PL
-  INDEPENDENTE): (C1)-(C4) em desigualdades PERMITEM fluxo x entrando em
-  deposito fechado (desperdicio), enquanto o oraculo MCMF proibe isso
-  estruturalmente (arco Din->Dout com cap 0); a bateria [A] de
-  verify_A5_R8ii nao exercita esse caso diretamente. Aqui:
-  forca bruta sobre TODOS os desenhos das instancias-imagem da reducao
-  da celula |K| = |L| = 1 usando scipy.linprog sobre o PL ORIGINAL em
-  desigualdades (que permite estacionar), e conferindo:
-    - OPT_LP == t* (min cover) quando cobrivel; OPT_LP >= Q+1 senao;
-    - "<=>" para todo t in {1..m};
-    - por desenho viavel: v_LP == Q * u(Z) (forma fechada do lema).
-  Familias: exaustivas pequenas + adversariais (conjunto vazio, elemento
-  descoberto, conjuntos duplicados, cobertura so com todos).
+TEST 1 (parking/saturation in the numeric-cell reduction, via an
+  INDEPENDENT LP): (C1)-(C4) in inequality form ALLOW flow x entering a
+  closed depot (waste), whereas the MCMF oracle forbids this
+  structurally (arc Din->Dout with cap 0); battery [A] of
+  verify_A5_R8ii does not exercise this case directly. Here:
+  brute force over ALL designs of the image instances of the
+  |K| = |L| = 1 cell reduction using scipy.linprog on the ORIGINAL LP in
+  inequality form (which allows parking), checking:
+    - OPT_LP == t* (min cover) when coverable; OPT_LP >= Q+1 otherwise;
+    - "<=>" for every t in {1..m};
+    - per feasible design: v_LP == Q * u(Z) (the lemma's closed form).
+  Families: small exhaustive + adversarial (empty set, uncovered
+  element, duplicate sets, cover only with all sets).
 
-TESTE 2 (testemunha protegida do B&B sob empates massivos):
-  B&B com P1+P2+P3 vs forca bruta em instancias com empates maximos:
-  todos os valores em {0,1}(ou {0,1,2}), capacidades ZERO permitidas
-  (instalacao aberta que nunca transporta — estresse maximo de P3),
-  f=g=0, c=d=0, e combinacoes. Todas as cardinalidades k.
+TEST 2 (protected witness of the B&B under massive ties):
+  B&B with P1+P2+P3 vs brute force on instances with maximal ties:
+  all values in {0,1} (or {0,1,2}), ZERO capacities allowed
+  (open facility that never carries flow -- maximum stress for P3),
+  f=g=0, c=d=0, and combinations. All cardinalities k.
 
-TESTE 3 (validade do corte de Benders em TODOS os desenhos + raios
-  NUMERICOS):
-  Em instancias pequenas: dual otimo u* obtido num desenho gerador
-  viavel; checa o corte em TODOS os 2^n desenhos (viaveis: v >= rhs;
-  inviaveis: dual ilimitado — conferido por status). E o teste NAO
-  tautologico dos raios r1/r2: u* + theta*r_i deve ser dual-viavel
-  (todas as |I||J|+|J||K| restricoes verificadas numericamente) e o
-  objetivo deve crescer exatamente theta*(D_l - cap_side).
+TEST 3 (validity of the Benders cut on ALL designs + NUMERIC
+  rays):
+  On small instances: optimal dual u* obtained at a feasible generator
+  design; checks the cut on ALL 2^n designs (feasible: v >= rhs;
+  infeasible: unbounded dual -- verified via status). And the NON
+  tautological test of rays r1/r2: u* + theta*r_i must be dual-feasible
+  (all |I||J|+|J||K| constraints verified numerically) and the
+  objective must grow by exactly theta*(D_l - cap_side).
 """
 
 import itertools
@@ -50,15 +50,15 @@ FAILS = []
 def check(cond, msg):
     if not cond:
         FAILS.append(msg)
-        print("FALHA:", msg)
+        print("FAILURE:", msg)
 
 
 # ---------------------------------------------------------------------------
-# TESTE 1
+# TEST 1
 # ---------------------------------------------------------------------------
 
 def lp_cell(inst, y, z):
-    """PL residual |K|=|L|=1 em DESIGUALDADES (permite estacionamento)."""
+    """Residual LP |K|=|L|=1 in INEQUALITY form (allows parking)."""
     nI, nJ = inst["nI"], inst["nJ"]
     D = inst["q"][0][0]
     nx = nI * nJ
@@ -105,14 +105,14 @@ def attack1_family(nU, fam, counters):
             feas, v = lp_cell(inst, y, z)
             pred_feas = (my == full_I) and (mz != 0)
             check(feas == pred_feas,
-                  f"A1 viab LP fam={fam} nU={nU} my={my} mz={mz}: "
-                  f"lp={feas} prevista={pred_feas}")
+                  f"A1 LP feas fam={fam} nU={nU} my={my} mz={mz}: "
+                  f"lp={feas} predicted={pred_feas}")
             counters["desenhos"] += 1
             if feas:
                 pred_v = Q * uncovered(nU, fam, mz)
                 check(abs(v - pred_v) <= 1e-6,
-                      f"A1 lema LP fam={fam} nU={nU} mz={mz}: "
-                      f"v_lp={v} previsto={pred_v} (estacionamento?)")
+                      f"A1 LP lemma fam={fam} nU={nU} mz={mz}: "
+                      f"v_lp={v} predicted={pred_v} (parking?)")
                 total = bin(mz).count("1") + v
                 opt = min(opt, total)
     tstar = min_cover(nU, fam)
@@ -129,19 +129,19 @@ def attack1_family(nU, fam, counters):
 
 def attack1():
     counters = {"desenhos": 0, "iff": 0, "familias": 0}
-    # exaustiva pequena (|U| <= 3, m <= 3)
+    # small exhaustive (|U| <= 3, m <= 3)
     for nU in range(1, 4):
         subsets = list(range(1 << nU))
         for m in range(1, 4):
             for fam in itertools.combinations(subsets, m):
                 counters["familias"] += 1
                 attack1_family(nU, fam, counters)
-    # adversariais dirigidas (nU=4)
+    # targeted adversarial (nU=4)
     adv = [
-        (4, (0, 0b1111, 0b0001)),          # conjunto vazio + universo
-        (4, (0b0011, 0b0101, 0b0110)),     # elemento 3 descoberto
-        (4, (0b0111, 0b0111, 0b1000)),     # duplicados
-        (4, (0b1000, 0b0100, 0b0010, 0b0001)),  # so cobre com todos (t*=4=m)
+        (4, (0, 0b1111, 0b0001)),          # empty set + universe
+        (4, (0b0011, 0b0101, 0b0110)),     # element 3 uncovered
+        (4, (0b0111, 0b0111, 0b1000)),     # duplicates
+        (4, (0b1000, 0b0100, 0b0010, 0b0001)),  # covers only with all (t*=4=m)
         (4, (0b1111,)),                    # m=1, t*=1
     ]
     for nU, fam in adv:
@@ -151,7 +151,7 @@ def attack1():
 
 
 # ---------------------------------------------------------------------------
-# TESTE 2
+# TEST 2
 # ---------------------------------------------------------------------------
 
 def attack2(n=240, seed0=555000):
@@ -172,18 +172,18 @@ def attack2(n=240, seed0=555000):
                    for _ in range(nJ)] for _ in range(nI)],
             "d": [[[rng.randint(0, vmax) for _ in range(nL)]
                    for _ in range(nK)] for _ in range(nJ)],
-            # capacidades ZERO permitidas (instalacoes inuteis abertas)
+            # ZERO capacities allowed (useless open facilities)
             "b": [[rng.randint(0, 3) for _ in range(nL)] for _ in range(nI)],
             "p": [[rng.randint(0, 3) for _ in range(nL)] for _ in range(nJ)],
             "q": [[rng.randint(0, 2) for _ in range(nL)] for _ in range(nK)],
         }
-        if mode == 1:       # f=g=0 (estresse P3, empates de otimo)
+        if mode == 1:       # f=g=0 (P3 stress, optimum ties)
             inst["f"] = [0] * nI
             inst["g"] = [0] * nJ
-        if mode == 2:       # c=d=0 (estresse P1)
+        if mode == 2:       # c=d=0 (P1 stress)
             inst["c"] = [[[0] * nL for _ in range(nJ)] for _ in range(nI)]
             inst["d"] = [[[0] * nL for _ in range(nK)] for _ in range(nJ)]
-        if mode == 3:       # tudo zero exceto capacidades (empate total)
+        if mode == 3:       # all zero except capacities (total tie)
             inst["f"] = [0] * nI
             inst["g"] = [0] * nJ
             inst["c"] = [[[0] * nL for _ in range(nJ)] for _ in range(nI)]
@@ -201,7 +201,7 @@ def attack2(n=240, seed0=555000):
 
 
 # ---------------------------------------------------------------------------
-# TESTE 3
+# TEST 3
 # ---------------------------------------------------------------------------
 
 def dual_lp_full(inst, l, y, z):
@@ -243,7 +243,7 @@ def attack3(n_inst=25, seed0=777000):
     n_cut = n_ray = n_unb = 0
     for t in range(n_inst):
         inst = gen_instance(seed0 + t, max_i=3, max_j=3, max_k=3, max_l=2)
-        # capacidades x2 para ter geradores viaveis com folga moderada
+        # capacities x2 to get feasible generators with moderate slack
         if t % 2:
             inst["b"] = [[v * 2 for v in r] for r in inst["b"]]
             inst["p"] = [[v * 2 for v in r] for r in inst["p"]]
@@ -258,13 +258,13 @@ def attack3(n_inst=25, seed0=777000):
                 continue
             st, vd, u, (A, rhs) = dual_lp_full(inst, l, y1, z1)
             check(st == 0 and abs(vd - v1) <= 1e-6,
-                  f"A3 dualidade inst={t} l={l}")
+                  f"A3 duality inst={t} l={l}")
             if st != 0:
                 continue
             alpha = u[:nK]
             gamma = u[nK + nJ: nK + nJ + nI]
             delta = u[nK + nJ + nI:]
-            # corte em TODOS os desenhos
+            # cut on ALL designs
             for my in range(1 << nI):
                 for mz in range(1 << nJ):
                     y2 = [(my >> i) & 1 for i in range(nI)]
@@ -279,15 +279,15 @@ def attack3(n_inst=25, seed0=777000):
                     if feas2:
                         n_cut += 1
                         check(v2 >= rhs_cut - 1e-5,
-                              f"A3 corte inst={t} l={l} my={my} mz={mz}: "
+                              f"A3 cut inst={t} l={l} my={my} mz={mz}: "
                               f"v={v2} < rhs={rhs_cut}")
                     else:
                         st2, _, _, _ = dual_lp_full(inst, l, y2, z2)
                         n_unb += 1
                         check(st2 == 3,
-                              f"A3 dual nao ilimitado inst={t} l={l} "
+                              f"A3 dual not unbounded inst={t} l={l} "
                               f"my={my} mz={mz}: status={st2}")
-            # raios NUMERICOS: u* + theta r_i dual-viavel; objetivo linear
+            # NUMERIC rays: u* + theta r_i dual-feasible; linear objective
             nv = nK + nJ + nI + nJ
             r1 = np.zeros(nv); r2 = np.zeros(nv)
             r1[:nK] = 1.0                                # alpha
@@ -302,35 +302,35 @@ def attack3(n_inst=25, seed0=777000):
                     pt = u + theta * ray
                     n_ray += 1
                     check(np.all(A @ pt <= rhs + 1e-7),
-                          f"A3 raio fora do poliedro inst={t} l={l} "
+                          f"A3 ray outside the polyhedron inst={t} l={l} "
                           f"theta={theta}")
-                    # objetivo dual em pt (max) = vd + theta*slope
+                    # dual objective at pt (max) = vd + theta*slope
                     objv = sum(inst["q"][k][l] * pt[k] for k in range(nK)) \
                         - sum(inst["b"][i][l] * y1[i] *
                               pt[nK + nJ + i] for i in range(nI)) \
                         - sum(inst["p"][j][l] * z1[j] *
                               pt[nK + nJ + nI + j] for j in range(nJ))
                     check(abs(objv - (vd + theta * slope)) <= 1e-5,
-                          f"A3 inclinacao inst={t} l={l} theta={theta}: "
+                          f"A3 slope inst={t} l={l} theta={theta}: "
                           f"{objv} != {vd + theta * slope}")
     return n_cut, n_ray, n_unb
 
 
 def main():
-    print("== TESTE 1: reducao da celula numerica via PL em desigualdades (estacionamento) ==")
+    print("== TEST 1: numeric-cell reduction via LP in inequality form (parking) ==")
     c1 = attack1()
-    print(f"  familias {c1['familias']}  desenhos-LP {c1['desenhos']}  "
+    print(f"  families {c1['familias']}  LP-designs {c1['desenhos']}  "
           f"iff {c1['iff']}")
-    print("== TESTE 2: B&B sob empates massivos / capacidade 0 ==")
+    print("== TEST 2: B&B under massive ties / capacity 0 ==")
     c2 = attack2()
-    print(f"  comparacoes {c2}")
-    print("== TESTE 3: cortes exaustivos + raios numericos ==")
+    print(f"  comparisons {c2}")
+    print("== TEST 3: exhaustive cuts + numeric rays ==")
     ncut, nray, nunb = attack3()
-    print(f"  cortes {ncut}  raios {nray}  ilimitados {nunb}")
+    print(f"  cuts {ncut}  rays {nray}  unbounded {nunb}")
     if FAILS:
-        print(f"\nRESULTADO: {len(FAILS)} FALHAS")
+        print(f"\nRESULT: {len(FAILS)} FAILURES")
         sys.exit(1)
-    print("\nRESULTADO: PASS (0 falhas)")
+    print("\nRESULT: PASS (0 failures)")
 
 
 if __name__ == "__main__":

@@ -1,48 +1,48 @@
 """
-Exploracao computacional do problema aberto do artigo sobre a celula
-|K| = |L| = 1 com custos de transporte gerais.
+Computational exploration of the paper's open problem on the cell
+|K| = |L| = 1 with general transport costs.
 
-Celula: |K| = |L| = 1, custos de transporte GERAIS (c_ij, d_j), |I| e |J|
-livres. Escrevemos c^(Y,Z) := f(Y) + g(Z) + v(Y,Z) para o custo total do
-desenho (Y,Z), com c^ = +infinito se o desenho e' inviavel, e v(Y,Z) o
-valor do PL residual (oraculo MCMF de roteamento, implementacao inteira
-exata de common_mp_tscfl.py).
+Cell: |K| = |L| = 1, GENERAL transport costs (c_ij, d_j), |I| and |J|
+free. We write c^(Y,Z) := f(Y) + g(Z) + v(Y,Z) for the total cost of
+design (Y,Z), with c^ = +infinity if the design is infeasible, and v(Y,Z)
+the value of the residual LP (MCMF routing oracle, exact integer
+implementation from common_mp_tscfl.py).
 
-Baterias (todas com sementes fixas; contagens impressas ao final):
+Batteries (all with fixed seeds; counts printed at the end):
 
-  [S]   Sub/supermodularidade de c^(Y,Z) e de v(Y,Z) no reticulado
-        produto 2^I x 2^J (join = uniao, meet = intersecao).
-        MOTIVACAO: se c^ fosse submodular, a minimizacao de funcao
-        submodular (poli, Groetschel-Lovasz-Schrijver) resolveria
-        o problema aberto POSITIVAMENTE. Testamos primeiro por ser decisivo.
-        Obstrucao estrutural registrada a parte: com A e B viaveis o
-        meet pode ser inviavel (c^(meet) = +inf), o que ja viola a
-        desigualdade submodular; contamos tambem violacoes com os
-        QUATRO pontos finitos, que sao a evidencia limpa.
+  [S]   Sub/supermodularity of c^(Y,Z) and of v(Y,Z) on the product
+        lattice 2^I x 2^J (join = union, meet = intersection).
+        MOTIVATION: if c^ were submodular, submodular function
+        minimization (poly, Groetschel-Lovasz-Schrijver) would settle
+        the open problem POSITIVELY. Tested first because it is decisive.
+        Structural obstruction recorded separately: with A and B feasible
+        the meet can be infeasible (c^(meet) = +inf), which already
+        violates the submodular inequality; we also count violations with
+        all FOUR points finite, which are the clean evidence.
 
-  [P]   Invariante de prefixo: existe desenho otimo cujo conjunto Y
-        (resp. Z) e' prefixo sob ordenacoes naturais? Ordenacoes do
-        lado I: (P1) f_i crescente; (P2) f_i/b_i crescente;
-        (P3) (f_i + b_i * mincusto_i)/b_i crescente, onde
-        mincusto_i = min_j (c_ij + d_j). Lado J: simetricas.
-        Teste de prefixo tolerante a empates: Y passa sse
-        max_{i in Y} chave_i <= min_{i not in Y} chave_i.
+  [P]   Prefix invariant: is there an optimal design whose set Y
+        (resp. Z) is a prefix under natural orderings? Orderings on
+        side I: (P1) f_i increasing; (P2) f_i/b_i increasing;
+        (P3) (f_i + b_i * mincost_i)/b_i increasing, where
+        mincost_i = min_j (c_ij + d_j). Side J: symmetric.
+        Tie-tolerant prefix test: Y passes iff
+        max_{i in Y} key_i <= min_{i not in Y} key_i.
 
-  [G]   Heuristica desacoplada: escolher Y minimizando f(Y) sujeito a
-        sum b_i >= D e Z minimizando g(Z) sujeito a sum p_j >= D
-        (ignorando o transporte), depois rotear otimamente. Comparar
-        com OPT (forca bruta): contamos falhas estritas.
+  [G]   Decoupled heuristic: choose Y minimizing f(Y) subject to
+        sum b_i >= D and Z minimizing g(Z) subject to sum p_j >= D
+        (ignoring transport), then route optimally. Compare
+        with OPT (brute force): we count strict failures.
 
-  [SEP] Sanidade da proposicao dos custos separaveis: em instancias com
-        custos SEPARAVEIS
-        c_ij = gamma_i + delta_j, o par de DPs desacoplados (lado I com
-        (f_i, gamma_i, b_i); lado J com (g_j, delta_j + d_j, p_j)) deve
-        coincidir EXATAMENTE com a forca bruta. (A verificacao formal
-        da proposicao esta em verify_A5_R8ii.py; aqui e' o farol da
-        exploracao.)
+  [SEP] Sanity of the separable-costs proposition: on instances with
+        SEPARABLE costs
+        c_ij = gamma_i + delta_j, the pair of decoupled DPs (side I with
+        (f_i, gamma_i, b_i); side J with (g_j, delta_j + d_j, p_j)) must
+        match the brute force EXACTLY. (The formal verification
+        of the proposition is in verify_A5_R8ii.py; here it is the
+        exploration's beacon.)
 
-Forca bruta: enumeracao de TODOS os desenhos (y,z) + oraculo MCMF
-inteiro (routing_value). Nenhuma forma fechada e' usada como fonte.
+Brute force: enumeration of ALL designs (y,z) + integer MCMF
+oracle (routing_value). No closed form is used as a source.
 """
 
 import random
@@ -54,7 +54,7 @@ INF = float("inf")
 
 
 # ---------------------------------------------------------------------------
-# Instancias da celula |K| = |L| = 1
+# Instances of the cell |K| = |L| = 1
 # ---------------------------------------------------------------------------
 
 def make_inst(f, g, b, p, c, d, D):
@@ -71,7 +71,7 @@ def make_inst(f, g, b, p, c, d, D):
 
 
 def gen_cell(seed, max_i=4, max_j=4, vmax=8, capmax=10, dcap=25):
-    """Instancia aleatoria da celula, sempre viavel com tudo aberto."""
+    """Random instance of the cell, always feasible with everything open."""
     rng = random.Random(seed)
     nI = rng.randint(1, max_i)
     nJ = rng.randint(1, max_j)
@@ -86,8 +86,8 @@ def gen_cell(seed, max_i=4, max_j=4, vmax=8, capmax=10, dcap=25):
 
 
 def value_table(inst):
-    """(custo total, custo de roteamento) de todos os desenhos; INF se
-    inviavel. Fonte: oraculo MCMF, desenho a desenho."""
+    """(total cost, routing cost) of all designs; INF if
+    infeasible. Source: MCMF oracle, design by design."""
     nI, nJ = inst["nI"], inst["nJ"]
     tab = {}
     for my in range(1 << nI):
@@ -105,13 +105,13 @@ def value_table(inst):
 
 
 # ---------------------------------------------------------------------------
-# [S] sub/supermodularidade no reticulado produto
+# [S] sub/supermodularity on the product lattice
 # ---------------------------------------------------------------------------
 
 def battery_S(inst_list):
     cnt = {
         "quadruplas_AB_finitas": 0,
-        "meet_inviavel": 0,          # c^(A), c^(B) finitos, meet = +inf
+        "meet_inviavel": 0,          # c^(A), c^(B) finite, meet = +inf
         "quatro_finitos": 0,
         "viol_submod_chat": 0,       # c^(join)+c^(meet) > c^(A)+c^(B)
         "viol_supermod_chat": 0,     # c^(join)+c^(meet) < c^(A)+c^(B)
@@ -152,7 +152,7 @@ def battery_S(inst_list):
                     cnt["viol_supermod_chat"] += 1
                     if first_super is None:
                         first_super = (seed, A, B, J, M, cA, cB, cJ, cM)
-                # roteamento puro
+                # pure routing
                 cnt["quatro_finitos_v"] += 1
                 lv, rv = vJ + vM, vA + vB
                 if lv > rv:
@@ -163,11 +163,11 @@ def battery_S(inst_list):
 
 
 # ---------------------------------------------------------------------------
-# [P] invariante de prefixo
+# [P] prefix invariant
 # ---------------------------------------------------------------------------
 
 def prefix_ok(keys, members, universe):
-    """Y e' prefixo (tolerante a empates) sob a ordenacao por chaves."""
+    """Y is a prefix (tie-tolerant) under the ordering by keys."""
     inside = [keys[i] for i in universe if i in members]
     outside = [keys[i] for i in universe if i not in members]
     if not inside or not outside:
@@ -225,7 +225,7 @@ def battery_P(inst_list):
 
 
 # ---------------------------------------------------------------------------
-# [G] heuristica desacoplada vs OPT
+# [G] decoupled heuristic vs OPT
 # ---------------------------------------------------------------------------
 
 def battery_G(inst_list):
@@ -243,7 +243,7 @@ def battery_G(inst_list):
         D = inst["q"][0][0]
         b = [inst["b"][i][0] for i in range(nI)]
         p = [inst["p"][j][0] for j in range(nJ)]
-        # lado I: min f(Y) s.a. sum_{i in Y} b_i >= D (forca bruta)
+        # side I: min f(Y) s.t. sum_{i in Y} b_i >= D (brute force)
         bestY = min((my for my in range(1 << nI)
                      if sum(b[i] for i in range(nI) if my >> i & 1) >= D),
                     key=lambda my: (sum(inst["f"][i] for i in range(nI)
@@ -255,7 +255,7 @@ def battery_G(inst_list):
                                         if mz >> j & 1), bin(mz).count("1"),
                                     mz))
         heur = tab[(bestY, bestZ)][0]
-        assert heur < INF  # condicao agregada => viavel (caracterizacao de viabilidade)
+        assert heur < INF  # aggregate condition => feasible (feasibility characterization)
         assert heur >= opt
         if heur > opt:
             n_fail += 1
@@ -266,12 +266,12 @@ def battery_G(inst_list):
 
 
 # ---------------------------------------------------------------------------
-# [SEP] custos separaveis: DPs desacoplados == forca bruta
+# [SEP] separable costs: decoupled DPs == brute force
 # ---------------------------------------------------------------------------
 
 def side_dp(items, D):
-    """min sum_{i in S} (F_i + gam_i * u_i) com u_i in [1..cap_i] p/ i em S,
-    sum u_i = D. items = lista de (F, gam, cap)."""
+    """min sum_{i in S} (F_i + gam_i * u_i) with u_i in [1..cap_i] for i in S,
+    sum u_i = D. items = list of (F, gam, cap)."""
     T = [0] + [INF] * D
     for (F, gam, cap) in items:
         newT = list(T)
@@ -287,10 +287,10 @@ def side_dp(items, D):
 
 
 def side_dp_deque(items, D):
-    """Mesmo problema de side_dp em O(len(items) * D) via minimo de janela
-    deslizante com deque monotonica (substituicao t = s - u, chave
-    T[t] - gam * t), valida para gam de qualquer sinal. Entradas INF nao
-    entram na deque, nunca atingem minimo finito."""
+    """Same problem as side_dp in O(len(items) * D) via sliding-window
+    minimum with a monotone deque (substitution t = s - u, key
+    T[t] - gam * t), valid for gam of either sign. INF entries do not
+    enter the deque, never attain a finite minimum."""
     from collections import deque
     T = [0] + [INF] * D
     for (F, gam, cap) in items:
@@ -315,8 +315,8 @@ def side_dp_deque(items, D):
 
 
 def battery_DEQ(n=600, seed0=8000):
-    """side_dp_deque == side_dp em listas aleatorias, gam com ambos os
-    sinais, capacidades e D variados, incluindo casos inviaveis."""
+    """side_dp_deque == side_dp on random lists, gam of both
+    signs, varied capacities and D, including infeasible cases."""
     n_ok = n_bad = 0
     for s in range(seed0, seed0 + n):
         rng = random.Random(s)
@@ -329,7 +329,7 @@ def battery_DEQ(n=600, seed0=8000):
             n_ok += 1
         else:
             n_bad += 1
-            print(f"  [DEQ] DIVERGENCIA seed={s}: naive={a} deque={b}")
+            print(f"  [DEQ] MISMATCH seed={s}: naive={a} deque={b}")
     return n_ok, n_bad
 
 
@@ -363,7 +363,7 @@ def battery_SEP(n=60, seed0=7000):
         if r < 0.1:
             D = 0
         elif r < 0.25:
-            D = max(sum(b), sum(p)) + rng.randint(1, 5)   # inviavel
+            D = max(sum(b), sum(p)) + rng.randint(1, 5)   # infeasible
         else:
             D = rng.randint(1, min(sum(b), sum(p)))
         inst = make_inst(f, g, b, p, c, d, D)
@@ -374,7 +374,7 @@ def battery_SEP(n=60, seed0=7000):
             n_ok += 1
         else:
             n_bad += 1
-            print(f"  [SEP] DIVERGENCIA seed={s}: bruta={opt} dp={dpval}")
+            print(f"  [SEP] MISMATCH seed={s}: brute={opt} dp={dpval}")
     return n_ok, n_bad
 
 
@@ -384,47 +384,47 @@ def battery_SEP(n=60, seed0=7000):
 
 def main():
     okd, badd = battery_DEQ()
-    print(f"== [DEQ] janela deslizante vs DP ingenuo: {okd} ok, {badd} divergencias ==")
-    # 150 instancias 4x4 + 40 instancias 5x5 (sementes fixas)
+    print(f"== [DEQ] sliding window vs naive DP: {okd} ok, {badd} mismatches ==")
+    # 150 4x4 instances + 40 5x5 instances (fixed seeds)
     small = [(s, gen_cell(s, 4, 4)) for s in range(1000, 1150)]
     big = [(s, gen_cell(s, 5, 5)) for s in range(2000, 2040)]
     todas = small + big
 
-    print("== [S] sub/supermodularidade de c^ e v no reticulado 2^I x 2^J ==")
+    print("== [S] sub/supermodularity of c^ and v on the lattice 2^I x 2^J ==")
     cnt, first_sub, first_super = battery_S(todas)
     for k, v in cnt.items():
         print(f"  {k}: {v}")
     if first_sub:
         s, A, B, J, M, cA, cB, cJ, cM = first_sub
-        print(f"  primeiro contraexemplo SUBmodularidade (4 pontos finitos):")
+        print(f"  first SUBmodularity counterexample (4 finite points):")
         print(f"    seed={s} A={A} B={B} join={J} meet={M}")
         print(f"    c^(A)={cA} c^(B)={cB} c^(join)={cJ} c^(meet)={cM} "
               f"(lhs={cJ+cM} > rhs={cA+cB})")
     if first_super:
         s, A, B, J, M, cA, cB, cJ, cM = first_super
-        print(f"  primeiro contraexemplo SUPERmodularidade:")
+        print(f"  first SUPERmodularity counterexample:")
         print(f"    seed={s} A={A} B={B} join={J} meet={M}")
         print(f"    c^(A)={cA} c^(B)={cB} c^(join)={cJ} c^(meet)={cM} "
               f"(lhs={cJ+cM} < rhs={cA+cB})")
 
-    print("== [P] invariante de prefixo em desenhos otimos ==")
+    print("== [P] prefix invariant on optimal designs ==")
     n_inst, fail, exemplos = battery_P(todas)
-    print(f"  instancias com OPT finito: {n_inst}")
+    print(f"  instances with finite OPT: {n_inst}")
     for nome in fail:
-        print(f"  ordenacao {nome}: {fail[nome]} instancias sem NENHUM "
-              f"otimo-prefixo (primeiro seed: {exemplos[nome]})")
+        print(f"  ordering {nome}: {fail[nome]} instances without ANY "
+              f"prefix-optimum (first seed: {exemplos[nome]})")
 
-    print("== [G] heuristica desacoplada (ignora transporte) vs OPT ==")
+    print("== [G] decoupled heuristic (ignores transport) vs OPT ==")
     n_inst, n_fail, max_gap, exemplo = battery_G(todas)
-    print(f"  instancias: {n_inst}; falhas estritas: {n_fail}; "
-          f"gap maximo: {max_gap}; exemplo: {exemplo}")
+    print(f"  instances: {n_inst}; strict failures: {n_fail}; "
+          f"maximum gap: {max_gap}; example: {exemplo}")
 
-    print("== [SEP] custos separaveis c_ij = gamma_i + delta_j ==")
+    print("== [SEP] separable costs c_ij = gamma_i + delta_j ==")
     n_ok, n_bad = battery_SEP()
-    print(f"  coincidencia DP desacoplado == forca bruta: {n_ok} ok, "
-          f"{n_bad} divergencias")
+    print(f"  decoupled DP == brute force agreement: {n_ok} ok, "
+          f"{n_bad} mismatches")
 
-    print("== exploracao concluida ==")
+    print("== exploration completed ==")
 
 
 if __name__ == "__main__":

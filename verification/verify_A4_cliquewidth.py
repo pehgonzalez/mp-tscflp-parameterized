@@ -1,43 +1,43 @@
 """
-Verificacao da observacao de clique-width do artigo (clique-width do grafo de incidencia).
+Verification of the paper's clique-width observation (clique-width of the incidence graph).
 
-O grafo de incidencia de uma instancia MP-TSCFLP (estagios completos) e
-    G(nI, nJ, nK) = (I ∪ J ∪ K,  K_{I,J} ∪ K_{J,K}),
-isto e, todas as arestas fabrica-deposito e deposito-cliente, nenhuma outra.
+The incidence graph of an MP-TSCFLP instance (complete stages) is
+    G(nI, nJ, nK) = (I u J u K,  K_{I,J} u K_{J,K}),
+that is, all plant-depot and depot-customer edges, no others.
 
-Checagens (todas construtivas, sobre o conjunto EXATO de arestas):
+Checks (all constructive, on the EXACT edge set):
 
-  [1] A 3-expressao "por camadas" da observacao de clique-width do artigo
-          eta_{2,3}( eta_{1,2}( ⊕_I 1(v) ⊕ ⊕_J 2(v) ⊕ ⊕_K 3(v) ) )
-      gera exatamente K_{I,J} ∪ K_{J,K} (nem uma aresta a mais, nem a menos),
-      usando exatamente 3 rotulos. Isto vale tambem para a estrutura
-      TIPADA (I, J, K distinguiveis pelos rotulos finais 1, 2, 3).
+  [1] The "layered" 3-expression from the paper's clique-width observation
+          eta_{2,3}( eta_{1,2}( oplus_I 1(v) oplus oplus_J 2(v) oplus oplus_K 3(v) ) )
+      generates exactly K_{I,J} u K_{J,K} (not one edge more, not one less),
+      using exactly 3 labels. This also holds for the TYPED
+      structure (I, J, K distinguishable by the final labels 1, 2, 3).
 
-  [2] A 2-expressao
-          eta_{1,2}( ⊕_J 2(v) ⊕ ⊕_{I∪K} 1(v) )
-      gera o mesmo conjunto de arestas — pois, como grafo simples,
-      G(nI,nJ,nK) = K_{|J|, |I|+|K|} (bipartido completo entre J e I∪K).
-      Isso valida cwd(G) ≤ 2; como G tem >= 1 aresta quando nJ >= 1 e
-      nI+nK >= 1, cwd(G) = 2 (grafos de cwd 1 sao sem arestas).
+  [2] The 2-expression
+          eta_{1,2}( oplus_J 2(v) oplus oplus_{I u K} 1(v) )
+      generates the same edge set -- since, as a simple graph,
+      G(nI,nJ,nK) = K_{|J|, |I|+|K|} (complete bipartite between J and I u K).
+      This validates cwd(G) <= 2; since G has >= 1 edge when nJ >= 1 and
+      nI+nK >= 1, cwd(G) = 2 (graphs of cwd 1 are edgeless).
 
-  [3] Igualdade estrutural: o conjunto-alvo K_{I,J} ∪ K_{J,K} coincide com
-      o bipartido completo J vs I∪K (a identidade usada em [2]).
+  [3] Structural equality: the target set K_{I,J} u K_{J,K} coincides with
+      the complete bipartite J vs I u K (the identity used in [2]).
 
-Tamanhos testados: todos (nI,nJ,nK) em {1..4}^3, mais casos maiores e
-degenerados. As operacoes de clique-width (criacao rotulada, uniao
-disjunta ⊕, juncao eta_{a,b}, renomeacao rho) sao implementadas
-literalmente (Courcelle–Olariu 2000).
+Sizes tested: all (nI,nJ,nK) in {1..4}^3, plus larger and
+degenerate cases. The clique-width operations (labeled creation, disjoint
+union oplus, join eta_{a,b}, relabeling rho) are implemented
+literally (Courcelle-Olariu 2000).
 """
 
 import itertools
 
 
 # ---------------------------------------------------------------------------
-# Operacoes de clique-width sobre grafos rotulados
+# Clique-width operations on labeled graphs
 # ---------------------------------------------------------------------------
 
 class LG:
-    """Grafo rotulado: lab[v] = rotulo; edges = conjunto de frozensets."""
+    """Labeled graph: lab[v] = label; edges = set of frozensets."""
 
     def __init__(self):
         self.lab = {}
@@ -51,8 +51,8 @@ def single(v, label):
 
 
 def oplus(g, h):
-    """Uniao disjunta (os nomes de vertices ja sao distintos por construcao)."""
-    assert not (set(g.lab) & set(h.lab)), "uniao nao disjunta"
+    """Disjoint union (vertex names are already distinct by construction)."""
+    assert not (set(g.lab) & set(h.lab)), "union not disjoint"
     r = LG()
     r.lab = dict(g.lab)
     r.lab.update(h.lab)
@@ -61,7 +61,7 @@ def oplus(g, h):
 
 
 def eta(g, a, b):
-    """Adiciona todas as arestas entre rotulo a e rotulo b (a != b)."""
+    """Adds all edges between label a and label b (a != b)."""
     assert a != b
     r = LG()
     r.lab = dict(g.lab)
@@ -75,8 +75,8 @@ def eta(g, a, b):
 
 
 def rho(g, a, b):
-    """Renomeia rotulo a -> b (nao usada nas expressoes finais; incluida
-    por completude da assinatura de operacoes)."""
+    """Relabels a -> b (not used in the final expressions; included
+    for completeness of the operation signature)."""
     r = LG()
     r.lab = {v: (b if l == a else l) for v, l in g.lab.items()}
     r.edges = set(g.edges)
@@ -84,11 +84,11 @@ def rho(g, a, b):
 
 
 # ---------------------------------------------------------------------------
-# Alvo e expressoes
+# Target and expressions
 # ---------------------------------------------------------------------------
 
 def target_edges(nI, nJ, nK):
-    """K_{I,J} ∪ K_{J,K} — o grafo de incidencia pretendido."""
+    """K_{I,J} u K_{J,K} -- the intended incidence graph."""
     E = set()
     for i in range(nI):
         for j in range(nJ):
@@ -100,7 +100,7 @@ def target_edges(nI, nJ, nK):
 
 
 def bipartite_J_vs_IK(nI, nJ, nK):
-    """Bipartido completo entre J e I ∪ K (identidade da checagem [3])."""
+    """Complete bipartite between J and I u K (identity of check [3])."""
     E = set()
     side = [("I", i) for i in range(nI)] + [("K", k) for k in range(nK)]
     for j in range(nJ):
@@ -110,7 +110,7 @@ def bipartite_J_vs_IK(nI, nJ, nK):
 
 
 def expr_3_labels(nI, nJ, nK):
-    """eta_{2,3}(eta_{1,2}( ⊕ 1(I) ⊕ 2(J) ⊕ 3(K) ))."""
+    """eta_{2,3}(eta_{1,2}( oplus 1(I) oplus 2(J) oplus 3(K) ))."""
     g = LG()
     for i in range(nI):
         g = oplus(g, single(("I", i), 1))
@@ -124,7 +124,7 @@ def expr_3_labels(nI, nJ, nK):
 
 
 def expr_2_labels(nI, nJ, nK):
-    """eta_{1,2}( ⊕ 2(J) ⊕ 1(I ∪ K) )."""
+    """eta_{1,2}( oplus 2(J) oplus 1(I u K) )."""
     g = LG()
     for j in range(nJ):
         g = oplus(g, single(("J", j), 2))
@@ -137,7 +137,7 @@ def expr_2_labels(nI, nJ, nK):
 
 
 # ---------------------------------------------------------------------------
-# Bateria
+# Battery
 # ---------------------------------------------------------------------------
 
 def main():
@@ -150,25 +150,25 @@ def main():
     for (nI, nJ, nK) in sizes:
         E_target = target_edges(nI, nJ, nK)
 
-        # [1] 3-expressao por camadas
+        # [1] layered 3-expression
         g3 = expr_3_labels(nI, nJ, nK)
         ok1 = (g3.edges == E_target)
         labels3 = set(g3.lab.values())
         ok1b = (labels3 <= {1, 2, 3})
-        # rotulos finais preservam a tipagem I/J/K
+        # final labels preserve the I/J/K typing
         ok1c = all(g3.lab[("I", i)] == 1 for i in range(nI)) and \
                all(g3.lab[("J", j)] == 2 for j in range(nJ)) and \
                all(g3.lab[("K", k)] == 3 for k in range(nK))
 
-        # [2] 2-expressao (bipartido completo)
+        # [2] 2-expression (complete bipartite)
         g2 = expr_2_labels(nI, nJ, nK)
         ok2 = (g2.edges == E_target)
         ok2b = (set(g2.lab.values()) <= {1, 2})
 
-        # [3] identidade estrutural
+        # [3] structural identity
         ok3 = (E_target == bipartite_J_vs_IK(nI, nJ, nK))
 
-        # sanidade: nenhuma aresta I-I, J-J, K-K, I-K nas expressoes
+        # sanity: no I-I, J-J, K-K, I-K edges in the expressions
         def no_bad(E):
             for e in E:
                 (t1, _), (t2, _) = tuple(e)
@@ -179,23 +179,23 @@ def main():
             return True
         ok4 = no_bad(g3.edges) and no_bad(g2.edges)
 
-        # contagem exata de arestas
+        # exact edge count
         ok5 = (len(g3.edges) == nI * nJ + nJ * nK)
 
-        for ok, name in [(ok1, "3-expr == alvo"), (ok1b, "3 rotulos"),
-                         (ok1c, "tipagem preservada"),
-                         (ok2, "2-expr == alvo"), (ok2b, "2 rotulos"),
-                         (ok3, "alvo == K_{J, I+K}"),
-                         (ok4, "sem arestas espurias"),
-                         (ok5, "contagem |E|")]:
+        for ok, name in [(ok1, "3-expr == target"), (ok1b, "3 labels"),
+                         (ok1c, "typing preserved"),
+                         (ok2, "2-expr == target"), (ok2b, "2 labels"),
+                         (ok3, "target == K_{J, I+K}"),
+                         (ok4, "no spurious edges"),
+                         (ok5, "edge count |E|")]:
             n_checks += 1
             if not ok:
                 fails += 1
                 print(f"FAIL ({nI},{nJ},{nK}): {name}")
 
-    print(f"Tamanhos testados: {len(sizes)}; checagens: {n_checks}; "
-          f"falhas: {fails}")
-    print("RESULTADO GLOBAL:", "PASS" if fails == 0 else "FAIL")
+    print(f"Sizes tested: {len(sizes)}; checks: {n_checks}; "
+          f"failures: {fails}")
+    print("OVERALL RESULT:", "PASS" if fails == 0 else "FAIL")
     return fails
 
 

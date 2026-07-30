@@ -1,46 +1,46 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-verify_A3a_products.py — Verificacao computacional da construcao por
-produtos do artigo e do seu corolario espelhado.
+verify_A3a_products.py -- Computational verification of the paper's
+products construction and its mirrored corollary.
 
-Construcao primaria, de SET COVER (U, S = {S_1..S_m}, t), PRODUTOS como
-elementos:
-  * produtos = elementos de U (|L| = n_U), 1 deposito, 1 cliente;
-  * fabricas = conjuntos: f_i = 1, b_il = Q para TODO l,
-    c_i1l = 0 se l in S_i senao 1;
-  * deposito: g_1 = 0, p_1l = Q; cliente: q_1l = Q; d_11l = 0;
-  * amplificador Q := m + 1; orcamento B = t (WLOG 1 <= t <= m).
-Afirmacao: cobertura de tamanho <= t  <=>  OPT_MP <= t.
-Forma fechada do lema estrutural (a SER verificada, nao usada como fonte):
-  custo(Y aberto, z=1) = |Y| + Q * #{l nao coberto por Y};  Y vazio ou z=0
-  inviavel.
+Primary construction, from SET COVER (U, S = {S_1..S_m}, t), PRODUCTS as
+elements:
+  * products = elements of U (|L| = n_U), 1 depot, 1 customer;
+  * plants = sets: f_i = 1, b_il = Q for EVERY l,
+    c_i1l = 0 if l in S_i else 1;
+  * depot: g_1 = 0, p_1l = Q; customer: q_1l = Q; d_11l = 0;
+  * amplifier Q := m + 1; budget B = t (WLOG 1 <= t <= m).
+Claim: a cover of size <= t  <=>  OPT_MP <= t.
+Closed form of the structural lemma (TO BE verified, not used as a source):
+  cost(Y open, z=1) = |Y| + Q * #{l not covered by Y};  Y empty or z=0
+  infeasible.
 
-Construcao espelhada (|I| = |K| = 1, depositos x produtos):
-  * 1 fabrica: f_1 = 0, b_1l = Q, c_1jl = 0;
-  * depositos = conjuntos: g_j = 1, p_jl = Q, d_j1l = 0 se l in S_j senao 1;
-  * cliente: q_1l = Q; amplificador e orcamento identicos.
-Forma fechada: custo(y=1, Z aberto) = |Z| + Q * #{l nao coberto por Z}.
+Mirrored construction (|I| = |K| = 1, depots x products):
+  * 1 plant: f_1 = 0, b_1l = Q, c_1jl = 0;
+  * depots = sets: g_j = 1, p_jl = Q, d_j1l = 0 if l in S_j else 1;
+  * customer: q_1l = Q; identical amplifier and budget.
+Closed form: cost(y=1, Z open) = |Z| + Q * #{l not covered by Z}.
 
-INDEPENDENCIA: o otimo por forca bruta enumera TODOS os desenhos (y,z)
-(common_mp_tscfl.all_designs) e roteia cada produto pelo MCMF inteiro exato
-(common_mp_tscfl.routing_value, o oraculo de roteamento) — sem forma fechada.
-A forma fechada e testada CONTRA esse roteamento em todos os desenhos, e
-adicionalmente contra um LP continuo completo (scipy.linprog/HiGHS) em uma
-subamostra adversarial (brecha do servico divisivel), incluindo desenhos
-inviaveis (o LP deve reportar inviabilidade).
+INDEPENDENCE: the brute-force optimum enumerates ALL designs (y,z)
+(common_mp_tscfl.all_designs) and routes each product via the exact integer
+MCMF (common_mp_tscfl.routing_value, the routing oracle) -- no closed form.
+The closed form is tested AGAINST this routing on all designs, and
+additionally against a full continuous LP (scipy.linprog/HiGHS) on an
+adversarial subsample (splittable-service gap), including infeasible
+designs (the LP must report infeasibility).
 
-Baterias:
-  (A) EXAUSTIVO: todas as familias deduplicadas com |U| <= 4, |S| <= 4
-      (mesma enumeracao da bateria [A] de verify_A2_setcover.py), para
-      as DUAS construcoes: OPT == t* (cobrivel) / OPT > m (nao cobrivel);
-      dupla implicacao para todo t em 1..m; forma fechada == MCMF em todos
-      os desenhos.
-  (B) ALEATORIO: >= 50 instancias semeadas, |U| <= 6, |S| <= 6, idem.
-  (C) LP adversarial: >= 500 LPs (scipy.linprog) confirmando a forma
-      fechada (e a inviabilidade) em desenhos amostrados das duas
-      construcoes.
-Saida: contagens e PASS/FAIL; codigo de saida != 0 em falha.
+Batteries:
+  (A) EXHAUSTIVE: all deduplicated families with |U| <= 4, |S| <= 4
+      (same enumeration as battery [A] of verify_A2_setcover.py), for
+      BOTH constructions: OPT == t* (coverable) / OPT > m (not coverable);
+      double implication for every t in 1..m; closed form == MCMF on all
+      designs.
+  (B) RANDOM: >= 50 seeded instances, |U| <= 6, |S| <= 6, likewise.
+  (C) adversarial LP: >= 500 LPs (scipy.linprog) confirming the closed
+      form (and infeasibility) on sampled designs of the two
+      constructions.
+Output: counts and PASS/FAIL; exit code != 0 on failure.
 """
 
 import itertools
@@ -55,11 +55,11 @@ from common_mp_tscfl import all_designs, routing_value
 
 
 # ---------------------------------------------------------------------------
-# Construcoes
+# Constructions
 # ---------------------------------------------------------------------------
 
 def build_primary(n_u, sets):
-    """Construcao primaria: fabricas = conjuntos, produtos = elementos."""
+    """Primary construction: plants = sets, products = elements."""
     m = len(sets)
     Q = m + 1
     return {
@@ -76,7 +76,7 @@ def build_primary(n_u, sets):
 
 
 def build_mirror(n_u, sets):
-    """Construcao espelhada: depositos = conjuntos, produtos = elementos."""
+    """Mirrored construction: depots = sets, products = elements."""
     m = len(sets)
     Q = m + 1
     return {
@@ -93,30 +93,30 @@ def build_mirror(n_u, sets):
 
 
 def closed_form(kind, n_u, sets, Q, y, z):
-    """Forma fechada do lema estrutural. Retorna custo total ou None
-    (inviavel). kind = 'primary' (abertos = fabricas) ou 'mirror'."""
+    """Closed form of the structural lemma. Returns total cost or None
+    (infeasible). kind = 'primary' (open = plants) or 'mirror'."""
     if kind == "primary":
         opens = [i for i in range(len(sets)) if y[i] == 1]
         if not opens or z[0] == 0:
             return None
-        fixed = len(opens)          # f = 1 por fabrica aberta; g = 0
+        fixed = len(opens)          # f = 1 per open plant; g = 0
     else:
         opens = [j for j in range(len(sets)) if z[j] == 1]
         if not opens or y[0] == 0:
             return None
-        fixed = len(opens)          # g = 1 por deposito aberto; f = 0
+        fixed = len(opens)          # g = 1 per open depot; f = 0
     uncovered = sum(1 for l in range(n_u)
                     if not any(l in sets[o] for o in opens))
     return fixed + Q * uncovered
 
 
 # ---------------------------------------------------------------------------
-# Forca bruta (independente: MCMF por produto em todos os desenhos)
+# Brute force (independent: MCMF per product on all designs)
 # ---------------------------------------------------------------------------
 
 def brute_force_designs(inst):
-    """Gera (y, z, custo_total | None) para todos os desenhos, com
-    roteamento MCMF exato por produto (oraculo de roteamento)."""
+    """Yields (y, z, total_cost | None) for all designs, with
+    exact MCMF routing per product (the routing oracle)."""
     for y, z in all_designs(inst["nI"], inst["nJ"]):
         total = sum(inst["f"][i] * y[i] for i in range(inst["nI"])) \
               + sum(inst["g"][j] * z[j] for j in range(inst["nJ"]))
@@ -141,7 +141,7 @@ def solve_setcover_bruteforce(n_u, sets):
 
 
 def check_construction(kind, n_u, sets, failures):
-    """Testa uma construcao numa familia. Retorna (#iff, #forma-fechada)."""
+    """Tests one construction on a family. Returns (#iff, #closed-form)."""
     m = len(sets)
     builder = build_primary if kind == "primary" else build_mirror
     inst, Q = builder(n_u, sets)
@@ -152,9 +152,9 @@ def check_construction(kind, n_u, sets, failures):
     for y, z, cost in brute_force_designs(inst):
         cf = closed_form(kind, n_u, sets, Q, y, z)
         n_cf += 1
-        if cf != cost:  # inclui viabilidade: None == None
+        if cf != cost:  # includes feasibility: None == None
             failures.append((kind, n_u, sets,
-                             "y=%s z=%s: MCMF=%s != forma fechada=%s"
+                             "y=%s z=%s: MCMF=%s != closed form=%s"
                              % (y, z, cost, cf)))
         if cost is not None and (opt is None or cost < opt):
             opt = cost
@@ -165,7 +165,7 @@ def check_construction(kind, n_u, sets, failures):
     else:
         if opt is not None and opt <= m:
             failures.append((kind, n_u, sets,
-                             "nao-cobrivel mas OPT=%s <= m=%d" % (opt, m)))
+                             "not coverable but OPT=%s <= m=%d" % (opt, m)))
 
     n_iff = 0
     for t in range(1, m + 1):  # WLOG 1 <= t <= m
@@ -174,18 +174,18 @@ def check_construction(kind, n_u, sets, failures):
         n_iff += 1
         if cover_exists != mp_yes:
             failures.append((kind, n_u, sets,
-                             "t=%d: cobre<=t %s mas OPT<=t %s"
+                             "t=%d: cover<=t %s but OPT<=t %s"
                              % (t, cover_exists, mp_yes)))
     return n_iff, n_cf
 
 
 # ---------------------------------------------------------------------------
-# LP adversarial (brecha do servico divisivel)
+# Adversarial LP (splittable-service gap)
 # ---------------------------------------------------------------------------
 
 def lp_primary(n_u, sets, Q, y, z):
-    """LP continuo completo da construcao primaria para o desenho (y,z).
-    Vars: x[i][l] (m*n_u), w[l] (n_u). Retorna valor de transporte ou None."""
+    """Full continuous LP of the primary construction for design (y,z).
+    Vars: x[i][l] (m*n_u), w[l] (n_u). Returns transport value or None."""
     m = len(sets)
     nx = m * n_u
     nv = nx + n_u
@@ -216,8 +216,8 @@ def lp_primary(n_u, sets, Q, y, z):
 
 
 def lp_mirror(n_u, sets, Q, y, z):
-    """LP continuo completo do espelho. Vars: x[j][l], w[j][l].
-    (C3) e uma linha de acoplamento por produto: sum_j x_jl <= Q*y_1."""
+    """Full continuous LP of the mirror. Vars: x[j][l], w[j][l].
+    (C3) is one coupling row per product: sum_j x_jl <= Q*y_1."""
     m = len(sets)
     nx = m * n_u
     nv = 2 * nx
@@ -237,7 +237,7 @@ def lp_mirror(n_u, sets, Q, y, z):
             row[nx + j * n_u + l] = 1
             row[j * n_u + l] = -1
             A_ub.append(row); b_ub.append(0)
-    for l in range(n_u):            # (C3): sum_j x_jl <= Q*y_1 (acoplada)
+    for l in range(n_u):            # (C3): sum_j x_jl <= Q*y_1 (coupled)
         row = np.zeros(nv)
         for j in range(m):
             row[j * n_u + l] = 1
@@ -255,29 +255,29 @@ def lp_mirror(n_u, sets, Q, y, z):
 
 
 def check_lp(kind, n_u, sets, y, z, failures):
-    """Compara LP com a forma fechada (valor e viabilidade)."""
+    """Compares LP with the closed form (value and feasibility)."""
     Q = len(sets) + 1
     lp = (lp_primary if kind == "primary" else lp_mirror)(n_u, sets, Q, y, z)
     cf = closed_form(kind, n_u, sets, Q, y, z)
     if cf is None:
         if lp is not None:
             failures.append((kind, n_u, sets,
-                             "y=%s z=%s: forma fechada inviavel, LP=%s"
+                             "y=%s z=%s: closed form infeasible, LP=%s"
                              % (y, z, lp)))
     else:
         fixed = sum(y) if kind == "primary" else sum(z)
         if lp is None or abs((fixed + lp) - cf) > 1e-6:
             failures.append((kind, n_u, sets,
-                             "y=%s z=%s: LP total=%s != forma fechada=%s"
+                             "y=%s z=%s: LP total=%s != closed form=%s"
                              % (y, z, None if lp is None else fixed + lp, cf)))
 
 
 # ---------------------------------------------------------------------------
-# Enumeracao / amostragem
+# Enumeration / sampling
 # ---------------------------------------------------------------------------
 
 def enumerate_all_families(max_n, max_m):
-    """Identica a de verify_A2_setcover.py (familias deduplicadas)."""
+    """Identical to the one in verify_A2_setcover.py (deduplicated families)."""
     for n in range(1, max_n + 1):
         candidates = [frozenset(cmb)
                       for r in range(n + 1)
@@ -302,7 +302,7 @@ def random_instances(count, max_n, max_m, seed):
 def main():
     failures = []
 
-    # (A) exaustivo |U| <= 4, |S| <= 4, ambas as construcoes
+    # (A) exhaustive |U| <= 4, |S| <= 4, both constructions
     n_fam = iff_A = cf_A = 0
     families = list(enumerate_all_families(4, 4))
     for n_u, fam in families:
@@ -311,11 +311,11 @@ def main():
             a, b = check_construction(kind, n_u, fam, failures)
             iff_A += a
             cf_A += b
-    print("[A] exaustivo: %d familias (|U|<=4, |S|<=4) x 2 construcoes: "
-          "%d testes de equivalencia (todos os t), %d desenhos com "
-          "forma fechada == MCMF" % (n_fam, iff_A, cf_A))
+    print("[A] exhaustive: %d families (|U|<=4, |S|<=4) x 2 constructions: "
+          "%d equivalence tests (all t), %d designs with "
+          "closed form == MCMF" % (n_fam, iff_A, cf_A))
 
-    # (B) aleatorio semeado |U| <= 6, |S| <= 6
+    # (B) seeded random |U| <= 6, |S| <= 6
     rand = random_instances(50, 6, 6, seed=20260710)
     iff_B = cf_B = 0
     for n_u, fam in rand:
@@ -323,11 +323,11 @@ def main():
             a, b = check_construction(kind, n_u, fam, failures)
             iff_B += a
             cf_B += b
-    print("[B] aleatorio: %d instancias (semente 20260710, |U|<=6, |S|<=6) "
-          "x 2 construcoes: %d testes de equivalencia, %d desenhos "
-          "forma fechada == MCMF" % (len(rand), iff_B, cf_B))
+    print("[B] random: %d instances (seed 20260710, |U|<=6, |S|<=6) "
+          "x 2 constructions: %d equivalence tests, %d designs "
+          "closed form == MCMF" % (len(rand), iff_B, cf_B))
 
-    # (C) LP adversarial: >= 500 LPs em desenhos amostrados
+    # (C) adversarial LP: >= 500 LPs on sampled designs
     rng = random.Random(99)
     pool = families + rand
     n_lp = 0
@@ -335,7 +335,7 @@ def main():
         n_u, fam = pool[rng.randrange(len(pool))]
         m = len(fam)
         kind = "primary" if n_lp % 2 == 0 else "mirror"
-        # amostra desenho arbitrario (incluindo inviaveis)
+        # sample arbitrary design (including infeasible ones)
         if kind == "primary":
             y = [rng.randint(0, 1) for _ in range(m)]
             z = [rng.randint(0, 1)]
@@ -344,16 +344,16 @@ def main():
             z = [rng.randint(0, 1) for _ in range(m)]
         check_lp(kind, n_u, fam, y, z, failures)
         n_lp += 1
-    print("[C] LP adversarial: %d LPs (semente 99; desenhos aleatorios, "
-          "incluindo inviaveis) comparados com a forma fechada" % n_lp)
+    print("[C] adversarial LP: %d LPs (seed 99; random designs, "
+          "including infeasible ones) compared with the closed form" % n_lp)
 
     if failures:
-        print("\nFALHAS (%d):" % len(failures))
+        print("\nFAILURES (%d):" % len(failures))
         for f in failures[:20]:
             print("  [%s] n_U=%d fam=%s : %s"
                   % (f[0], f[1], [sorted(s) for s in f[2]], f[3]))
         sys.exit(1)
-    print("\nTODOS OS TESTES PASSARAM.")
+    print("\nALL TESTS PASSED.")
 
 
 if __name__ == "__main__":

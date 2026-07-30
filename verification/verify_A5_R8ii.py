@@ -1,39 +1,39 @@
 """
-Verificacao exaustiva de dois resultados da camada numerica do artigo:
+Exhaustive verification of two results of the paper's numeric layer:
 
-  Reducao de cobertura da celula — SET COVER -> MP-TSCFLP restrito a
+  Cell covering reduction -- SET COVER -> MP-TSCFLP restricted to
   |K| = |L| = 1
-    (elementos = fabricas, conjuntos = depositos, acoplamento
+    (elements = plants, sets = depots, coupling
     c_ij in {0,1}; f = 0, g = 1, d = 0, b_i = Q := m+1, p_j = n_U*Q,
-    D = n_U*Q, orcamento B = t). Estabelece a dureza FORTE da celula.
+    D = n_U*Q, budget B = t). Establishes the STRONG hardness of the cell.
 
-  Proposicao dos custos separaveis — custos de estagio 1 c_ij = gamma_i +
-    delta_j  =>  a celula |K| = |L| = 1 e' pseudo-polinomial (dois
-    min-knapsack-covers desacoplados).
+  Separable-costs proposition -- stage-1 costs c_ij = gamma_i +
+    delta_j  =>  the cell |K| = |L| = 1 is pseudo-polynomial (two
+    decoupled min-knapsack-covers).
 
-Baterias:
-  [A] EXAUSTIVA: todas as familias de subconjuntos distintos de U com
-      |U| <= 4 e 1 <= m <= 4 (mesma enumeracao das 2.696 familias de
-      A2/A3a). Para cada familia: forca bruta sobre TODOS os desenhos
-      (y,z) com o oraculo MCMF inteiro (routing_value) — nenhuma forma
-      fechada como fonte —, e checagens:
-        (a) por desenho: viabilidade == forma fechada prevista
-            (Y = I e Z != vazio) e, se viavel, v == Q * #descobertos(Z);
-        (b) OPT == t* (tamanho minimo de cobertura, forca bruta) quando
-            cobrivel; OPT > m quando nao cobrivel;
-        (c) "<=>" da reducao para TODO orcamento t in {1..m}.
-  [B] aleatoria: familias com |U|, |S| <= 5 (sementes fixas), mesmas
-      checagens (a)-(c).
-  [C] custos separaveis: instancias aleatorias (incluindo D = 0,
-      inviaveis e decomposicoes com gamma_i NEGATIVO — so os arcos
-      c_ij = gamma_i + delta_j precisam ser >= 0): DP desacoplado ==
-      forca bruta, com viabilidade implicita via OPT (INF == INF).
-  [D] contraste por PL independente (scipy/HiGHS): em instancias GERAIS
-      da celula, o PL residual em desigualdades coincide com o MCMF
-      (viabilidade + valor, tolerancia 1e-6) em desenhos amostrados —
-      valida o uso do oraculo nesta celula.
+Batteries:
+  [A] EXHAUSTIVE: all families of distinct subsets of U with
+      |U| <= 4 and 1 <= m <= 4 (same enumeration as the 2,696 families of
+      A2/A3a). For each family: brute force over ALL designs
+      (y,z) with the integer MCMF oracle (routing_value) -- no closed
+      form as a source --, and checks:
+        (a) per design: feasibility == predicted closed form
+            (Y = I and Z != empty) and, if feasible, v == Q * #uncovered(Z);
+        (b) OPT == t* (minimum cover size, brute force) when
+            coverable; OPT > m when not coverable;
+        (c) "<=>" of the reduction for EVERY budget t in {1..m}.
+  [B] random: families with |U|, |S| <= 5 (fixed seeds), same
+      checks (a)-(c).
+  [C] separable costs: random instances (including D = 0,
+      infeasible ones, and decompositions with NEGATIVE gamma_i -- only the
+      arcs c_ij = gamma_i + delta_j need to be >= 0): decoupled DP ==
+      brute force, with implicit feasibility via OPT (INF == INF).
+  [D] contrast via independent LP (scipy/HiGHS): on GENERAL instances
+      of the cell, the residual LP in inequality form matches the MCMF
+      (feasibility + value, tolerance 1e-6) on sampled designs --
+      validates the use of the oracle in this cell.
 
-Saida: contagens por bateria; exit code != 0 em qualquer falha.
+Output: counts per battery; exit code != 0 on any failure.
 """
 
 import itertools
@@ -50,15 +50,15 @@ FAILS = []
 def check(cond, msg):
     if not cond:
         FAILS.append(msg)
-        print("FALHA:", msg)
+        print("FAILURE:", msg)
 
 
 # ---------------------------------------------------------------------------
-# construcao da reducao de cobertura da celula
+# construction of the cell covering reduction
 # ---------------------------------------------------------------------------
 
 def build_reduction(nU, fam):
-    """fam = tupla de mascaras (bitmasks sobre U). Retorna (inst, Q)."""
+    """fam = tuple of masks (bitmasks over U). Returns (inst, Q)."""
     m = len(fam)
     Q = m + 1
     nI, nJ = nU, m
@@ -76,7 +76,7 @@ def build_reduction(nU, fam):
 
 
 def min_cover(nU, fam):
-    """Tamanho minimo de cobertura (forca bruta); None se nao cobrivel."""
+    """Minimum cover size (brute force); None if not coverable."""
     full = (1 << nU) - 1
     best = None
     for msk in range(1, 1 << len(fam)):
@@ -92,7 +92,7 @@ def min_cover(nU, fam):
 
 
 def uncovered(nU, fam, mz):
-    """# elementos sem deposito aberto que os contenha."""
+    """# elements with no open depot containing them."""
     u = 0
     for j in range(len(fam)):
         if (mz >> j) & 1:
@@ -113,14 +113,14 @@ def check_family(nU, fam, counters):
             feas, v = routing_value(inst, 0, y, z)
             pred_feas = (my == full_I) and (mz != 0)
             check(feas == pred_feas,
-                  f"viabilidade fam={fam} nU={nU} my={my} mz={mz}: "
-                  f"mcmf={feas} prevista={pred_feas}")
+                  f"feasibility fam={fam} nU={nU} my={my} mz={mz}: "
+                  f"mcmf={feas} predicted={pred_feas}")
             counters["desenhos"] += 1
             if feas:
                 pred_v = Q * uncovered(nU, fam, mz)
                 check(v == pred_v,
-                      f"lema estrutural fam={fam} nU={nU} mz={mz}: "
-                      f"v={v} previsto={pred_v}")
+                      f"structural lemma fam={fam} nU={nU} mz={mz}: "
+                      f"v={v} predicted={pred_v}")
                 total = bin(mz).count("1") + v   # f = 0, g = 1
                 if total < opt:
                     opt = total
@@ -130,7 +130,7 @@ def check_family(nU, fam, counters):
               f"OPT fam={fam} nU={nU}: opt={opt} t*={tstar}")
     else:
         check(opt > m, f"OPT fam={fam} nU={nU}: opt={opt} <= m={m} "
-                       f"mas nao cobrivel")
+                       f"but not coverable")
         check(opt >= Q + 1, f"OPT fam={fam} nU={nU}: opt={opt} < Q+1")
     for t in range(1, m + 1):
         counters["iff"] += 1
@@ -143,7 +143,7 @@ def check_family(nU, fam, counters):
 def battery_A():
     counters = {"desenhos": 0, "iff": 0, "familias": 0}
     for nU in range(1, 5):
-        subsets = list(range(1 << nU))   # inclui o conjunto vazio
+        subsets = list(range(1 << nU))   # includes the empty set
         for m in range(1, 5):
             for fam in itertools.combinations(subsets, m):
                 counters["familias"] += 1
@@ -164,7 +164,7 @@ def battery_B(n=40, seed0=20260710):
 
 
 # ---------------------------------------------------------------------------
-# Custos separaveis — DP desacoplado
+# Separable costs -- decoupled DP
 # ---------------------------------------------------------------------------
 
 def side_dp(items, D):
@@ -191,8 +191,8 @@ def battery_C(n=120, seed0=8000):
         g = [rng.randint(0, 8) for _ in range(nJ)]
         b = [rng.randint(1, 8) for _ in range(nI)]
         p = [rng.randint(1, 8) for _ in range(nJ)]
-        # gamma pode ser negativo (a proposicao nao exige sinal);
-        # delta >= 3 garante arcos c_ij = gamma_i + delta_j >= 0
+        # gamma may be negative (the proposition imposes no sign);
+        # delta >= 3 guarantees arcs c_ij = gamma_i + delta_j >= 0
         gamma = [rng.randint(-3, 5) for _ in range(nI)]
         delta = [rng.randint(3, 8) for _ in range(nJ)]
         d = [rng.randint(0, 4) for _ in range(nJ)]
@@ -212,7 +212,7 @@ def battery_C(n=120, seed0=8000):
             "p": [[p[j]] for j in range(nJ)],
             "q": [[D]],
         }
-        # forca bruta
+        # brute force
         opt = INF
         for my in range(1 << nI):
             y = [(my >> i) & 1 for i in range(nI)]
@@ -223,7 +223,7 @@ def battery_C(n=120, seed0=8000):
                 if feas:
                     gz = sum(g[j] for j in range(nJ) if z[j])
                     opt = min(opt, fy + gz + v)
-        # DP desacoplado
+        # decoupled DP
         if D == 0:
             dpval = 0
             counters["D0"] += 1
@@ -233,7 +233,7 @@ def battery_C(n=120, seed0=8000):
                           for j in range(nJ)], D)
             dpval = a + bb if a < INF and bb < INF else INF
         check(opt == dpval,
-              f"custos separaveis seed={s}: bruta={opt} dp={dpval}")
+              f"separable costs seed={s}: brute={opt} dp={dpval}")
         counters["instancias"] += 1
         if opt < INF:
             counters["viaveis"] += 1
@@ -243,12 +243,12 @@ def battery_C(n=120, seed0=8000):
 
 
 # ---------------------------------------------------------------------------
-# [D] contraste por PL independente (scipy) na celula geral
+# [D] contrast via independent LP (scipy) on the general cell
 # ---------------------------------------------------------------------------
 
 def lp_residual(inst, y, z):
-    """PL residual da celula |K|=|L|=1 em forma de desigualdade.
-    Retorna (viavel, valor) via scipy.linprog/HiGHS."""
+    """Residual LP of the cell |K|=|L|=1 in inequality form.
+    Returns (feasible, value) via scipy.linprog/HiGHS."""
     from scipy.optimize import linprog
     nI, nJ = inst["nI"], inst["nJ"]
     D = inst["q"][0][0]
@@ -319,40 +319,40 @@ def battery_D(n=25, seed0=9000, designs_per=8):
             feas_l, v_l = lp_residual(inst, y, z)
             counters["lps"] += 1
             check(feas_f == feas_l,
-                  f"[D] viabilidade seed={s} y={y} z={z}: "
+                  f"[D] feasibility seed={s} y={y} z={z}: "
                   f"mcmf={feas_f} lp={feas_l}")
             if feas_f and feas_l:
                 check(abs(v_l - v_f) <= 1e-6,
-                      f"[D] valor seed={s} y={y} z={z}: mcmf={v_f} lp={v_l}")
+                      f"[D] value seed={s} y={y} z={z}: mcmf={v_f} lp={v_l}")
                 check(abs(v_l - round(v_l)) <= 1e-6,
-                      f"[D] integralidade seed={s}: lp={v_l}")
+                      f"[D] integrality seed={s}: lp={v_l}")
     return counters
 
 
 def main():
-    print("== [A] exaustiva: familias |U| <= 4, m <= 4 ==")
+    print("== [A] exhaustive: families |U| <= 4, m <= 4 ==")
     ca = battery_A()
-    print(f"  familias: {ca['familias']}  desenhos verificados: "
-          f"{ca['desenhos']}  testes '<=>': {ca['iff']}")
+    print(f"  families: {ca['familias']}  designs verified: "
+          f"{ca['desenhos']}  '<=>' tests: {ca['iff']}")
 
-    print("== [B] aleatoria: familias |U|, |S| <= 5 ==")
+    print("== [B] random: families |U|, |S| <= 5 ==")
     cb = battery_B()
-    print(f"  familias: {cb['familias']}  desenhos verificados: "
-          f"{cb['desenhos']}  testes '<=>': {cb['iff']}")
+    print(f"  families: {cb['familias']}  designs verified: "
+          f"{cb['desenhos']}  '<=>' tests: {cb['iff']}")
 
-    print("== [C] custos separaveis (DP vs forca bruta) ==")
+    print("== [C] separable costs (DP vs brute force) ==")
     cc = battery_C()
-    print(f"  instancias: {cc['instancias']} (viaveis {cc['viaveis']}, "
-          f"inviaveis {cc['inviaveis']}, D=0 {cc['D0']})")
+    print(f"  instances: {cc['instancias']} (feasible {cc['viaveis']}, "
+          f"infeasible {cc['inviaveis']}, D=0 {cc['D0']})")
 
-    print("== [D] contraste por PL independente (scipy/HiGHS) ==")
+    print("== [D] contrast via independent LP (scipy/HiGHS) ==")
     cd = battery_D()
-    print(f"  LPs comparados: {cd['lps']}")
+    print(f"  LPs compared: {cd['lps']}")
 
     if FAILS:
-        print(f"\n== RESULTADO: {len(FAILS)} FALHAS ==")
+        print(f"\n== RESULT: {len(FAILS)} FAILURES ==")
         sys.exit(1)
-    print("\n== RESULTADO: PASS (0 falhas) ==")
+    print("\n== RESULT: PASS (0 failures) ==")
 
 
 if __name__ == "__main__":

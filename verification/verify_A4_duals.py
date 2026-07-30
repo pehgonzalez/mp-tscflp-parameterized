@@ -1,56 +1,56 @@
 """
-Verificacao da proposicao de certificados duais do artigo (certificados duais e cortes de
-Benders desagregados).
+Verification of the paper's dual-certificate proposition (dual certificates and
+disaggregated Benders cuts).
 
-Para cada produto l e desenho fixo (y,z), o PL de roteamento (primal, em
-forma de desigualdade, exatamente (C1)-(C4) do artigo) e
+For each product l and fixed design (y,z), the routing LP (primal, in
+inequality form, exactly (C1)-(C4) of the paper) is
 
   min  sum c_ij x_ij + sum d_jk w_jk
-  s.a. (alpha_k >= 0)  sum_j w_jk           >= q_k
+  s.t. (alpha_k >= 0)  sum_j w_jk           >= q_k
        (beta_j  >= 0)  sum_i x_ij - sum_k w_jk >= 0
        (gamma_i >= 0) -sum_j x_ij           >= -b_i y_i
        (delta_j >= 0) -sum_k w_jk           >= -p_j z_j
        x, w >= 0,
 
-com dual (derivado na proposicao de certificados duais do artigo)
+with dual (derived in the paper's dual-certificate proposition)
 
   max  sum_k q_k alpha_k - sum_i b_i y_i gamma_i - sum_j p_j z_j delta_j
-  s.a. beta_j - gamma_i           <= c_ij   (coluna de x_ij)
-       alpha_k - beta_j - delta_j <= d_jk   (coluna de w_jk)
+  s.t. beta_j - gamma_i           <= c_ij   (column of x_ij)
+       alpha_k - beta_j - delta_j <= d_jk   (column of w_jk)
        alpha, beta, gamma, delta >= 0.
 
-Checagens (>= 40 instancias, semente 20260710; scipy.linprog/HiGHS):
+Checks (>= 40 instances, seed 20260710; scipy.linprog/HiGHS):
 
-  [S1] dualidade forte: para desenhos VIAVEIS, valor do PL primal ==
-       valor do PL dual == valor do oraculo MCMF inteiro do modulo comum
-       (tolerancia 1e-6; e o valor dista <= 1e-6 de um inteiro).
-  [S2] no desenho gerador, o corte de Benders com o dual otimo (alpha*,
-       gamma*, delta*) vale com IGUALDADE:
+  [S1] strong duality: for FEASIBLE designs, primal LP value ==
+       dual LP value == value of the common module's integer MCMF oracle
+       (tolerance 1e-6; and the value is within 1e-6 of an integer).
+  [S2] at the generator design, the Benders cut with the optimal dual (alpha*,
+       gamma*, delta*) holds with EQUALITY:
        v_l(y,z) = sum q alpha* - sum b_i gamma* y_i - sum p_j delta* z_j.
-  [S3] validade global ((y,z)-independencia do poliedro dual): o mesmo
-       (alpha*, gamma*, delta*) satisfaz, para >= 20 OUTROS desenhos
-       aleatorios (y',z'),
+  [S3] global validity ((y,z)-independence of the dual polyhedron): the same
+       (alpha*, gamma*, delta*) satisfies, for >= 20 OTHER random
+       designs (y',z'),
        v_l(y',z') >= sum q alpha* - sum b_i gamma* y'_i - sum p_j delta* z'_j
-       sempre que (y',z') e viavel para o produto l (desenhos inviaveis:
-       v_l = +infinito, desigualdade trivial — contados a parte).
-  [S4] desenhos INVIAVEIS: o dual e ilimitado (status HiGHS 3), coerente
-       com dual sempre viavel (ponto 0) + primal inviavel.
-  [S5] os dois raios de viabilidade F1/F2, teste NUMERICO (checagem
-       cruzada independente; identico ao terceiro teste de
-       stress_tests_A4A5.py): para as direcoes
-       r1 = (alpha=1, beta=1, gamma=1, delta=0) e
+       whenever (y',z') is feasible for product l (infeasible designs:
+       v_l = +infinity, trivial inequality -- counted separately).
+  [S4] INFEASIBLE designs: the dual is unbounded (HiGHS status 3), consistent
+       with an always-feasible dual (point 0) + infeasible primal.
+  [S5] the two feasibility rays F1/F2, NUMERIC test (independent
+       cross-check; identical to the third test of
+       stress_tests_A4A5.py): for the directions
+       r1 = (alpha=1, beta=1, gamma=1, delta=0) and
        r2 = (alpha=1, beta=0, gamma=0, delta=1),
-       o ponto u + theta*r_i — com u = u* (dual otimo) nos desenhos
-       viaveis e u = 0 nos inviaveis — satisfaz TODAS as
-       |I||J| + |J||K| restricoes do poliedro dual, para theta em
-       {1, 10, 1000}, e o objetivo dual em u + theta*r_i vale exatamente
-       obj(u) + theta*(D_l - cap_lado), i.e., a inclinacao ao longo de r1
-       (resp. r2) e D_l - sum b_i y_i (resp. D_l - sum p_j z_j) —
-       positiva exatamente quando F1 (resp. F2) falha, o que certifica
-       numericamente a ilimitacao do dual nos desenhos inviaveis.
-       (A versao anterior deste item comparava (D - s > 0) com (s < D) —
-       tautologica; a pertinencia ao cone so era verificada em
-       comentario. Substituida integralmente.)
+       the point u + theta*r_i -- with u = u* (optimal dual) at feasible
+       designs and u = 0 at infeasible ones -- satisfies ALL
+       |I||J| + |J||K| constraints of the dual polyhedron, for theta in
+       {1, 10, 1000}, and the dual objective at u + theta*r_i equals exactly
+       obj(u) + theta*(D_l - cap_side), i.e., the slope along r1
+       (resp. r2) is D_l - sum b_i y_i (resp. D_l - sum p_j z_j) --
+       positive exactly when F1 (resp. F2) fails, which certifies
+       numerically the unboundedness of the dual at infeasible designs.
+       (The previous version of this item compared (D - s > 0) with (s < D) --
+       tautological; membership in the cone was only verified in a
+       comment. Replaced in full.)
 """
 
 import os
@@ -70,7 +70,7 @@ N_OTHER = 20
 
 
 def primal_lp(inst, l, y, z):
-    """Resolve o PL primal (C1)-(C4) do produto l. Retorna (status, valor)."""
+    """Solves the primal LP (C1)-(C4) for product l. Returns (status, value)."""
     nI, nJ, nK = inst["nI"], inst["nJ"], inst["nK"]
     nx, nw = nI * nJ, nJ * nK
     xid = lambda i, j: i * nJ + j
@@ -112,12 +112,12 @@ def primal_lp(inst, l, y, z):
 
 
 def dual_matrices(inst, l):
-    """Matriz A e rhs do poliedro dual Delta_l (independente de (y,z)).
+    """Matrix A and rhs of the dual polyhedron Delta_l (independent of (y,z)).
 
-    Variaveis u = (alpha[nK], beta[nJ], gamma[nI], delta[nJ]) >= 0;
-    restricoes A u <= rhs:
-      beta_j - gamma_i           <= c_ij   (|I||J| linhas)
-      alpha_k - beta_j - delta_j <= d_jk   (|J||K| linhas)
+    Variables u = (alpha[nK], beta[nJ], gamma[nI], delta[nJ]) >= 0;
+    constraints A u <= rhs:
+      beta_j - gamma_i           <= c_ij   (|I||J| rows)
+      alpha_k - beta_j - delta_j <= d_jk   (|J||K| rows)
     """
     nI, nJ, nK = inst["nI"], inst["nJ"], inst["nK"]
     nv = nK + nJ + nI + nJ
@@ -139,7 +139,7 @@ def dual_matrices(inst, l):
 
 
 def dual_obj(inst, l, y, z, u):
-    """Objetivo dual q.alpha - (b y).gamma - (p z).delta no ponto u."""
+    """Dual objective q.alpha - (b y).gamma - (p z).delta at point u."""
     nI, nJ, nK = inst["nI"], inst["nJ"], inst["nK"]
     val = sum(inst["q"][k][l] * u[k] for k in range(nK))
     val -= sum(inst["b"][i][l] * y[i] * u[nK + nJ + i] for i in range(nI))
@@ -149,13 +149,13 @@ def dual_obj(inst, l, y, z, u):
 
 
 def dual_lp(inst, l, y, z):
-    """Resolve o PL dual explicitamente.
+    """Solves the dual LP explicitly.
 
-    Retorna (status, valor, (alpha, beta, gamma, delta), u_completo).
+    Returns (status, value, (alpha, beta, gamma, delta), full_u).
     """
     nI, nJ, nK = inst["nI"], inst["nJ"], inst["nK"]
     A, rhs, nv = dual_matrices(inst, l)
-    # max q.alpha - (b y).gamma - (p z).delta  ->  min do negativo
+    # max q.alpha - (b y).gamma - (p z).delta  ->  min of the negative
     obj = np.zeros(nv)
     for k in range(nK):
         obj[k] = -inst["q"][k][l]
@@ -174,7 +174,7 @@ def dual_lp(inst, l, y, z):
 
 
 def cut_rhs(inst, l, dual, y, z):
-    """RHS do corte de Benders: q.alpha - sum b_i gamma_i y_i - sum p_j delta_j z_j."""
+    """RHS of the Benders cut: q.alpha - sum b_i gamma_i y_i - sum p_j delta_j z_j."""
     alpha, _beta, gamma, delta = dual
     val = sum(inst["q"][k][l] * alpha[k] for k in range(inst["nK"]))
     val -= sum(inst["b"][i][l] * gamma[i] * y[i] for i in range(inst["nI"]))
@@ -183,16 +183,16 @@ def cut_rhs(inst, l, dual, y, z):
 
 
 def rays_check(inst, l, y, z, u_base=None, v_base=0.0):
-    """[S5] raios F1/F2 — teste numerico (checagem cruzada independente).
+    """[S5] F1/F2 rays -- numeric test (independent cross-check).
 
-    Para cada raio r em {r1, r2} e theta em {1, 10, 1000}, verifica que
-    pt = u_base + theta*r satisfaz TODAS as restricoes de Delta_l
-    (A pt <= rhs, restricao a restricao) e que o objetivo dual em pt vale
-    exatamente v_base + theta*(D_l - cap_lado). Como a inclinacao
-    D_l - cap_lado e positiva sse F1/F2 falha, isso certifica
-    numericamente a ilimitacao do dual nos desenhos inviaveis.
-    u_base = None usa a origem (dual-viavel sempre, pois c, d >= 0).
-    Retorna (n_ok, n_fail).
+    For each ray r in {r1, r2} and theta in {1, 10, 1000}, verifies that
+    pt = u_base + theta*r satisfies ALL constraints of Delta_l
+    (A pt <= rhs, constraint by constraint) and that the dual objective at pt
+    equals exactly v_base + theta*(D_l - cap_side). Since the slope
+    D_l - cap_side is positive iff F1/F2 fails, this certifies
+    numerically the unboundedness of the dual at infeasible designs.
+    u_base = None uses the origin (always dual-feasible, since c, d >= 0).
+    Returns (n_ok, n_fail).
     """
     A, rhs, nv = dual_matrices(inst, l)
     nI, nJ, nK = inst["nI"], inst["nJ"], inst["nK"]
@@ -228,8 +228,8 @@ def rand_design(rng, nI, nJ, p_open=0.5):
 
 
 def boost_caps(inst, factor=3):
-    """Multiplica capacidades por `factor` (bateria B: mais desenhos viaveis,
-    exercitando dualidade forte e cortes em regime folgado)."""
+    """Multiplies capacities by `factor` (battery B: more feasible designs,
+    exercising strong duality and cuts in a slack regime)."""
     inst = dict(inst)
     inst["b"] = [[v * factor for v in row] for row in inst["b"]]
     inst["p"] = [[v * factor for v in row] for row in inst["p"]]
@@ -242,15 +242,15 @@ def main():
              "unbounded": 0, "rays": 0}
     fails = 0
 
-    # bateria A: 40 instancias cruas (muitos desenhos inviaveis -> S4/S5);
-    # bateria B: 20 instancias com capacidades x3 (regime viavel -> S1-S3).
+    # battery A: 40 raw instances (many infeasible designs -> S4/S5);
+    # battery B: 20 instances with capacities x3 (feasible regime -> S1-S3).
     batches = [gen_instance(6000 + t) for t in range(N_INST)]
     batches += [boost_caps(gen_instance(6100 + t)) for t in range(20)]
 
     for t, inst in enumerate(batches):
         nI, nJ, nL = inst["nI"], inst["nJ"], inst["nL"]  # noqa: F841
 
-        # desenhos geradores: tudo-aberto + ate 2 aleatorios enviesados
+        # generator designs: all-open + up to 2 random biased ones
         gens = [([1] * nI, [1] * nJ)]
         for _ in range(6):
             if len(gens) >= 3:
@@ -260,7 +260,7 @@ def main():
             if (y, z) not in gens:
                 gens.append((y, z))
 
-        # outros desenhos para o teste de validade global [S3]
+        # other designs for the global validity test [S3]
         others = []
         for _ in range(N_OTHER):
             others.append((rand_design(rng, nI, 0.5),
@@ -273,23 +273,23 @@ def main():
                 feas, v_mcmf = routing_value(inst, l, y, z)
 
                 if not feas:
-                    # [S4] dual ilimitado
+                    # [S4] unbounded dual
                     st, _, _, _ = dual_lp(inst, l, y, z)
                     if st == 3:
                         stats["unbounded"] += 1
                     else:
                         fails += 1
-                        print(f"FAIL [S4] inst {t} l={l}: status dual {st}")
-                    # [S5] raios numericos a partir da origem (dual-viavel):
-                    # certifica a ilimitacao numericamente (inclinacao > 0)
+                        print(f"FAIL [S4] inst {t} l={l}: dual status {st}")
+                    # [S5] numeric rays from the origin (dual-feasible):
+                    # certifies the unboundedness numerically (slope > 0)
                     n_ok, n_fail = rays_check(inst, l, y, z)
                     stats["rays"] += n_ok
                     if n_fail:
                         fails += n_fail
-                        print(f"FAIL [S5] inst {t} l={l} ({n_fail} raios)")
+                        print(f"FAIL [S5] inst {t} l={l} ({n_fail} rays)")
                     continue
 
-                # [S1] primal LP == dual LP == MCMF (e inteiro)
+                # [S1] primal LP == dual LP == MCMF (and integer)
                 stp, vp = primal_lp(inst, l, y, z)
                 std, vd, dual, u_full = dual_lp(inst, l, y, z)
                 ok = (stp == 0 and std == 0 and
@@ -304,15 +304,15 @@ def main():
                           f"mcmf={v_mcmf} lp={vp} dual={vd}")
                     continue
 
-                # [S5] raios numericos a partir do dual otimo u*:
-                # u* + theta r_i dual-viavel, inclinacao exata D_l - cap
+                # [S5] numeric rays from the optimal dual u*:
+                # u* + theta r_i dual-feasible, exact slope D_l - cap
                 n_ok, n_fail = rays_check(inst, l, y, z, u_full, vd)
                 stats["rays"] += n_ok
                 if n_fail:
                     fails += n_fail
-                    print(f"FAIL [S5] inst {t} l={l} ({n_fail} raios)")
+                    print(f"FAIL [S5] inst {t} l={l} ({n_fail} rays)")
 
-                # [S2] igualdade do corte no desenho gerador
+                # [S2] cut equality at the generator design
                 rhs0 = cut_rhs(inst, l, dual, y, z)
                 if abs(rhs0 - v_mcmf) <= 1e-5:
                     stats["tight"] += 1
@@ -320,7 +320,7 @@ def main():
                     fails += 1
                     print(f"FAIL [S2] inst {t} l={l}: rhs={rhs0} v={v_mcmf}")
 
-                # [S3] validade em outros desenhos
+                # [S3] validity at other designs
                 for (y2, z2) in others:
                     feas2, v2 = routing_value(inst, l, y2, z2)
                     rhs2 = cut_rhs(inst, l, dual, y2, z2)
@@ -335,22 +335,22 @@ def main():
                               f"v'={v2} < rhs'={rhs2}")
 
     total = sum(stats.values())
-    print(f"instancias: {len(batches)} (40 cruas + 20 capacidade x3); "
-          f"checagens: {total}; falhas: {fails}")
-    print(f"  [S1] dualidade forte (primal==dual==MCMF, inteiro): "
+    print(f"instances: {len(batches)} (40 raw + 20 capacity x3); "
+          f"checks: {total}; failures: {fails}")
+    print(f"  [S1] strong duality (primal==dual==MCMF, integer): "
           f"{stats['strong']}")
-    print(f"  [S2] corte justo no gerador:                        "
+    print(f"  [S2] tight cut at the generator:                    "
           f"{stats['tight']}")
-    print(f"  [S3] corte valido em outros desenhos (viaveis):     "
-          f"{stats['valid']} (+ {stats['trivial']} triviais/inviaveis)")
-    print(f"  [S4] dual ilimitado em desenhos inviaveis:          "
+    print(f"  [S3] cut valid at other designs (feasible):         "
+          f"{stats['valid']} (+ {stats['trivial']} trivial/infeasible)")
+    print(f"  [S4] unbounded dual at infeasible designs:          "
           f"{stats['unbounded']}")
-    print(f"  [S5] raios F1/F2 numericos (viabilidade + inclinacao): "
+    print(f"  [S5] numeric F1/F2 rays (feasibility + slope):      "
           f"{stats['rays']}")
     substantive = (stats["strong"] + stats["tight"] + stats["valid"] +
                    stats["unbounded"] + stats["rays"])
-    print(f"  checagens substantivas (sem as triviais): {substantive}")
-    print("RESULTADO GLOBAL:", "PASS" if fails == 0 else "FAIL")
+    print(f"  substantive checks (excluding trivial ones): {substantive}")
+    print("OVERALL RESULT:", "PASS" if fails == 0 else "FAIL")
     return fails
 
 

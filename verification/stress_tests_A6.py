@@ -2,19 +2,19 @@
 """
 Independent stress tests complementing verify_A6_*.
 
-ATK1: cross-composition (clientes e produtos) fora das faixas de
-      verify_A6_crosscomp.py: n_U=1, t_hat=m, t0=3 (padding impar), fontes
-      adversariais (uma quase-SIM: cobertura minima = t_hat+1; outras NAO;
-      uma trivialmente quase-YES com conjuntos grandes). Checagem OR dos
-      dois lados por forca bruta + estrutural em TODO desenho de custo <=B.
-ATK2: sanidade dos guardas - composicao D1 (sem guardas) deve QUEBRAR o OR
-      (abrir os dois seletores de um par contorna tudo). Confirma que os
-      guardas sao load-bearing e que o teste detectaria o furo.
-ATK3: agregacao de clientes com demandas extremas/assimetricas
-      e verificacao por LP independente (scipy.linprog) alem do MCMF.
-ATK4: capping com b,p >> D_l e resposta (B,k) para todo k.
-ATK5: probe n_U = 0 (fora da convencao n_U>=1 do artigo): documenta que a
-      composicao por PRODUTOS falharia sem a convencao (guardas sem fabrica).
+ATK1: cross-composition (clients and products) outside the ranges of
+      verify_A6_crosscomp.py: n_U=1, t_hat=m, t0=3 (odd padding), adversarial
+      sources (one near-YES: minimum cover = t_hat+1; others NO;
+      one trivially near-YES with large sets). OR check of both
+      sides by brute force + structural check on EVERY design of cost <=B.
+ATK2: guard sanity - composition D1 (without guards) must BREAK the OR
+      (opening both selectors of a pair bypasses everything). Confirms that
+      the guards are load-bearing and that the test would detect the hole.
+ATK3: customer aggregation with extreme/asymmetric demands
+      and verification via an independent LP (scipy.linprog) besides the MCMF.
+ATK4: capping with b,p >> D_l and the (B,k) answer for every k.
+ATK5: probe n_U = 0 (outside the paper's convention n_U>=1): documents that
+      the PRODUCTS composition would fail without it (guards without a plant).
 """
 import itertools
 import random
@@ -33,11 +33,11 @@ from verify_A6_aggregation import total_cost, cost_map, merge_customers
 
 
 # ---------------------------------------------------------------------------
-# LP independente: PL residual original em desigualdades (por produto)
+# Independent LP: original residual LP in inequality form (per product)
 # ---------------------------------------------------------------------------
 
 def lp_block_value(inst, l, y, z):
-    """Valor do bloco l em (y,z) via scipy.linprog (None se inviavel)."""
+    """Value of block l at (y,z) via scipy.linprog (None if infeasible)."""
     nI, nJ, nK = inst["nI"], inst["nJ"], inst["nK"]
     nx, nw = nI * nJ, nJ * nK
     cvec = ([inst["c"][i][j][l] for i in range(nI) for j in range(nJ)]
@@ -88,7 +88,7 @@ def lp_total_cost(inst, y, z):
 
 
 # ---------------------------------------------------------------------------
-# ATK1: cross-composition fora das faixas
+# ATK1: cross-composition outside the ranges
 # ---------------------------------------------------------------------------
 
 def full_check(compose, sets_list, nU, t_hat, label, expect_yes=None):
@@ -96,7 +96,7 @@ def full_check(compose, sets_list, nU, t_hat, label, expect_yes=None):
     tau, m, insts = meta["tau"], meta["m"], meta["insts"]
     or_src = any(sc_yes(nU, s, t_hat) for s in sets_list)
     if expect_yes is not None:
-        assert or_src == expect_yes, f"[{label}] fonte: esperado {expect_yes}"
+        assert or_src == expect_yes, f"[{label}] source: expected {expect_yes}"
     yes = False
     n_low = 0
     for y, z in all_designs(inst["nI"], inst["nJ"]):
@@ -105,28 +105,28 @@ def full_check(compose, sets_list, nU, t_hat, label, expect_yes=None):
             continue
         yes = True
         n_low += 1
-        # estrutural em TODO desenho barato
+        # structural check on EVERY cheap design
         if compose is compose_products:
-            assert all(y), f"[{label}] fabrica fechada em desenho barato"
+            assert all(y), f"[{label}] closed plant in a cheap design"
         for beta in range(tau):
             opens = [z[m + 2 * beta + v] for v in (0, 1)]
             assert sum(opens) == 1, \
-                f"[{label}] CHEAT: par {beta} com {sum(opens)} seletores"
+                f"[{label}] CHEAT: pair {beta} with {sum(opens)} selectors"
         vpat = [0 if z[m + 2 * beta] else 1 for beta in range(tau)]
         istar = sum(v << beta for beta, v in enumerate(vpat))
         zsets = [j for j in range(m) if z[j]]
         assert len(zsets) <= t_hat, f"[{label}] CHEAT: |Z| > t_hat"
         for e in range(nU):
             assert any(e in insts[istar][j] for j in zsets), \
-                f"[{label}] CHEAT: elemento {e} de i*={istar} descoberto"
-    assert yes == or_src, f"[{label}] OR FALHOU: composto={yes}, " \
-        f"fontes={or_src}"
+                f"[{label}] CHEAT: element {e} of i*={istar} uncovered"
+    assert yes == or_src, f"[{label}] OR FAILED: composed={yes}, " \
+        f"sources={or_src}"
     return yes, n_low
 
 
 def atk1():
     total = 0
-    # (a) n_U = 1 (fora da faixa nU>=2 dos scripts), t_hat = m, t0 = 3
+    # (a) n_U = 1 (outside the scripts' range nU>=2), t_hat = m, t0 = 3
     subsets1 = [frozenset(), frozenset([0])]
     for combo in itertools.product(subsets1, repeat=2):
         for combo2 in itertools.product(subsets1, repeat=2):
@@ -138,35 +138,35 @@ def atk1():
                     full_check(compose_products, srcs, 1, t_hat,
                                f"ATK1a-prod nU=1 t^={t_hat}")
                     total += 2
-    print(f"[ATK1a] n_U=1, t0=3, t^ em {{1,2}}: {total} composicoes: PASS")
+    print(f"[ATK1a] n_U=1, t0=3, t^ in {{1,2}}: {total} compositions: PASS")
 
-    # (b) fontes adversariais: quase-SIM (cobertura minima = t_hat+1)
-    #     nU=3, m=3, t_hat=1; cada fonte cobre U so com 2 conjuntos.
+    # (b) adversarial sources: near-YES (minimum cover = t_hat+1)
+    #     nU=3, m=3, t_hat=1; each source covers U only with 2 sets.
     near = [frozenset([0, 1]), frozenset([1, 2]), frozenset([0, 2])]
-    no1 = [frozenset([0]), frozenset([1]), frozenset()]      # nao cobre 2
-    no2 = [frozenset([2]), frozenset([2]), frozenset([2])]   # nao cobre 0,1
+    no1 = [frozenset([0]), frozenset([1]), frozenset()]      # does not cover 2
+    no2 = [frozenset([2]), frozenset([2]), frozenset([2])]   # does not cover 0,1
     n = 0
     for srcs in ([near, near], [near, no1, no2], [no1, no2, near, near],
                  [no1, no1], [no2, no1, no1]):
         for s in srcs:
             assert not sc_yes(3, s, 1)
         y1, _ = full_check(compose_clients, srcs, 3, 1,
-                           "ATK1b-cli quase-SIM", expect_yes=False)
+                           "ATK1b-cli near-YES", expect_yes=False)
         y2, _ = full_check(compose_products, srcs, 3, 1,
-                           "ATK1b-prod quase-SIM", expect_yes=False)
+                           "ATK1b-prod near-YES", expect_yes=False)
         n += 2
-    # e a versao SIM de controle: uma fonte ganha o conjunto cheio
+    # and the YES control version: one source gets the full set
     yes_src = [frozenset([0, 1, 2]), frozenset(), frozenset()]
     for srcs in ([near, yes_src], [no1, no2, yes_src, near]):
-        full_check(compose_clients, srcs, 3, 1, "ATK1b-cli controle-SIM",
+        full_check(compose_clients, srcs, 3, 1, "ATK1b-cli control-YES",
                    expect_yes=True)
-        full_check(compose_products, srcs, 3, 1, "ATK1b-prod controle-SIM",
+        full_check(compose_products, srcs, 3, 1, "ATK1b-prod control-YES",
                    expect_yes=True)
         n += 2
-    print(f"[ATK1b] fontes quase-SIM (min cover = t^+1) e controles: "
-          f"{n} composicoes: PASS")
+    print(f"[ATK1b] near-YES sources (min cover = t^+1) and controls: "
+          f"{n} compositions: PASS")
 
-    # (c) t_hat = m (borda da convencao WLOG), nU=2, m=2, t0=2
+    # (c) t_hat = m (edge of the WLOG convention), nU=2, m=2, t0=2
     subsets = [frozenset(), frozenset([0]), frozenset([1]), frozenset([0, 1])]
     n = 0
     for s1 in itertools.product(subsets, repeat=2):
@@ -181,15 +181,15 @@ def atk1():
         full_check(compose_products, [list(s1), list(s2)], 2, 2,
                    "ATK1c-prod t^=m")
         n += 1
-    print(f"[ATK1c] t^ = m = 2 (borda WLOG): {n} composicoes: PASS")
+    print(f"[ATK1c] t^ = m = 2 (WLOG edge): {n} compositions: PASS")
 
 
 # ---------------------------------------------------------------------------
-# ATK2: D1 sem guardas deve quebrar (sanidade dos guardas)
+# ATK2: D1 without guards must break (guard sanity)
 # ---------------------------------------------------------------------------
 
 def compose_clients_noguards(sets_list, nU, t_hat):
-    """D1: mesma composicao por clientes, SEM guardas."""
+    """D1: same clients composition, WITHOUT guards."""
     m = len(sets_list[0])
     insts, tau, tp = pad_to_pow2(sets_list)
     B = tau * (t_hat + 1) + t_hat
@@ -217,8 +217,8 @@ def compose_clients_noguards(sets_list, nU, t_hat):
 
 
 def atk2():
-    # fontes todas NAO, t0 = 4 => tau = 2: dois seletores de UM par devem
-    # contornar todas as instancias em D1 (custo 2(t^+1) <= B) -> falso SIM.
+    # sources all NO, t0 = 4 => tau = 2: two selectors of ONE pair must
+    # bypass all instances in D1 (cost 2(t^+1) <= B) -> false YES.
     no1 = [frozenset([0]), frozenset([1])]
     srcs = [no1, no1, no1, no1]
     assert not any(sc_yes(2, s, 1) for s in srcs)
@@ -226,20 +226,20 @@ def atk2():
     yes = any(c is not None and c <= B
               for c in (total_cost(inst, y, z)
                         for y, z in all_designs(inst["nI"], inst["nJ"])))
-    assert yes, "ATK2: D1 sem guardas NAO quebrou (inesperado!)"
-    # e a versao final com guardas, nas mesmas fontes, responde NAO:
+    assert yes, "ATK2: D1 without guards did NOT break (unexpected)"
+    # and the final version with guards, on the same sources, answers NO:
     y2, _ = full_check(compose_clients, srcs, 2, 1, "ATK2-final",
                        expect_yes=False)
-    print("[ATK2] D1 (sem guardas) da falso-SIM com fontes todas-NAO; "
-          "D2 (com guardas) responde NAO: PASS (furo confirmado e fechado)")
+    print("[ATK2] D1 (no guards) gives a false YES with all-NO sources; "
+          "D2 (with guards) answers NO: PASS (hole confirmed and closed)")
 
 
 # ---------------------------------------------------------------------------
-# ATK3: agregacao com demandas extremas + LP independente
+# ATK3: aggregation with extreme demands + independent LP
 # ---------------------------------------------------------------------------
 
 def atk3():
-    assert HAVE_SCIPY, "scipy indisponivel"
+    assert HAVE_SCIPY, "scipy unavailable"
     rng = random.Random(20260710)
     n_inst = n_cmp = n_lp = 0
     for trial in range(25):
@@ -260,20 +260,20 @@ def atk3():
             "q": [[rng.choice([0, 1, 50]) for _ in range(nL)]
                   for _ in range(nK)],
         }
-        # clientes 0 e 1: colunas identicas, demandas EXTREMAS e em produtos
-        # diferentes (k0 pesado no produto 0, k1 pesado no ultimo produto)
+        # customers 0 and 1: identical columns, EXTREME demands and in
+        # different products (k0 heavy in product 0, k1 heavy in the last product)
         for j in range(nJ):
             for l in range(nL):
                 inst["d"][j][1][l] = inst["d"][j][0][l]
         inst["q"][0] = [60] + [0] * (nL - 1)
         inst["q"][1] = [0] * (nL - 1) + [47]
-        # capacidade apertada: garante um cenario com folga zero em metade
+        # tight capacity: guarantees a zero-slack scenario in half the trials
         if trial % 2 == 0:
             for l in range(nL):
                 D = sum(inst["q"][k][l] for k in range(nK))
                 for i in range(nI):
                     inst["b"][i][l] = max(inst["b"][i][l], 1)
-                # ajusta para sum b == D exatamente (capacidade justa)
+                # adjust so that sum b == D exactly (tight capacity)
                 tot = sum(inst["b"][i][l] for i in range(nI))
                 if tot > D:
                     exc = tot - D
@@ -287,9 +287,9 @@ def atk3():
         assert set(cmo) == set(cmm)
         for key in cmo:
             assert cmo[key] == cmm[key], \
-                f"ATK3 trial={trial} desenho {key}: {cmo[key]} != {cmm[key]}"
+                f"ATK3 trial={trial} design {key}: {cmo[key]} != {cmm[key]}"
             n_cmp += 1
-        # contraste LP independente em ate 6 desenhos por instancia
+        # independent LP contrast on up to 6 designs per instance
         keys = sorted(cmo)[:: max(1, len(cmo) // 6)]
         for (yy, zz) in keys:
             v_o = lp_total_cost(inst, list(yy), list(zz))
@@ -301,13 +301,13 @@ def atk3():
                     assert v_lp is not None and abs(v_lp - v_bf) < 1e-6
                 n_lp += 1
         n_inst += 1
-    print(f"[ATK3] agregacao extrema (demandas 60/47 em produtos distintos, "
-          f"capacidades justas): {n_inst} instancias, {n_cmp} comparacoes, "
-          f"{n_lp} contrastes LP: PASS")
+    print(f"[ATK3] extreme aggregation (demands 60/47 in distinct products, "
+          f"tight capacities): {n_inst} instances, {n_cmp} comparisons, "
+          f"{n_lp} LP contrasts: PASS")
 
 
 # ---------------------------------------------------------------------------
-# ATK4: capping com b,p >> D e a versao (B,k)
+# ATK4: capping with b,p >> D and the (B,k) version
 # ---------------------------------------------------------------------------
 
 def atk4():
@@ -339,8 +339,8 @@ def atk4():
             for j in range(nJ):
                 capped["p"][j][l] = min(capped["p"][j][l], D)
         cmo, cmc = cost_map(inst), cost_map(capped)
-        assert cmo == cmc, f"ATK4 trial={trial}: capping alterou algum desenho"
-        # resposta (B,k) para todo k e B em torno do otimo
+        assert cmo == cmc, f"ATK4 trial={trial}: capping altered some design"
+        # (B,k) answer for every k and B around the optimum
         for k in range(nI + nJ + 1):
             def best_k(cm):
                 vals = [v for (yy, zz), v in cm.items()
@@ -349,38 +349,38 @@ def atk4():
             assert best_k(cmo) == best_k(cmc)
             n_k += 1
         n_inst += 1
-    print(f"[ATK4] capping com b,p ate 10^6: {n_inst} instancias, respostas "
-          f"(B,k) identicas para todo k ({n_k} checagens): PASS")
+    print(f"[ATK4] capping with b,p up to 10^6: {n_inst} instances, "
+          f"(B,k) answers identical for every k ({n_k} checks): PASS")
 
 
 # ---------------------------------------------------------------------------
-# ATK5: probe n_U = 0 (fora da convencao) - documenta a dependencia
+# ATK5: probe n_U = 0 (outside the convention) - documents the dependency
 # ---------------------------------------------------------------------------
 
 def atk5():
     srcs = [[frozenset(), frozenset()], [frozenset(), frozenset()]]
-    or_src = any(sc_yes(0, s, 1) for s in srcs)  # cobertura vazia: SIM
+    or_src = any(sc_yes(0, s, 1) for s in srcs)  # empty cover: YES
     assert or_src
-    # clientes: ainda funciona (so guardas)
+    # clients: still works (guards only)
     inst, B, meta = compose_clients(srcs, 0, 1)
     yes_cli = any(c is not None and c <= B
                   for c in (total_cost(inst, y, z)
                             for y, z in all_designs(inst["nI"], inst["nJ"])))
-    # produtos: o guarda exige uma fabrica portadora (b[0][tp+beta] = 1);
-    # com n_U = 0 a CONSTRUCAO ja falha -- nao existe instancia composta.
+    # products: the guard requires a carrier plant (b[0][tp+beta] = 1);
+    # with n_U = 0 the CONSTRUCTION itself fails -- no composed instance exists.
     try:
         inst2, B2, _ = compose_products(srcs, 0, 1)
         yes_prod = any(c is not None and c <= B2
                        for c in (total_cost(inst2, y, z)
                                  for y, z in all_designs(inst2["nI"],
                                                          inst2["nJ"])))
-        prod_msg = "SIM" if yes_prod else "NAO (OR falharia)"
+        prod_msg = "YES" if yes_prod else "NO (OR would fail)"
     except IndexError:
-        prod_msg = "CONSTRUCAO FALHA (guarda sem fabrica portadora)"
-    print(f"[ATK5] probe n_U=0 (fora da convencao A2 par.0): fontes SIM; "
-          f"clientes -> {'SIM' if yes_cli else 'NAO'}; "
-          f"produtos -> {prod_msg} "
-          f"(a composicao por produtos DEPENDE de n_U>=1; cf. O1(b))")
+        prod_msg = "CONSTRUCTION FAILS (guard without a carrier plant)"
+    print(f"[ATK5] probe n_U=0 (outside convention A2 par.0): sources YES; "
+          f"clients -> {'YES' if yes_cli else 'NO'}; "
+          f"products -> {prod_msg} "
+          f"(the products composition DEPENDS on n_U>=1; cf. O1(b))")
 
 
 if __name__ == "__main__":
@@ -389,4 +389,4 @@ if __name__ == "__main__":
     atk3()
     atk4()
     atk5()
-    print("stress_tests_A6.py: concluido")
+    print("stress_tests_A6.py: completed")

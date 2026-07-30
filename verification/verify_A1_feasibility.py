@@ -1,16 +1,16 @@
 """
-Verificacao computacional da caracterizacao de viabilidade do artigo.
+Computational verification of the feasibility characterization from the paper.
 
-Para >= 30 instancias aleatorias pequenas com semente fixa, percorre
-EXAUSTIVAMENTE todos os desenhos (y,z) em {0,1}^{|I|} x {0,1}^{|J|}
-(ate 256 por instancia) e checa a equivalencia
+For >= 30 small random instances with fixed seed, EXHAUSTIVELY enumerates
+all designs (y,z) in {0,1}^{|I|} x {0,1}^{|J|}
+(up to 256 per instance) and checks the equivalence
 
-   [ para todo l: sum_i b_il y_i >= D_l  E  sum_j p_jl z_j >= D_l ]
+   [ for all l: sum_i b_il y_i >= D_l  AND  sum_j p_jl z_j >= D_l ]
                         <=>
-   [ para todo l: fluxo maximo S-T em N_l(y,z) >= D_l ]
+   [ for all l: maximum S-T flow in N_l(y,z) >= D_l ]
 
-onde o fluxo maximo e calculado por caminhos aumentantes com
-aritmetica inteira exata (implementacao propria, sem PL).
+where the maximum flow is computed via augmenting paths with
+exact integer arithmetic (self-contained implementation, no LP).
 """
 
 import sys
@@ -36,19 +36,19 @@ def main():
             if cond != real:
                 fails += 1
                 print(f"[FAIL] seed={seed} y={y} z={z}: "
-                      f"condicao_agregada={cond} viabilidade_fluxo={real}")
+                      f"aggregate_condition={cond} flow_feasibility={real}")
             if real:
                 n_true += 1
             else:
                 n_false += 1
 
-    print(f"\nverify_A1_feasibility: {n_instances} instancias, "
-          f"{checks} desenhos (y,z) checados exaustivamente: "
+    print(f"\nverify_A1_feasibility: {n_instances} instances, "
+          f"{checks} designs (y,z) checked exhaustively: "
           f"{checks - fails} PASS, {fails} FAIL "
-          f"({n_true} viaveis, {n_false} inviaveis)")
+          f"({n_true} feasible, {n_false} infeasible)")
     if fails:
         sys.exit(1)
-    print("TODOS OS TESTES PASSARAM")
+    print("ALL TESTS PASSED")
 
 
 if __name__ == "__main__":

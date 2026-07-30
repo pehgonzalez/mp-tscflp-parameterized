@@ -1,33 +1,33 @@
 #!/usr/bin/env python3
 """
-Verificacao computacional das cross-compositions OR do artigo.
+Computational verification of the paper's OR cross-compositions.
 
-Duas composicoes de t instancias de SET COVER (mesmos n_U, m, t_hat) em
-UMA instancia do MP-TSCFLP com parametro |I|+|J| = O(n_U + m + log t):
+Two compositions of t SET COVER instances (same n_U, m, t_hat) into
+ONE MP-TSCFLP instance with parameter |I|+|J| = O(n_U + m + log t):
 
-  compose_clients : composicao por CLIENTES - celula |I| = |L| = 1 (sabor
-                    da construcao de cobertura);
-                    clientes-elemento por instancia + seletores por bits
-                    complementares + clientes-guarda (1 por par de bits).
-  compose_products: composicao por PRODUTOS - celula |K| = 1 (sabor da
-                    reducao da camada numerica); produtos =
-                    instancias, fabricas = elementos com capacidade justa,
-                    produtos-guarda.
+  compose_clients : composition via CLIENTS - cell |I| = |L| = 1 (flavor
+                    of the covering construction);
+                    element-clients per instance + selectors for complementary
+                    bits + guard clients (1 per bit pair).
+  compose_products: composition via PRODUCTS - cell |K| = 1 (flavor of the
+                    numeric-layer reduction); products =
+                    instances, plants = elements with tight capacity,
+                    guard products.
 
-Checagens, para cada composicao:
-  (i)  OR-correcao: forca bruta no MP-TSCFLP composto (todos os desenhos +
-       oraculo MCMF de roteamento) da SIM  <=>  alguma instancia fonte e SIM
-       (forca bruta no SET COVER);
-  (ii) estrutural: TODO desenho de custo <= B abre exatamente um seletor por
-       par de bits, define i*, cobre a instancia i* com <= t_hat conjuntos
-       (e, nos produtos, abre todas as fabricas).
+Checks, for each composition:
+  (i)  OR-correctness: brute force on the composed MP-TSCFLP (all designs +
+       MCMF routing oracle) gives YES  <=>  some source instance is YES
+       (brute force on SET COVER);
+  (ii) structural: EVERY design of cost <= B opens exactly one selector per
+       bit pair, defines i*, covers instance i* with <= t_hat sets
+       (and, in the products case, opens all plants).
 
-Baterias:
-  [C1] clientes, exaustiva: n_U=2, m=2, t_hat=1, t=2 — todos os 256 pares
-       ordenados de sistemas de conjuntos.
-  [C2] clientes, aleatoria com sementes: n_U<=3, m<=3, t em {2,3,4}.
-  [P1] produtos, subamostra determinista da grade exaustiva de [C1].
-  [P2] produtos, aleatoria com sementes.
+Batteries:
+  [C1] clients, exhaustive: n_U=2, m=2, t_hat=1, t=2 -- all 256 ordered
+       pairs of set systems.
+  [C2] clients, seeded random: n_U<=3, m<=3, t in {2,3,4}.
+  [P1] products, deterministic subsample of the exhaustive grid of [C1].
+  [P2] products, seeded random.
 """
 import itertools
 import random
@@ -50,7 +50,7 @@ def total_cost(inst, y, z):
 
 
 def sc_min_cover(nU, sets):
-    """Tamanho minimo de cobertura (None se nao cobre); forca bruta."""
+    """Minimum cover size (None if no cover); brute force."""
     m = len(sets)
     full = (1 << nU) - 1
     masks = [sum(1 << e for e in s) for s in sets]
@@ -82,7 +82,7 @@ def pad_to_pow2(sets_list):
 
 
 # ---------------------------------------------------------------------------
-# Composicao 1: clientes (celula |I| = |L| = 1)
+# Composition 1: clients (cell |I| = |L| = 1)
 # ---------------------------------------------------------------------------
 
 def compose_clients(sets_list, nU, t_hat):
@@ -90,9 +90,9 @@ def compose_clients(sets_list, nU, t_hat):
     insts, tau, tp = pad_to_pow2(sets_list)
     B = tau * (t_hat + 1) + t_hat
     W = B + 1
-    nJ = m + 2 * tau                    # conjuntos + seletores S_{beta,v}
-    D = tp * nU + tau                   # demanda total (elementos + guardas)
-    # clientes: (i,e) para i<tp, e<nU; depois guardas g_beta
+    nJ = m + 2 * tau                    # sets + selectors S_{beta,v}
+    D = tp * nU + tau                   # total demand (elements + guards)
+    # clients: (i,e) for i<tp, e<nU; then guards g_beta
     nK = tp * nU + tau
     g = [1] * m + [t_hat + 1] * (2 * tau)
     d = [[[0] for _ in range(nK)] for _ in range(nJ)]
@@ -134,26 +134,26 @@ def check_clients(sets_list, nU, t_hat):
         if c is None or c > B:
             continue
         yes = True
-        # estrutural: exatamente um seletor por par
+        # structural: exactly one selector per pair
         vpat = []
         for beta in range(tau):
             opens = [z[m + 2 * beta + v] for v in (0, 1)]
-            assert sum(opens) == 1, "par de seletores nao-singleton"
+            assert sum(opens) == 1, "selector pair not a singleton"
             vpat.append(0 if opens[0] else 1)
         istar = sum(v << beta for beta, v in enumerate(vpat))
         zsets = [j for j in range(m) if z[j]]
-        assert len(zsets) <= t_hat, "mais conjuntos que t_hat"
+        assert len(zsets) <= t_hat, "more sets than t_hat"
         for e in range(nU):
             assert any(e in insts[istar][j] for j in zsets), \
-                "i* nao coberto por Z"
+                "i* not covered by Z"
         n_struct += 1
     assert yes == or_src, \
-        f"OR falhou (clientes): composto={yes}, fontes={or_src}"
+        f"OR failed (clients): composed={yes}, sources={or_src}"
     return yes, n_struct
 
 
 # ---------------------------------------------------------------------------
-# Composicao 2: produtos (celula |K| = 1)
+# Composition 2: products (cell |K| = 1)
 # ---------------------------------------------------------------------------
 
 def compose_products(sets_list, nU, t_hat):
@@ -164,18 +164,18 @@ def compose_products(sets_list, nU, t_hat):
     Q = B + 1
     nI = nU
     nJ = m + 2 * tau
-    nL = tp + tau                       # produtos principais + guardas
+    nL = tp + tau                       # main products + guards
     c = [[[0] * nL for _ in range(nJ)] for _ in range(nI)]
     for i in range(nI):
         for j in range(nJ):
             for l in range(nL):
-                if l < tp:              # produto principal l = instancia l
+                if l < tp:              # main product l = instance l
                     if j < m:
                         c[i][j][l] = 0 if i in insts[l][j] else 1
                     else:
                         beta, v = divmod(j - m, 2)
                         c[i][j][l] = 0 if ((l >> beta) & 1) != v else W
-                else:                   # produto-guarda do par beta
+                else:                   # guard product of pair beta
                     beta_g = l - tp
                     if j >= m and (j - m) // 2 == beta_g:
                         c[i][j][l] = 0
@@ -183,7 +183,7 @@ def compose_products(sets_list, nU, t_hat):
                         c[i][j][l] = W
     b = [[Q] * tp + [0] * tau for _ in range(nI)]
     for beta in range(tau):
-        b[0][tp + beta] = 1             # guarda: so a fabrica 0 a carrega
+        b[0][tp + beta] = 1             # guard: only plant 0 carries it
     q = [[nU * Q] * tp + [1] * tau]
     p = [[nU * Q] * tp + [1] * tau for _ in range(nJ)]
     inst = {"nI": nI, "nJ": nJ, "nK": 1, "nL": nL,
@@ -208,30 +208,30 @@ def check_products(sets_list, nU, t_hat):
         if c is None or c > B:
             continue
         yes = True
-        assert all(y), "fabrica fechada em solucao de custo <= B"
+        assert all(y), "closed plant in a solution of cost <= B"
         vpat = []
         for beta in range(tau):
             opens = [z[m + 2 * beta + v] for v in (0, 1)]
-            assert sum(opens) == 1, "par de seletores nao-singleton"
+            assert sum(opens) == 1, "selector pair not a singleton"
             vpat.append(0 if opens[0] else 1)
         lstar = sum(v << beta for beta, v in enumerate(vpat))
         zsets = [j for j in range(m) if z[j]]
-        assert len(zsets) <= t_hat, "mais conjuntos que t_hat"
+        assert len(zsets) <= t_hat, "more sets than t_hat"
         for i in range(nU):
             assert any(i in insts[lstar][j] for j in zsets), \
-                "fabrica descoberta no produto l*"
+                "uncovered plant in product l*"
         n_struct += 1
     assert yes == or_src, \
-        f"OR falhou (produtos): composto={yes}, fontes={or_src}"
+        f"OR failed (products): composed={yes}, sources={or_src}"
     return yes, n_struct
 
 
 # ---------------------------------------------------------------------------
-# geracao de fontes
+# source generation
 # ---------------------------------------------------------------------------
 
 def all_systems_nU2_m2():
-    """Todos os sistemas de 2 subconjuntos de {0,1} (16 sistemas)."""
+    """All systems of 2 subsets of {0,1} (16 systems)."""
     subsets = [frozenset(), frozenset([0]), frozenset([1]), frozenset([0, 1])]
     return [list(pair) for pair in itertools.product(subsets, repeat=2)]
 
@@ -242,7 +242,7 @@ def random_system(rng, nU, m):
 
 
 # ---------------------------------------------------------------------------
-# baterias
+# batteries
 # ---------------------------------------------------------------------------
 
 def battery_C1():
@@ -253,8 +253,8 @@ def battery_C1():
             yes, _ = check_clients([s1, s2], nU=2, t_hat=1)
             n += 1
             n_yes += yes
-    print(f"[C1] clientes, exaustiva n_U=2 m=2 t=2 t^=1: {n} composicoes "
-          f"({n_yes} SIM, {n - n_yes} NAO): PASS")
+    print(f"[C1] clients, exhaustive n_U=2 m=2 t=2 t^=1: {n} compositions "
+          f"({n_yes} YES, {n - n_yes} NO): PASS")
 
 
 def battery_C2():
@@ -269,21 +269,21 @@ def battery_C2():
         yes, _ = check_clients(srcs, nU, t_hat)
         n += 1
         n_yes += yes
-    print(f"[C2] clientes, aleatoria (sementes 7000-7039): {n} composicoes "
-          f"({n_yes} SIM, {n - n_yes} NAO): PASS")
+    print(f"[C2] clients, random (seeds 7000-7039): {n} compositions "
+          f"({n_yes} YES, {n - n_yes} NO): PASS")
 
 
 def battery_P1():
     systems = all_systems_nU2_m2()
     pairs = list(itertools.product(range(16), repeat=2))
-    sel = [pairs[k] for k in range(0, 256, 4)]      # 64 pares deterministas
+    sel = [pairs[k] for k in range(0, 256, 4)]      # 64 deterministic pairs
     n = n_yes = 0
     for a, bb in sel:
         yes, _ = check_products([systems[a], systems[bb]], nU=2, t_hat=1)
         n += 1
         n_yes += yes
-    print(f"[P1] produtos, grade n_U=2 m=2 t=2 t^=1 (64 pares): {n} "
-          f"composicoes ({n_yes} SIM, {n - n_yes} NAO): PASS")
+    print(f"[P1] products, grid n_U=2 m=2 t=2 t^=1 (64 pairs): {n} "
+          f"compositions ({n_yes} YES, {n - n_yes} NO): PASS")
 
 
 def battery_P2():
@@ -298,8 +298,8 @@ def battery_P2():
         yes, _ = check_products(srcs, nU, t_hat)
         n += 1
         n_yes += yes
-    print(f"[P2] produtos, aleatoria (sementes 7100-7123): {n} composicoes "
-          f"({n_yes} SIM, {n - n_yes} NAO): PASS")
+    print(f"[P2] products, random (seeds 7100-7123): {n} compositions "
+          f"({n_yes} YES, {n - n_yes} NO): PASS")
 
 
 if __name__ == "__main__":
@@ -307,4 +307,4 @@ if __name__ == "__main__":
     battery_C2()
     battery_P1()
     battery_P2()
-    print("verify_A6_crosscomp.py: TODAS AS BATERIAS PASSARAM")
+    print("verify_A6_crosscomp.py: ALL BATTERIES PASSED")

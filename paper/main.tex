@@ -1,5 +1,6 @@
-% Elsevier submission build (elsarticle).
-\documentclass[preprint,12pt]{elsarticle}
+% Elsevier submission build (CAS single-column class, els-cas-templates).
+\documentclass[a4paper,fleqn]{cas-sc}
+\usepackage[numbers,sort&compress]{natbib}
 \usepackage{amsmath,amssymb,amsthm}
 \usepackage{graphicx}
 \graphicspath{{figures/}}
@@ -10,6 +11,10 @@
 \usetikzlibrary{positioning,arrows.meta,shapes.geometric,backgrounds,fit,calc}
 \usepackage{float}
 \usepackage{longtable}
+% The class redefines the float mechanism at begin-document, which wipes
+% the [H] placement that float.sty installs, so the two standard floats
+% are restyled back after the class has finished.
+\AtBeginDocument{\restylefloat{figure}\restylefloat{table}}
 % Self-contained algorithm float and numbered pseudocode lines (no external
 % algorithm packages; switch to algorithmicx at submission if preferred).
 \floatstyle{ruled}
@@ -25,8 +30,6 @@
 \newcommand{\kw}[1]{\textbf{#1}}
 \newcommand{\algin}{\hspace*{1.4em}}
 \newcommand{\algcomment}[1]{\hfill$\triangleright$~{\footnotesize #1}}
-\biboptions{numbers,sort&compress}
-\usepackage[hidelinks]{hyperref}
 \emergencystretch=3em
 
 \newtheorem{theorem}{Theorem}
@@ -47,23 +50,30 @@
 \newcommand{\FPT}{\textsf{FPT}}
 \newcommand{\XP}{\textsf{XP}}
 
-\journal{Discrete Applied Mathematics}
-
 \begin{document}
+\let\WriteBookmarks\relax
+\def\floatpagepagefraction{1}
+\def\textpagefraction{.001}
 
-\begin{frontmatter}
+\shorttitle{Parameterized complexity of the multiproduct two-stage
+capacitated facility location problem}
+\shortauthors{P.H. Gonz\'alez and R. Schneider}
 
-\title{The Multiproduct Two-Stage Capacitated Facility Location
-Problem: A Parameterized Complexity Analysis}
+\title[mode = title]{The Multiproduct Two-Stage Capacitated Facility
+Location Problem: A Parameterized Complexity Analysis}
 
-\author{Pedro Henrique Gonz\'alez\corref{cor1}}
+\author[1]{Pedro Henrique Gonz\'alez}
+\cormark[1]
 \ead{pegonzalez@cos.ufrj.br}
 
-\author{Rafael Schneider}
+\author[1]{Rafael Schneider}
 \ead{rschneider@cos.ufrj.br}
 
-\cortext[cor1]{Corresponding author.}
-\address{Federal University of Rio de Janeiro, Rio de Janeiro, Brazil}
+\affiliation[1]{organization={Federal University of Rio de Janeiro},
+            city={Rio de Janeiro},
+            country={Brazil}}
+
+\cortext[1]{Corresponding author.}
 
 \begin{abstract}
 In the multiproduct two-stage capacitated facility location problem
@@ -93,14 +103,27 @@ solver-certified optimal values that improve the best values of Mauri
 and coauthors.
 \end{abstract}
 
-\begin{keyword}
-Facility Location \sep Supply Chain Design \sep Parameterized Complexity
-\sep Fixed-Parameter Tractability \sep Kernelization Lower Bounds
-\sep Branch-and-Bound
-\MSC[2020] 90B80 \sep 68Q27 \sep 90C27
-\end{keyword}
+\begin{highlights}
+\item First parameterized complexity analysis of the two-stage
+multiproduct model
+\item The four size parameters obey a dichotomy around the two facility
+counts
+\item No polynomial kernel in the facility counts unless NP lies in
+coNP/poly
+\item W[2]-hardness in the opening count, with the XP enumeration
+optimal under ETH
+\item The covering bound tracks root relaxation tightness on the public
+benchmark
+\end{highlights}
 
-\end{frontmatter}
+\begin{keywords}
+Facility Location \sep Supply Chain Design \sep Parameterized
+Complexity \sep Fixed-Parameter Tractability \sep Kernelization Lower
+Bounds \sep Branch-and-Bound
+\MSC[2020] 90B80 \sep 68Q27 \sep 90C27
+\end{keywords}
+
+\maketitle
 
 \input{sections/introduction}
 \input{sections/literature}

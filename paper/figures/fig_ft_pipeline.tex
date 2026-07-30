@@ -41,12 +41,12 @@
       {sign-condition language\\
        \textcolor{black!60}{\scriptsize equivalent output}};
     \draw[flow] (I) -- (A);
-    \draw[flow] (A.north) |- node[pos=0.75,above,font=\scriptsize,
-      text=black!60]{costs, totals small} (C.west);
+    \draw[flow] (A.north) |- node[pos=0.52,above,font=\scriptsize,
+      text=black!60,anchor=south east,xshift=-4pt]{costs, totals small} (C.west);
     \draw[flow] (C) -- (U);
     \draw[flow] (U) -- (K);
-    \draw[flow] (A.south) |- node[pos=0.75,below,font=\scriptsize,
-      text=black!60]{costs, $B$ small} (S.west);
+    \draw[flow] (A.south) |- node[pos=0.52,below,font=\scriptsize,
+      text=black!60,anchor=north east,xshift=-4pt]{costs, $B$ small} (S.west);
     \draw[flow] (S) -- (F);
     \draw[flow] (F) -- (L);
   \end{tikzpicture}%

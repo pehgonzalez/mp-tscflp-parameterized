@@ -17,7 +17,7 @@ to customer $k$ costs $d_{jkl}$. Factory $i$ can supply $b_{il}$ units of
 product $l$ and depot $j$ can hold $p_{jl}$, while customer $k$ demands
 $q_{kl}$. Both stages are complete bipartite, so no arc is forbidden a
 priori. A solution opens a set of factories and depots, encoded by
-$y\in\{0,1\}^{I}$ and $z\in\{0,1\}^{J}$, and routes the products through
+$y\in\{0,1\}^{|I|}$ and $z\in\{0,1\}^{|J|}$, and routes the products through
 nonnegative flows $x_{ijl}$ on the first stage and $w_{jkl}$ on the
 second. We write $D_l=\sum_{k\in K}q_{kl}$ for the total demand of
 product $l$ and $n=|I|+|J|$ for the number of candidate facilities.
@@ -165,7 +165,7 @@ variable it carries.
 \input{figures/fig_oracle_network.tex}
 
 \begin{proposition}[routing oracle]\label{prop:oracle}
-Fix $(y,z)\in\{0,1\}^{I}\times\{0,1\}^{J}$. The residual routing problem
+Fix $(y,z)\in\{0,1\}^{|I|}\times\{0,1\}^{|J|}$. The residual routing problem
 separates over products, and for each product $l$ its optimal cost equals
 the minimum cost $\mu_l$ of an $S$--$T$ flow of value $D_l$ in the layered
 network $N_l(y,z)$ defined above, with $\mu_l=+\infty$ when no such flow

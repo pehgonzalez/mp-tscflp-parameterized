@@ -11,6 +11,7 @@ worker() {
     [ $((sd % 2)) -ne $par ] && continue
     grep -q "^$b," "$OUT" && continue
     line=$(./build/xp "$f" 600 -1 2>/dev/null | grep "^instance=")
+    [ -n "$line" ] || { echo "EMPTY OUTPUT for $b, will retry on resume"; continue; }
     get(){ echo "$line" | tr ' ' '\n' | grep "^$1=" | cut -d= -f2; }
     IFS=_ read -r _ nI nJ nK nL tI tJ s <<< "$b"
     flock "$OUT" -c "echo '$b,${nI#nI},${nJ#nJ},${nK#nK},${nL#nL},${tI#tI},${tJ#tJ},${s#s},$(get status),$(get obj),$(get k_used),$(get kstar),$(get nodes),$(get time),$(get timeout),$(get p1),$(get p2i),$(get p2b),$(get p3)' >> '$OUT'"

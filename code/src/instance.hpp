@@ -9,13 +9,17 @@
 //   5. J rows: p_j1 .. p_jL g_j          (warehouse capacities + fixed cost)
 //   6. L blocks of J x K: d[l][j][k]     (stage-2 flow costs)
 //
-// All data are read directly as long long (integrality is enforced by the
-// stream parse: any non-integer token aborts). Non-negativity is asserted,
-// matching the paper's standing hypotheses.
+// Every token is parsed strictly as a decimal integer (a token such as
+// "7.5", "1e3" or "abc" aborts, wherever it appears), non-negativity is
+// enforced, and each datum must not exceed MAX_DATUM = 10^9, a documented
+// bound that keeps every downstream sum and cost product within long long
+// with ample headroom. Trailing content of any kind aborts.
 
 #pragma once
 
+#include <cerrno>
 #include <cstdint>
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -42,14 +46,24 @@ struct Instance {
 };
 
 namespace detail {
+constexpr long long MAX_DATUM = 1000000000LL;  // 10^9, documented input bound
 inline long long read_int(std::istream& in, const char* what) {
-    long long v;
-    if (!(in >> v))
+    std::string tok;
+    if (!(in >> tok))
         throw std::runtime_error(std::string("PSC parse error: expected integer for ") + what +
-                                 " (non-integral or missing datum; proof-mode assumptions violated)");
+                                 " (missing datum; proof-mode assumptions violated)");
+    errno = 0;
+    char* end = nullptr;
+    const long long v = std::strtoll(tok.c_str(), &end, 10);
+    if (errno == ERANGE || end == tok.c_str() || *end != '\0')
+        throw std::runtime_error(std::string("PSC parse error: non-integral token '") + tok +
+                                 "' for " + what);
     if (v < 0)
         throw std::runtime_error(std::string("PSC parse error: negative datum for ") + what +
                                  " (the paper assumes non-negative integer data)");
+    if (v > MAX_DATUM)
+        throw std::runtime_error(std::string("PSC parse error: datum for ") + what +
+                                 " exceeds the documented bound of 10^9");
     return v;
 }
 }  // namespace detail
@@ -94,7 +108,7 @@ inline Instance read_psc(const std::string& path) {
         for (int j = 0; j < X.nJ; ++j)
             for (int k = 0; k < X.nK; ++k) X.d[l][j][k] = read_int(in, "d[l][j][k]");
 
-    long long trailing;
+    std::string trailing;
     if (in >> trailing)
         throw std::runtime_error("PSC parse error: trailing data after expected end of instance");
     return X;

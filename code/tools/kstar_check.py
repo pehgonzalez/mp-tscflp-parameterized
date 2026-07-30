@@ -64,6 +64,8 @@ def parse_psc(path):
 
 
 def main():
+    if len(sys.argv) != 4:
+        sys.exit("usage: kstar_check.py <data_dir> <xp_raw_lines.txt> <out.csv>")
     data_dir, raw_path, out_path = sys.argv[1], sys.argv[2], sys.argv[3]
     xp_kstar = {}
     for line in open(raw_path):

@@ -1,4 +1,4 @@
-// Single-stage capacitated FLP (one product): port of Old_Project/src/d1cplex.* to Gurobi.
+// Single-stage capacitated FLP (one product): port of the legacy d1cplex.* to Gurobi.
 // Used by TwoStepsSolver: stage 2 (warehouses->customers) then stage 1 (factories->warehouses).
 //   min  sum_i f_i y_i + sum_ij c_ij x_ij
 //   s.t. sum_i x_ij >= demand_j          (each "customer" j)

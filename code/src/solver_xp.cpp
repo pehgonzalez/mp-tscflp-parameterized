@@ -245,7 +245,10 @@ struct Search {
     void dfs(int depth) {
         if (timed_out) return;
         ++st.nodes;
-        if ((st.nodes & 4095) == 0 && deadline_hit()) return;  // deadline check
+        if ((st.nodes & 4095) == 0 && deadline_hit()) {
+            --st.nodes;  // the aborted node is classified by no counter
+            return;
+        }
         const int r = k - cardO;
         if (r < 0) { ++st.rneg; return; }  // step 4
         if (p1_prune(r)) { ++st.p1; return; }  // step 5 [P1]
@@ -254,7 +257,10 @@ struct Search {
         for (int i = 0; i < X.nI; ++i) yup[i] = ydec[i] ? yopen_dec[i] : 1;
         for (int j = 0; j < X.nJ; ++j) zup[j] = zdec[j] ? zopen_dec[j] : 1;
         OracleOut orc = routing_oracle(X, yup, zup);
-        if (deadline_hit()) return;  // oracle is the expensive step
+        if (deadline_hit()) {
+            --st.nodes;  // aborted after the oracle, classified by no counter
+            return;
+        }
         if (!orc.feasible) { ++st.p2_infeas; return; }
         const long long LB = fixedO + orc.value;
         const long long cut = (B >= LLINF - 1) ? best : std::min(best, B + 1);
@@ -318,7 +324,10 @@ XpResult solve_xp(const Instance& original, int k_request, double time_limit_s, 
     }
     R.kstar_finite = (maxKI != LLINF && maxKJ != LLINF);
     R.kstar = R.kstar_finite ? maxKI + maxKJ : 0;
-    if (!R.kstar_finite || R.kstar > R.k_used) {
+    // The root covering test is part of rule P1, so the ablation switch
+    // disables it too and the search then proves any infeasibility through
+    // the oracle-based prunes, keeping the knockout complete under bounded k.
+    if (!Search::p1_disabled() && (!R.kstar_finite || R.kstar > R.k_used)) {
         R.status = "INFEASIBLE";
         R.has_obj = false;
         R.seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - t0).count();

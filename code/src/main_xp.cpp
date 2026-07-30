@@ -14,6 +14,7 @@
 // feasible design of cardinality <= k is known.
 
 #include <cstdio>
+#include <cerrno>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -27,8 +28,19 @@ int main(int argc, char** argv) {
         return 2;
     }
     const std::string path = argv[1];
-    const double tl = (argc >= 3) ? std::atof(argv[2]) : 3600.0;
-    const int k = (argc >= 4) ? std::atoi(argv[3]) : -1;
+    auto parse_num = [](const char* a, bool as_int) -> double {
+        errno = 0;
+        char* end = nullptr;
+        const double v = as_int ? static_cast<double>(std::strtol(a, &end, 10))
+                                : std::strtod(a, &end);
+        if (errno == ERANGE || end == a || *end != '\0') {
+            std::fprintf(stderr, "bad numeric argument '%s'\n", a);
+            std::exit(2);
+        }
+        return v;
+    };
+    const double tl = (argc >= 3) ? parse_num(argv[2], false) : 3600.0;
+    const int k = (argc >= 4) ? static_cast<int>(parse_num(argv[3], true)) : -1;
 
     std::string name = path;
     if (auto pos = name.find_last_of("/\\"); pos != std::string::npos) name = name.substr(pos + 1);

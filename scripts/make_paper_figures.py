@@ -110,6 +110,7 @@ NSC=[20,24,28,30,40]
 frac60=[]; frac600=[]
 for n in NSC:
     c6=[r for r in b600 if int(r["nI"])+int(r["nJ"])==n]
+    assert c6, f"no 600 s rows for n={n}; regenerate q1_boundary600.csv first"
     frac60.append(sum(1 for r in c6 if r["status"]=="OPTIMAL"
                       and float(r["time"])<=60.0)/len(c6))
     frac600.append(sum(1 for r in c6 if r["status"]=="OPTIMAL")/len(c6))
@@ -167,9 +168,11 @@ srows=[]
 for r in csv.DictReader(open(os.path.join(RES,"mauri_mip.csv"))):
     name=r["instance"].strip()
     kr=kstar.get(name) or kstar.get(name+".txt") or kstar.get(name.replace(".txt",""))
-    if not kr: continue
+    if not kr:
+        print("  [skip] no k* for",name); continue
     try: g=float(r["gap"])
-    except ValueError: continue
+    except ValueError:
+        print("  [skip] bad gap for",name); continue
     srows.append(dict(k=float(kr["kstar_py"]),g=g,
                       grp=f"{kr['nI']}-{kr['nJ']}-{kr['nK']}-L{kr['nL']}"))
 groups=sorted({r["grp"] for r in srows})

@@ -13,10 +13,12 @@ worker() {
     [ $((i % 2)) -ne $par ] && continue
     b=$(basename "$f" .txt)
     if [ ! -f "$LINES/$b.on" ]; then
-      ./build/xp "$f" 60 -1 2>/dev/null | grep "^instance=" > "$LINES/$b.on"
+      out=$(./build/xp "$f" 60 -1 2>/dev/null | grep "^instance=")
+      [ -n "$out" ] && printf '%s\n' "$out" > "$LINES/$b.on"
     fi
     if [ ! -f "$LINES/$b.off" ]; then
-      MPTSCFL_NO_P1=1 ./build/xp "$f" 60 -1 2>/dev/null | grep "^instance=" > "$LINES/$b.off"
+      out=$(MPTSCFL_NO_P1=1 ./build/xp "$f" 60 -1 2>/dev/null | grep "^instance=")
+      [ -n "$out" ] && printf '%s\n' "$out" > "$LINES/$b.off"
     fi
     echo "[$(date +%H:%M:%S)] w$par $b done"
   done

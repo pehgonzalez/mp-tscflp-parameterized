@@ -27,7 +27,10 @@ code/
   run_boundary600_par.sh  campaign (Linux): budget-600 boundary family, resumable, 2 workers
   run_boundary600.sh      sequential single-worker variant of the same campaign
   run_q1_rerun_par.sh     campaign (Linux): full Q1 grid, 460 runs at 60 s, resumable, 2 workers,
-                          source of the one-line records behind results/q1_xp.csv
+                          source of the one-line records in results/q1_rerun_lines/
+                          behind results/q1_xp.csv (xp_results.csv from the Windows
+                          batch is a convenience log, the canonical join uses the
+                          one-line records)
   run_mip_mauri.ps1       campaign (Windows): Mip at 3600 s on the 100 benchmark instances
                           for Q3, consumed by scripts/analyze_q3_correlation.py
   run_pipeline.ps1        campaign (Windows): resumable wrapper chaining the MIP phases

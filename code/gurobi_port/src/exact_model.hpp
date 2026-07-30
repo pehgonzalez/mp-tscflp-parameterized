@@ -1,5 +1,5 @@
 // Exact MIP for the MP-TSCFLP, model (1)-(10) of Mauri et al. (2021).
-// Port of Old_Project/src/exato.* from CPLEX Concert to the Gurobi C++ API.
+// Port of the legacy exato.* from CPLEX Concert to the Gurobi C++ API.
 //
 // CPLEX -> Gurobi mapping used here:
 //   IloCplex::setPriorities            -> GRB_IntAttr_BranchPriority

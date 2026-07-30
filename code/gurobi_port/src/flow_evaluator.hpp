@@ -1,6 +1,6 @@
 // Two-stage min-cost flow evaluator: given open factories/warehouses, computes the
 // cheapest routing of every product and the facilities actually used.
-// Port of Old_Project/src/graphcost_ts.* (CPXNET) to a solver-independent backend.
+// Port of the legacy graphcost_ts.* (CPXNET) to a solver-independent backend.
 // Backend: built-in SSP (mcmf.hpp). A lemon::NetworkSimplex backend is planned as a
 // drop-in replacement behind this same interface (see README, "Próximos passos").
 #ifndef MPTSCFL_FLOW_EVALUATOR_HPP

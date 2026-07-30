@@ -1,5 +1,5 @@
 // Two-steps decomposition heuristic + exact warm start.
-// Port of Old_Project/src/twoStepsSolver.*:
+// Port of the legacy twoStepsSolver.*:
 //   per product l: solve stage 2 (warehouses->customers) as a 1-stage FLP; the flow
 //   leaving each warehouse becomes the demand of stage 1 (factories->warehouses);
 //   union of opened facilities across products -> route all products (min-cost flow)

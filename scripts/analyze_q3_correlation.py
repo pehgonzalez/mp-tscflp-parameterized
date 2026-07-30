@@ -99,6 +99,9 @@ def main():
         if not kr:
             print(f"  [skip] no k* for {name}")
             continue
+        if kr["kstar_py"] == "inf":
+            print(f"  [skip] infinite covering bound for {name}")
+            continue
         try:
             t = float(r[ct]); g = float(r[cg])
         except ValueError:

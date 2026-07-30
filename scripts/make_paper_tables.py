@@ -46,6 +46,8 @@ def spearman(x, y):
     rx, ry = rankdata(x), rankdata(y); n=len(x)
     mx, my = sum(rx)/n, sum(ry)/n
     sx = math.sqrt(sum((v-mx)**2 for v in rx)); sy = math.sqrt(sum((v-my)**2 for v in ry))
+    if sx == 0 or sy == 0:
+        return float("nan")
     return sum((rx[i]-mx)*(ry[i]-my) for i in range(n))/(sx*sy)
 
 def perm_p(x, y, nperm=20000, seed=20260718):
@@ -72,6 +74,8 @@ def boot_ci(x, y, nboot=10000, seed=20260719):
             continue
         vals.append(spearman(bx, by))
     vals.sort()
+    if not vals:
+        return float("nan"), float("nan")
     lo = vals[int(0.025 * len(vals))]
     hi = vals[int(0.975 * len(vals)) - 1]
     return lo, hi
@@ -192,7 +196,12 @@ code & limit (s) & solved & median time (s) \\
 """)
 
 # ---------------------------------------------------------------- Q3 groups
-kstar = {r["instance"]: int(r["kstar_py"]) for r in load("mauri_kstar.csv")}
+kstar = {}
+for _kr in load("mauri_kstar.csv"):
+    if _kr["kstar_py"] == "inf":
+        print("skipping %s: infinite covering bound" % _kr["instance"])
+        continue
+    kstar[_kr["instance"]] = int(_kr["kstar_py"])
 mauri = load("mauri_mip.csv")
 def group_of(name):
     p = name.split("-")
@@ -282,21 +291,28 @@ def pearson(x, y):
 def perm_p_partial(x, y, z, strata=None, nperm=20000, seed=20260718):
     """Freedman-Lane residual permutation test for the partial coefficient,
     fixed seed. Both variables are rank-regressed on the conditioning
-    variable and the residuals of the second are permuted, within strata
-    when a stratum label list is given (used for the pooled column, where
-    permutations run inside each size group)."""
+    variable, the residuals of the second are permuted (within strata when
+    a stratum label list is given, as in the pooled column), and each
+    permuted vector is re-residualized on the conditioning ranks before
+    the statistic is recomputed, which is the Freedman-Lane recipe."""
     import random as _rnd
     rx, ry = resid_ranks(x, z), resid_ranks(y, z)
+    rz = rankdata(z); n = len(rz); mz = sum(rz) / n
+    szz = sum((t - mz) ** 2 for t in rz)
+    def reresid(v):
+        mv = sum(v) / n
+        beta = sum((rz[i] - mz) * (v[i] - mv) for i in range(n)) / szz if szz > 0 else 0.0
+        return [v[i] - (mv + beta * (rz[i] - mz)) for i in range(n)]
     obs = pearson(rx, ry); rng = _rnd.Random(seed); cnt = 0; yy = list(ry)
-    n = len(yy)
-    pos = [list(range(n))] if strata is None else           [[i for i in range(n) if strata[i] == g] for g in sorted(set(strata))]
+    pos = [list(range(n))] if strata is None else \
+          [[i for i in range(n) if strata[i] == g] for g in sorted(set(strata))]
     for _ in range(nperm):
         for ps in pos:
             vals = [yy[i] for i in ps]
             rng.shuffle(vals)
             for i, v in zip(ps, vals):
                 yy[i] = v
-        if abs(pearson(rx, yy)) >= abs(obs) - 1e-12:
+        if abs(pearson(rx, reresid(yy))) >= abs(obs) - 1e-12:
             cnt += 1
     return (cnt + 1) / (nperm + 1)
 
@@ -313,6 +329,8 @@ def boot_ci_stat(stat, data, nboot=10000, seed=20260719):
         if v == v:
             vals.append(v)
     vals.sort()
+    if not vals:
+        return float("nan"), float("nan")
     return vals[int(0.025*len(vals))], vals[int(0.975*len(vals))-1]
 
 rootrows = {r["instance"]: r for r in load("mauri_rootgap.csv")}

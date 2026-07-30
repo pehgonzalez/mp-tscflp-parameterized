@@ -1,8 +1,13 @@
 // MP-TSCFLP instance loader (PSC format, Mauri et al. 2021 / Fernandes et al. 2014).
-// Faithful port of Old_Project/src/instance.{h,cpp} to modern C++20 (no raw memory).
+// Faithful port of the legacy instance.{h,cpp} to modern C++20 (no raw memory).
+// Every token is parsed strictly as a non-negative decimal integer bounded by
+// 10^9 (the archive's documented input bound, same contract as ../../src),
+// then stored as double, exact well below 2^53. Trailing content aborts.
 #ifndef MPTSCFL_INSTANCE_HPP
 #define MPTSCFL_INSTANCE_HPP
 
+#include <cerrno>
+#include <cstdlib>
 #include <fstream>
 #include <stdexcept>
 #include <string>
@@ -37,52 +42,73 @@ public:
     double TotalCapWare = 0.0;
     std::string file_name;
 
+    static double read_datum(std::ifstream& f, const std::string& fname) {
+        std::string tok;
+        if (!(f >> tok))
+            throw std::runtime_error("Truncated instance file: " + fname);
+        errno = 0;
+        char* end = nullptr;
+        const long long v = std::strtoll(tok.c_str(), &end, 10);
+        if (errno == ERANGE || end == tok.c_str() || *end != '\0' || v < 0 ||
+            v > 1000000000LL)
+            throw std::runtime_error("Bad datum '" + tok + "' in " + fname +
+                                     ": expected a non-negative integer at most 10^9");
+        return static_cast<double>(v);
+    }
+
     void load_file(const std::string& fname) {
         file_name = fname;
         std::ifstream f(fname);
         if (!f) throw std::runtime_error("Instance file not found: " + fname);
 
-        f >> nfactories >> nwarehouses >> ncustomers >> ncommodities;
-        if (!f || nfactories <= 0 || nwarehouses <= 0 || ncustomers <= 0 || ncommodities <= 0)
+        nfactories = static_cast<int>(read_datum(f, fname));
+        nwarehouses = static_cast<int>(read_datum(f, fname));
+        ncustomers = static_cast<int>(read_datum(f, fname));
+        ncommodities = static_cast<int>(read_datum(f, fname));
+        if (nfactories <= 0 || nwarehouses <= 0 || ncustomers <= 0 || ncommodities <= 0)
             throw std::runtime_error("Bad header in " + fname);
 
         customer_demand.assign(ncustomers, std::vector<double>(ncommodities));
         for (int k = 0; k < ncustomers; ++k)
-            for (int l = 0; l < ncommodities; ++l) f >> customer_demand[k][l];
+            for (int l = 0; l < ncommodities; ++l) customer_demand[k][l] = read_datum(f, fname);
 
         fixedcost_factory.assign(nfactories, 0.0);
         factory_capacity.assign(nfactories, std::vector<double>(ncommodities));
         for (int i = 0; i < nfactories; ++i) {
             for (int l = 0; l < ncommodities; ++l) {
-                f >> factory_capacity[i][l];
+                factory_capacity[i][l] = read_datum(f, fname);
                 TotalCapFac += factory_capacity[i][l];
             }
-            f >> fixedcost_factory[i];
+            fixedcost_factory[i] = read_datum(f, fname);
         }
 
         flowcost_fw.assign(ncommodities,
             std::vector<std::vector<double>>(nfactories, std::vector<double>(nwarehouses)));
         for (int l = 0; l < ncommodities; ++l)
             for (int i = 0; i < nfactories; ++i)
-                for (int j = 0; j < nwarehouses; ++j) f >> flowcost_fw[l][i][j];
+                for (int j = 0; j < nwarehouses; ++j) flowcost_fw[l][i][j] = read_datum(f, fname);
 
         fixedcost_warehouse.assign(nwarehouses, 0.0);
         warehouse_capacity.assign(nwarehouses, std::vector<double>(ncommodities));
         for (int j = 0; j < nwarehouses; ++j) {
             for (int l = 0; l < ncommodities; ++l) {
-                f >> warehouse_capacity[j][l];
+                warehouse_capacity[j][l] = read_datum(f, fname);
                 TotalCapWare += warehouse_capacity[j][l];
             }
-            f >> fixedcost_warehouse[j];
+            fixedcost_warehouse[j] = read_datum(f, fname);
         }
 
         flowcost_wc.assign(ncommodities,
             std::vector<std::vector<double>>(nwarehouses, std::vector<double>(ncustomers)));
         for (int l = 0; l < ncommodities; ++l)
             for (int j = 0; j < nwarehouses; ++j)
-                for (int k = 0; k < ncustomers; ++k) f >> flowcost_wc[l][j][k];
+                for (int k = 0; k < ncustomers; ++k) flowcost_wc[l][j][k] = read_datum(f, fname);
 
-        if (!f) throw std::runtime_error("Truncated instance file: " + fname);
+        {
+            std::string trailing;
+            if (f >> trailing)
+                throw std::runtime_error("Trailing data after expected end of instance in " + fname);
+        }
 
         // The whole certification chain (FlowEvaluator, integral proof mode,
         // MIPGapAbs<1) assumes integral data. Fail loudly if violated.

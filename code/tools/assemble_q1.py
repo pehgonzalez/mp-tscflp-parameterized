@@ -13,11 +13,14 @@ FIELDS = ["instance", "nI", "nJ", "nK", "nL", "tI", "tJ", "seed", "kstar_target"
 
 
 def main():
+    if len(sys.argv) < 4:
+        sys.exit("usage: assemble_q1.py <lines_dir> <manifest.csv> <out.csv> [<manifest2.csv> ...]")
     lines_dir, out_csv = sys.argv[1], sys.argv[3]
     manifests = [sys.argv[2]] + sys.argv[4:]
     meta = {}
     for mpath in manifests:
         for r in csv.DictReader(open(mpath)):
+            assert r["file"] not in meta, f"duplicate instance across manifests: {r['file']}"
             meta[r["file"]] = r
 
     rows = []
@@ -49,7 +52,9 @@ def main():
     for key in sorted(groups):
         g = groups[key]
         solved = [r for r in g if r[10] == "OPTIMAL"]
-        cens = len(g) - len(solved)
+        for r in g:
+            assert r[10] in ("OPTIMAL", "TIMEOUT"), f"unexpected status {r[10]}"
+        cens = sum(1 for r in g if r[10] == "TIMEOUT")
         mt = f"{statistics.median(float(r[15]) for r in solved):.3f}" if solved else "-"
         mn = f"{statistics.median(int(r[14]) for r in solved):.0f}" if solved else "-"
         print(f"{key[0]:5d} {key[1]:3d} {key[2]:3d} {key[3]:4d} {key[4]:3d} | "

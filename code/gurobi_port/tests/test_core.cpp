@@ -1,5 +1,7 @@
 // Solver-free unit tests: instance parser, MCMF, flow evaluator.
 // Run: ./test_core <path-to-PSC1-C1-50-5.txt>
+// Keep the checks active in every build type.
+#undef NDEBUG
 #include <cassert>
 #include <cmath>
 #include <iostream>

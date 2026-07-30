@@ -12,7 +12,13 @@ option(MPTSCFL_WITH_GUROBI "Build Gurobi-dependent targets" ON)
 # ---- core (header-only) + tests: no solver required -------------------------
 add_executable(test_core tests/test_core.cpp)
 enable_testing()
-add_test(NAME core COMMAND test_core ${CMAKE_CURRENT_SOURCE_DIR}/../Old_Project/data/PSC1-C1-50-5.txt)
+set(BENCHMARK_INSTANCE "" CACHE FILEPATH
+    "Optional path to the PSC1-C1-50-5.txt benchmark file for the parse-and-route test")
+if(BENCHMARK_INSTANCE)
+    add_test(NAME core COMMAND test_core ${BENCHMARK_INSTANCE})
+else()
+    add_test(NAME core COMMAND test_core)
+endif()
 
 # ---- Gurobi ------------------------------------------------------------------
 # Set GUROBI_HOME (e.g. C:/gurobi1300/win64 or /opt/gurobi1300/linux64) or pass

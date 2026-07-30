@@ -6,6 +6,8 @@ paper/*.bbl
 paper/*.blg
 paper/*.spl
 paper/*.toc
+paper/*.abs
+paper/figures/*.png
 # Python
 __pycache__/
 *.pyc

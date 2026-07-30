@@ -1,6 +1,6 @@
 #!/bin/bash
-# Campanha de extensao de fronteira com orcamento de 600s e 10 seeds
-# por celula. Resumivel: pula instancias ja no CSV.
+# Boundary extension campaign with a 600s budget and 10 seeds
+# per cell. Resumable: skips instances already in the CSV.
 cd "$(dirname "$0")"
 OUT=../results/q1_boundary600.csv
 mkdir -p ../results
@@ -19,4 +19,4 @@ run_one() {
 }
 export -f run_one OUT 2>/dev/null
 ls data/boundary600/kstar_*.txt | sort | while read f; do run_one "$f"; done
-echo "CAMPANHA CONCLUIDA $(date)"
+echo "CAMPAIGN FINISHED $(date)"

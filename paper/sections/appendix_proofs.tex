@@ -217,7 +217,7 @@ preprocessing reductions, dynamic programming for the separable
 subclass, and the weight-reduction technique of \citet{FrankTardos1987}
 for the compression. The statements remain in the body, each with a
 paragraph naming the route of its proof, and the proofs appear here
-grouped by result, one subsection each, so that a remission from the
+grouped by result, one subsection each, so that a reference from the
 body lands directly on the argument it names.
 
 \subsection{The separable first stage}\label{app:sep}
@@ -254,7 +254,7 @@ using $\sum_i x_{ij}=e_j$ and $\sum_j x_{ij}=a_i$. The second-stage cost
 is thus a per-unit depot cost $d_j$ folded into the depot term. The cost
 depends on the transport plan only through the marginals, and on the
 complete uncapacitated bipartite stage any nonnegative $a$ and $e$ with
-$\sum_i a_i=\sum_j e_j$ are realised by some plan, for instance the
+$\sum_i a_i=\sum_j e_j$ are realized by some plan, for instance the
 northwest-corner procedure used in the proof of
 Proposition~\ref{prop:feas}. A load $a_i>0$ forces $y_i=1$
 by~\eqref{eq:C3} and a load $e_j>0$ forces $z_j=1$ by~\eqref{eq:C4},
@@ -289,7 +289,7 @@ $0,\dots,D$. The first branch closes factory $i$ and the second opens it
 with load $a$. The optimum of the factory problem is $V(|I|,D)$, the
 value $+\infty$ signalling that no factory loads reach $D$ within the
 capacities, in which case the instance is infeasible. Substituting
-$t=s-a$ linearises the inner minimum, since
+$t=s-a$ linearizes the inner minimum, since
 \[
 \min_{1\le a\le b_i}V(i-1,s-a)+f_i+\gamma_i a
 = f_i+\gamma_i s+\min_{\max(0,s-b_i)\le t\le s-1}
@@ -298,7 +298,7 @@ $t=s-a$ linearises the inner minimum, since
 As $s$ runs from $0$ to $D$ the window of admissible $t$ slides
 monotonically to the right, so a monotone double-ended queue over the
 keys $V(i-1,t)-\gamma_i t$ returns each window minimum in $O(1)$
-amortised time, every index entering and leaving the queue once per
+amortized time, every index entering and leaving the queue once per
 row. The device works whatever the sign of $\gamma_i$, and the
 infinite entries are skipped since they can never attain a finite
 minimum. Each row therefore
@@ -409,9 +409,9 @@ completeness gives $\mathrm{best}=\OPT_k$ in the finite case. When
 $\OPT_k=+\infty$ soundness keeps $\mathrm{best}$ unassigned, so it
 retains its initial value $+\infty=\OPT_k$, the finiteness test of
 line 14 fails and the label is \textsc{no}, and when the early return
-fires instead line 3 reports the same infinite optimum. In every mode
-the returned $\OPT_k$ equals $\mathrm{best}$, so the run with
-$B=+\infty$ reads the optimum off either branch.
+fires instead line 3 reports the same infinite optimum. On either
+branch of line 14 the reported $\mathrm{best}$ equals $\OPT_k$, so the
+run with $B=+\infty$ reads the optimum off every exit.
 \end{proof}
 
 \subsection{Routing certificates and Benders cuts}\label{app:duals}
@@ -437,7 +437,7 @@ Proposition~\ref{prop:feas} fails.}
 
 \begin{proof}[Proof of Proposition~\ref{prop:duals}]
 The block dual, once written explicitly, yields the certificate, the
-cuts and the rays. Write the block primal as the minimisation
+cuts and the rays. Write the block primal as the minimization
 of
 $\sum_{ij}c_{ijl}x_{ijl}+\sum_{jk}d_{jkl}w_{jkl}$ over nonnegative flows
 subject to the demand rows~\eqref{eq:C1}, the balance
@@ -448,7 +448,7 @@ step in the proof of Proposition~\ref{prop:oracle}, given in
 \ref{app:proofs}, lowers flows at no
 cost increase until~\eqref{eq:C2} is tight, so replacing~\eqref{eq:C2}
 by the equality $\sum_i x_{ijl}=\sum_k w_{jkl}$ changes neither the
-feasibility nor the optimal value of the block, and we dualise it in
+feasibility nor the optimal value of the block, and we dualize it in
 that equality form, which is what licenses a free multiplier on the
 balance rows. Assign dual
 multipliers $\alpha_k\ge 0$ to the demand rows, a free $\beta_j$ to the
@@ -473,7 +473,7 @@ point $u=0$ by nonnegativity of the costs $c$ and $d$, so the dual is
 feasible and therefore unbounded
 along a recession ray of $\Delta_l$, whose cone is $\beta_j-\sigma_i\le
 0$, $\alpha_k-\beta_j-\pi_j\le 0$ with $\alpha,\sigma,\pi\ge 0$. Two
-rays realise the feasibility cuts. The ray $\alpha\equiv 1$, $\beta\equiv
+rays realize the feasibility cuts. The ray $\alpha\equiv 1$, $\beta\equiv
 1$, $\sigma\equiv 1$, $\pi\equiv 0$ lies in the cone, since its constraint
 values are $\beta_j-\sigma_i=1-1=0\le 0$ and
 $\alpha_k-\beta_j-\pi_j=1-1-0=0\le 0$, and it has objective

@@ -18,4 +18,4 @@ worker() {
   done
 }
 worker 0 & worker 1 & wait
-echo "CAMPANHA CONCLUIDA $(date)"
+echo "CAMPAIGN FINISHED $(date)"

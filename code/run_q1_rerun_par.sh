@@ -1,6 +1,6 @@
 #!/bin/bash
-# Rerun da campanha Q1 completa (460 runs, 60 s, k=-1) nesta maquina.
-# Retomavel: pula instancias ja presentes no arquivo de linhas.
+# Rerun of the full Q1 campaign (460 runs, 60 s, k=-1) on this machine.
+# Resumable, instances already present in the lines directory are skipped.
 cd "$(dirname "$0")"
 LINES=../results/q1_rerun_lines
 mkdir -p "$LINES"
@@ -18,4 +18,4 @@ worker() {
   done
 }
 worker 0 & worker 1 & wait
-echo "RERUN CONCLUIDO: $(ls $LINES | wc -l) linhas"
+echo "RERUN COMPLETE: $(ls $LINES | wc -l) lines"

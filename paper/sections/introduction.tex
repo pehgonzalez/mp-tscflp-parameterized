@@ -63,8 +63,8 @@ a regime in which exact solution scales, and each hard combination names
 a feature whose cost no exact method avoids unless \Ppoly${}={}$\NP. The
 analysis is a classification, so the algorithms it produces are devices for
 locating the difficulty rather than candidates to beat a commercial solver,
-and its practical residue is a covering bound that annotates an instance
-before any optimisation is run.
+and its practical residue is an a priori bound that annotates an instance
+before any optimization is run.
 
 Our findings fall into three groups, one locating the hardness along
 the four dimensions, one drawing the tractability border together with
@@ -108,9 +108,10 @@ Theorem~\ref{thm:separable}). On the preprocessing side, the problem
 admits no polynomial kernel in $|I|+|J|$ unless
 \NP${}\subseteq{}$coNP/poly (Theorem~\ref{thm:nokernel}), although a
 polynomial kernel does appear once costs and total demands are
-polynomially bounded in the parameter
-(Proposition~\ref{prop:ftcompress}), and over the
-incidence representation we analyse the obstruction is numeric rather
+polynomially bounded in the larger parameter
+$|I|+|J|+|L|+\tau$, with $\tau$ the number of distinct second-stage
+cost columns (Proposition~\ref{prop:ftcompress}). The obstruction over the
+incidence representation we analyse is arithmetic rather
 than structural, for that incidence graph always has clique-width at
 most two (Observation~\ref{obs:cliquewidth}). Several further positive
 results, the pseudo-polynomial regimes and the
@@ -126,12 +127,12 @@ comparisons. The computational study asks in what regime the
 enumeration is practical and how it stands against Gurobi, the
 mixed-integer baseline of Section~\ref{sec:experiments}. It then asks
 how the pruning threshold $k^{\ast}$ that our branch-and-bound
-derives, available before any optimisation is run, relates to the
+derives, available before any optimization is run, relates to the
 gaps a mixed-integer solver reaches under a fixed limit, and at which
 stage of the solving process the association is anchored. The protocol, instances and seeds are fixed in advance so
 that every figure can be regenerated.
 
-The remainder of this paper is organised as follows.
+The remainder of this paper is organized as follows.
 Section~\ref{sec:literature} places the model in the exact, heuristic and
 parameterized literatures and closes with a positioning table.
 Section~\ref{sec:prelim} fixes the model, proves the routing oracle,

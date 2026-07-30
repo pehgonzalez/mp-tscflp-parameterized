@@ -139,7 +139,7 @@ data={g:[] for g in order}
 for r in m: data[grp(r)].append(int(r["kstar_py"]))
 fig2,ax=plt.subplots(figsize=(4.6,3.1))
 import random as _r; rng2=_r.Random(7)
-# cores por grupo identicas as da Fig. do scatter (cor segue a entidade)
+# per-group colours identical to those of the scatter figure (colour follows the entity)
 GCOL={"50-5":"#CC79A7","50-10":"#009E73","100-5":"#E69F00","100-10":"#0072B2"}
 for i,g in enumerate(order):
     xs=[i+rng2.uniform(-0.16,0.16) for _ in data[g]]
@@ -199,4 +199,4 @@ fig3.tight_layout(pad=0.4)
 for ext in ("pdf","png"):
     fig3.savefig(os.path.join(OUT,f"fig_q3_scatter.{ext}"),dpi=200,bbox_inches="tight")
 plt.close(fig3)
-print("figuras geradas:",sorted(os.listdir(OUT)))
+print("figures generated:",sorted(os.listdir(OUT)))

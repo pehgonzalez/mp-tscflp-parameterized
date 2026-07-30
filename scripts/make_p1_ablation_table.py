@@ -82,6 +82,15 @@ def summarize(pairs):
         by_k.setdefault(int(on['kstar']), []).append(int(on['p1']) / int(on['nodes']))
     for k in sorted(by_k):
         print('  k* = %-3d median share %.4f' % (k, st.median(by_k[k])))
+    print('aggregate share over the terminating pairs (the paper figure)')
+    ag = {}
+    for _, on, off in pairs:
+        if on['status'] == 'OPTIMAL' and off['status'] == 'OPTIMAL':
+            a = ag.setdefault(int(on['kstar']), [0, 0])
+            a[0] += int(on['p1']); a[1] += int(on['nodes'])
+    for k in sorted(ag):
+        p, n = ag[k]
+        print('  k* = %-3d share %.5f (1 in %.0f)' % (k, p / n, n / p if p else float('inf')))
 
 
 if __name__ == '__main__':

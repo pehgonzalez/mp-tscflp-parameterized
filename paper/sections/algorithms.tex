@@ -32,7 +32,7 @@ gives $\mathrm{cost}(S)=+\infty$.
 
 \begin{theorem}\label{thm:xp}
 Write $T_{\mathrm{orac}}$ for the time of one routing-oracle call and
-normalise $k\le n$. Then $\mathrm{MP\text{-}TSCFLP}(B,k)$ is decidable,
+normalize $k\le n$. Then $\mathrm{MP\text{-}TSCFLP}(B,k)$ is decidable,
 and the least cost $\OPT_k$ over feasible designs opening at most $k$
 facilities is computable, in time $O\bigl(n^{k}\cdot
 (T_{\mathrm{orac}}+n|L|)\bigr)$ for $k\ge 1$, and in time
@@ -44,7 +44,7 @@ A feasible design opening at most $k$ facilities has a
 support
 $S\subseteq I\cup J$ with $|S|\le k$, its cost is the fixed charge of $S$
 plus the routing value $v(S)$, and by Proposition~\ref{prop:oracle} the
-routing value is attained, so each feasible support realises exactly its
+routing value is attained, so each feasible support realizes exactly its
 cost and $\OPT_k$ is the minimum of $\mathrm{cost}(S)$ over feasible
 supports of size at most $k$. When no such support is feasible we put
 $\OPT_k=+\infty$, and the correct answer is then \textsc{no}. Enumerate
@@ -55,8 +55,7 @@ $\sum_{t=0}^{k}\binom{n}{t}\le\sum_{t=0}^{k}\frac{n^{t}}{t!}
 \le n^{k}\sum_{t\ge 0}\frac{1}{t!}=e\,n^{k}$
 for $k\le n$ and $k\ge 1$. The middle inequality uses $n^{t}\le n^{k}$
 for $t\le k$, valid since $n\ge 1$, and extending the sum adds
-nonnegative terms. The case $n=0$ needs no counting, since it leaves
-only the empty design and is decided by one oracle call. Each support
+nonnegative terms. Each support
 costs one $O(n|L|)$ feasibility test plus at most one oracle call, and
 $T_{\mathrm{orac}}$ is left as a stated quantity rather than bounded
 below, since an implementation may share preprocessed data across calls,
@@ -91,7 +90,7 @@ written $k^\ast(a;D)$, is computable by one sort and one prefix scan in
 $O(m\log m)$ time, the same scan detecting the infinite case.
 \end{lemma}
 \begin{proof}
-Both directions follow from majorisation by the sorted prefix. If
+Both directions follow from majorization by the sorted prefix. If
 $\sum_{r\le s}a_{(r)}\ge D$ the set of the $s$ largest entries witnesses
 the forward direction. Conversely, order any $S$ decreasingly. Its $r$th
 element is at most $a_{(r)}$, because the $r$ largest elements of $S$ are
@@ -123,7 +122,7 @@ s_J(l;O,C)=k^\ast\!\Bigl((p_{jl})_{j\in F\cap J};\,\max\bigl(0,\,D_l-\textstyle
 \sum_{j\in O\cap J}p_{jl}\bigr)\Bigr)
 \]
 be the analogous count for (F2) over the free depot capacities. The
-quantities of line 2 are the root specialisations
+quantities of line 2 are the root specializations
 $k^\ast_I(l)=k^\ast\bigl((b_{il})_{i\in I};D_l\bigr)=s_I(l;\emptyset,\emptyset)$
 and
 $k^\ast_J(l)=k^\ast\bigl((p_{jl})_{j\in J};D_l\bigr)=s_J(l;\emptyset,\emptyset)$.
@@ -144,7 +143,7 @@ step.
 (Theorem~\ref{thm:xp}).}
 \label{alg:xpbb}
 \begin{pseudolines}
-\item $k\gets\min(k,n)$ \algcomment{normalisation, no design opens more}
+\item $k\gets\min(k,n)$ \algcomment{normalization, no design opens more}
 \item \kw{for each} product $l$ sort $(b_{il})_i$ and $(p_{jl})_j$ and
   compute $k^\ast_I(l),k^\ast_J(l)$ \algcomment{Lemma~\ref{lem:cover}}
 \item \kw{if}
@@ -173,7 +172,7 @@ step.
   $(O\cup\{e\},C)$ and $(O,C\cup\{e\})$
 \item \kw{if} $\mathrm{best}<+\infty$ \kw{and} $\mathrm{best}\le B$
   \kw{then} \kw{return} \textsc{yes} \kw{else} \kw{return} \textsc{no},
-  either way with $\OPT_k=\mathrm{best}$
+  either way reporting $\mathrm{best}$
   \algcomment{run with $B=\infty$ to read $\OPT_k$ off either branch}
 \end{pseudolines}
 \end{algorithm}
@@ -245,7 +244,10 @@ and the node is determined by the prefix length $m$ together with
 $O\subseteq\{1,\dots,m\}$. Children are pushed only from nodes with
 $|O|\le k$, so every node ever created has $|O|\le k+1$ and the tree
 holds at most
-$\sum_{m=0}^{n}\sum_{t=0}^{k+1}\binom{m}{t}=O(n^{k+2})$ nodes. Each
+$\sum_{m=0}^{n}\sum_{t=0}^{k+1}\binom{m}{t}=O(n^{k+2})$ nodes, since
+$\sum_{t=0}^{k+1}\binom{m}{t}\le\sum_{t=0}^{k+1}n^{t}\le 2n^{k+1}$
+for $n\ge 2$ by the geometric series and the cases $n\le 1$ are
+trivial. Each
 node performs the sorts and prefix scans of P1 and at most one oracle
 call, so the whole search runs in
 $O\bigl(n^{k+2}(T_{\mathrm{orac}}+n|L|\log n)\bigr)$ time, a
@@ -264,7 +266,7 @@ One relation among the prunes has consequences that
 Section~\ref{sec:exp-q1} meets again on the machine, so we record it
 here.
 
-\begin{observation}[the covering prune in plain optimisation]
+\begin{observation}[the covering prune in plain optimization]
 \label{obs:p1redundant}
 Run with $k=n$, prune P1 discards no node beyond the infeasibility
 branch of P2, since at any node $r=n-|O|=|F|+|C|\ge|F|$. If the
@@ -278,7 +280,7 @@ all-open completion is infeasible, so $v^{\uparrow}=+\infty$ and the
 infeasibility branch of P2 discards the same node at the price of one
 oracle call. Under a binding cardinality $k<n$ the subsumption fails,
 since a node may admit a feasible all-open completion while no
-completion within the remaining budget $r$ exists, which P1 detects
+completion within the remaining budget $r$ exists, a situation P1 can detect
 and the infeasibility branch of P2 cannot.
 \end{observation}
 
@@ -295,7 +297,7 @@ Figure~\ref{fig:dichotomy} maps over the sixteen subsets.
 \input{figures/fig_dichotomy.tex}
 
 \begin{theorem}[fixed-parameter tractability]\label{thm:fpt}
-$\mathrm{MP\text{-}TSCFLP}(B)$, its optimisation form and its cardinality
+$\mathrm{MP\text{-}TSCFLP}(B)$, its optimization form and its cardinality
 version are solvable in time $2^{|I|+|J|}\cdot\mathrm{poly}(N)$, where $N$
 is the input size. Hence the problem is \FPT\ in the combined parameter
 $(|I|,|J|)$, and a fortiori under any parameter set containing both.
@@ -382,7 +384,7 @@ subsection is that the dual polyhedron depends only on the data, never
 on the design, so a single dual point
 yields an inequality valid for every design whose block is feasible.
 Figure~\ref{fig:bendersflow} traces the pipeline the proposition
-formalises.
+formalizes.
 
 \input{figures/fig_benders_flow.tex}
 
@@ -444,7 +446,7 @@ may assume $|K|\le\tau$, where $\tau$
 is the number of distinct second-stage cost columns, computable in
 polynomial time.
 \end{proposition}
-The proof, given in \ref{app:agg}, exhibits the two maps directly. The
+We prove this in \ref{app:agg} by exhibiting the two maps directly. The
 merge adds the flow rows of the two customers and preserves every
 constraint and every cost term. The split trims any surplus of the
 merged row and expands it by the northwest-corner procedure, which
@@ -478,7 +480,7 @@ Replacing every capacity $b_{il}$ by $\min(b_{il},D_l)$ and every
 $p_{jl}$ by $\min(p_{jl},D_l)$ preserves feasibility, routing value and
 cost of every design, hence the optimum and both decision answers.
 \end{observation}
-The proof, given in \ref{app:cap}, trims any routing until every
+Appendix \ref{app:cap} proves this by trimming any routing until every
 product moves exactly $D_l$ across each stage, at no cost increase,
 after which no capacity beyond $D_l$ can carry flow and the cap changes
 nothing.
@@ -574,7 +576,7 @@ by the empty subfamily, a target of zero over a nonempty universe
 admitting no cover, and a target above $m$ admitting one exactly when
 the whole family covers the universe. On inputs from those classes the composition
 therefore answers the OR of those individual answers, emitting a fixed
-yes- or no-instance realising it. Deciding $R$ compares three numbers, and
+yes- or no-instance realizing it. Deciding $R$ compares three numbers, and
 the triple $(|U|,m,t)$ takes at most cubically many values in the total
 encoding length of the input list, so
 $R$ is a polynomial equivalence relation in the sense of the framework.
@@ -760,7 +762,7 @@ The logical consequence closes the observation.
 The treewidth-one star slice with $|J|=1$ is already strongly
 \NP-hard, by Theorem~\ref{thm:products} (which fixes $|J|=|K|=1$). Were
 the problem expressible in the
-$\mathrm{MSO}_1$ optimisation logic over the unweighted incidence graph
+$\mathrm{MSO}_1$ optimization logic over the unweighted incidence graph
 used here, the clique-width meta-theorem
 \citep{CourcelleMakowskyRotics2000} together with the bound of at most
 two would force a polynomial algorithm on the whole class,

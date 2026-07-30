@@ -19,7 +19,7 @@ convention on the source instances, requiring the universe $U$ of each
 \textsc{Set Cover} instance to be nonempty and the item total $A$ of
 each \textsc{Partition} instance to be positive, for an instance
 violating either requirement is a yes-instance witnessed by the empty
-solution. Three recurring terms organise the section. The covering
+solution. Three recurring terms organize the section. The covering
 layer, or covering mechanism, is the \textsc{Set Cover} structure a
 construction embeds, and the discriminating layer is the facility side
 whose cost matrix tells the members of the covered dimension apart. The
@@ -35,7 +35,7 @@ Corollary~\ref{cor:coverinapprox} and Theorem~\ref{thm:w2} are
 consequences of the canonical reduction rather than new constructions.
 Theorem~\ref{thm:numeric} completes the fourth discrimination pair by a
 different mechanism, the forced saturation of the factories, and
-Table~\ref{tab:reductions} summarises the constructions side by side.
+Table~\ref{tab:reductions} summarizes the constructions side by side.
 
 \input{tables/tab_reductions.tex}
 
@@ -148,7 +148,7 @@ with one.
 
 \begin{corollary}\label{cor:coverinapprox}
 For every $\varepsilon>0$, unless $\Ppoly=\NP$, no polynomial-time
-algorithm approximates the optimisation version of MP-TSCFLP within a
+algorithm approximates the optimization version of MP-TSCFLP within a
 factor $\max\{1,(1-\varepsilon)\ln|K|\}$, even with $|L|=|I|=1$,
 $f\equiv 0$, $g\equiv 1$, $c\equiv 0$, $d\in\{0,1\}$ and all numbers
 polynomially bounded in the instance size. The same conclusion follows under the stronger
@@ -175,7 +175,7 @@ returned solution costs at least $|Z|$ by the identity, where
 $Z$ denotes its open depots, so $|Z|\le\rho\,t^*$. As
 $|K|=|U|=n_U$, this yields a polynomial-time approximation of factor
 $\rho$ for minimum set cover on the coverable instances. The hardness of
-\citet{DinurSteurer2014} concerns exactly that minimisation problem,
+\citet{DinurSteurer2014} concerns exactly that minimization problem,
 whose instances are coverable by definition, since a cover is required
 for the objective to exist. On instances with $(1-\varepsilon)\ln n_U<1$ the
 universe has constant size at most $e^{1/(1-\varepsilon)}$, every
@@ -389,7 +389,7 @@ time and declare the instance infeasible when the test fails. When it
 holds the depot opens at no charge, the cost of opening $S$
 is $\sum_{i\in S}f_i=\sum_{i\in S}b_i$, and feasibility is
 $\sum_{i\in S}b_i\ge D$ by Proposition~\ref{prop:feas}, so the problem is
-the knapsack-cover of minimising a subset sum subject to reaching $D$.
+the knapsack-cover of minimizing a subset sum subject to reaching $D$.
 Let $T(i,s)\in\{0,1\}$ record whether some subset of the first $i$
 factories has capacity sum exactly $s$, for $0\le s\le D+b_{\max}$. Sums
 beyond $D+b_{\max}$ are irrelevant, for if a feasible $S$ has
@@ -421,12 +421,12 @@ $\Ppoly$ under a unary encoding.
 \end{corollary}
 \begin{proof}
 Exchanging the two facility layers in the construction of
-Theorem~\ref{thm:partition} yields the reduction, and the proof is the
-list of changes. The items become depots with $g_j=p_j=a_j$, the single
+Theorem~\ref{thm:partition} yields the reduction, and only the
+following changes are needed. The items become depots with $g_j=p_j=a_j$, the single
 free depot becomes a factory with $f_1=0$ and $b_1=A/2$, and the
 customer, the demand $q=A/2$, the zero transport costs and the budget
-$B=A/2$ are unchanged. In the correctness argument the two feasibility
-tests swap parts, (F1) reading $b_1y_1=(A/2)y_1\ge A/2$ with $A>0$ by
+$B=A/2$ are unchanged. The two feasibility tests exchange
+roles in the correctness argument, (F1) reading $b_1y_1=(A/2)y_1\ge A/2$ with $A>0$ by
 the nondegeneracy convention, forcing the free factory opening, and
 (F2) supplying the covering test $\sum_{j\in Z}a_j\ge A/2$ over the
 open depots $Z$. The equivalence between solutions of cost at most
@@ -462,9 +462,10 @@ by the factory half of the dynamic program behind
 Theorem~\ref{thm:separable}, of which the subset-sum of
 Theorem~\ref{thm:partition} is the special case $f_i=b_i$, $c\equiv 0$. This is the only quadrant we identify with such
 a mixed profile, and it witnesses the two-layer picture directly. The
-covering layer becomes active only when a facility layer sees a demand
-dimension that distinguishes its members, and where none does the numeric
-layer alone remains, vanishing under a unary encoding.
+covering layer needs a facility layer that discriminates a dimension
+carrying demand, the factories under tight capacities included, and
+here none does, so the weak numeric hardness alone remains, vanishing
+under a unary encoding.
 \end{observation}
 
 \subsection{The parameter \texorpdfstring{$k$}{k}}\label{sec:paramk}
@@ -584,7 +585,7 @@ linear in $k$ being attainable and, under the ETH, optimal.
 \begin{remark}\label{rem:w2mem}
 Membership in W[2] is left open. A witness is the set of at most $k$
 opened facilities, which has the shape W[2] expects, but the acceptance
-test compares binary sums and, worse, minimises an internal routing flow
+test compares binary sums and, worse, minimizes an internal routing flow
 by Proposition~\ref{prop:oracle}, and neither is known to translate into
 bounded weft. In particular the natural verifier must evaluate a
 minimum-cost flow, a computation that is P-complete in general and is
@@ -647,7 +648,7 @@ The chain $D\le\sum_j w_j\le\sum_j X_j\le D$ collapses to equalities, so
 $\sum_j w_j=\sum_j X_j=D$ and, since each factory ships $\sum_j x_{ij}\le
 b_i=Q$ while the total over the $n_U$ open factories is $Qn_U$, each
 factory ships exactly $Q$. Since $\sum_j (X_j-w_j)=0$ with every
-$X_j-w_j\ge 0$ by~\eqref{eq:C2}, so $X_j=w_j$ for all $j$. A closed depot
+$X_j-w_j\ge 0$ by~\eqref{eq:C2}, $X_j=w_j$ for all $j$. A closed depot
 has $w_j=0$ by~\eqref{eq:C4}, hence $X_j=0$, so no flow enters a closed
 depot and the cost sum below runs only over $j\in Z$.
 
@@ -687,7 +688,7 @@ Separability is decidable in $O(|I||J|)$ time.
 \end{theorem}
 
 The proof, given in \ref{app:sep}, reduces the routing cost to a
-function of the two load marginals, realises any consistent pair of
+function of the two load marginals, realizes any consistent pair of
 loads by a northwest-corner plan, and solves each facility layer by a
 dynamic program over integer loads, integrality of the split optima
 coming from the vertex structure of the load polytopes. Separability is
@@ -714,8 +715,8 @@ survives unchanged.
 \begin{proof}
 The claims assemble the slices already proved. The slice
 $(|K|,|L|)=(1,1)$ is strongly NP-hard by
-Theorem~\ref{thm:numeric}, and the parameterized reading is that of
-Corollary~\ref{cor:coverpara}, now robust under a unary encoding because
+Theorem~\ref{thm:numeric}, and Corollary~\ref{cor:coverpara} again
+supplies the parameterized reading, now robust under a unary encoding because
 the instance numbers of Theorem~\ref{thm:numeric} are polynomial. For
 the remaining claims of the statement, the four positive results match
 their slices as follows. The dynamic program of

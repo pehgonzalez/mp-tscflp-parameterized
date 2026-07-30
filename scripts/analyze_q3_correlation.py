@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Q3 analysis: does the covering bound k* predict the effort a state-of-the-art
-MIP solver spends on the Mauri benchmark?
+Q3 analysis: rank association of the covering bound k* with the terminal gap
+on the Mauri benchmark, pooled and within size groups.
 
 Run this AFTER the benchmark MIP campaign (run_mip_mauri.ps1) finishes. It joins
 the per-instance covering bound k* (from mauri_kstar.csv, computed in linear time
-without solving anything) with the solver's effort (time and terminal gap), and
+without solving anything) with the solver's terminal gap and time, and
 reports the Spearman rank correlation pooled and within each size group, plus a
 size-controlled (within-group averaged) coefficient. It then prints a LaTeX
 sentence summarising the finding, for cross-checking against the paper.
 
 Usage:
-    python3 analyze_q3_correlation.py [mip_results.csv]
+    python3 analyze_q3_correlation.py [mauri_mip.csv]
 
 The MIP results CSV needs, per instance, at least: an instance-name column, a
 solve-time column and a terminal-gap column. Column names are matched loosely

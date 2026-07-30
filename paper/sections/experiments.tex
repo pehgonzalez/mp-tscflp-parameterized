@@ -1,13 +1,13 @@
 \section{Computational study}
 \label{sec:experiments}
 
-The experiments pursue three questions. (Q1) Is the enumeration algorithm of
-Theorem~\ref{thm:xp} practical in its predicted regime, and where does that
-regime end. (Q2) How does it compare with the standard mixed-integer approach.
-(Q3) How does the covering bound $k^\ast$, available before anything is
-solved, relate to the gaps a mixed-integer solver reaches under a fixed
-limit, and at which stage of the solving process is the association
-anchored. The remainder of the section is organised so that
+The experiments pursue three questions. (Q1) asks whether the enumeration algorithm of
+Theorem~\ref{thm:xp} is practical in its predicted regime and where that
+regime ends. (Q2) asks how it compares with the standard mixed-integer
+approach. (Q3) asks how the covering bound $k^\ast$, available before
+anything is solved, relates to the gaps a mixed-integer solver reaches
+under a fixed limit, and at which stage of the solving process the
+association is anchored. The remainder of the section is organized so that
 the reader can locate each answer directly. Section~\ref{sec:exp-setup}
 describes the codes, the instance families and the machines.
 Section~\ref{sec:exp-q1} answers Q1 on the family whose covering bound is
@@ -56,13 +56,15 @@ product's demand, a choice that pins the per-side covering count to the
 target. The main
 grid has target per-side count in $\{2,3,4,5,6\}$, so $k^\ast\in\{4,6,8,10,12\}$,
 factory and depot counts in $\{20,40\}$, customers in $\{50,100\}$, products in
-$\{5,10\}$ and five seeds, for $400$ instances, and a boundary extension on
+$\{5,10\}$ and five seeds, for $400$ instances. A boundary extension on
 smaller graphs, with per-side target in $\{2,4,6,8\}$ so
 $k^\ast\in\{4,8,12,16\}$ and $n=|I|+|J|$ over $\{20,24,28,30,40\}$, probes where
 the regime ends, adding $60$ instances for $460$ runs in all. A second
 boundary sample, built for the budget question of Q1, reruns the same
-boundary grid with ten fresh seeds per cell under a tenfold budget, for
-$200$ further instances with their own manifest. The pin is
+boundary grid with ten seeds per cell under a tenfold budget. Seeds one
+to three coincide byte for byte with the $60$~s sample and the remaining
+seven per cell are fresh, for $200$ instances, $140$ of them new, with
+their own manifest. The pin is
 guaranteed by the construction and not only checked afterwards. On a
 side with target $t\ge 2$ and binding demand $D$, the $t-1$
 designated facilities carry capacities of
@@ -107,7 +109,7 @@ incumbent, quoted in per cent throughout.
 
 The enumeration runs were executed under a fixed $60$~s limit. The
 \textsc{Xp} binary is single-threaded C++20, compiled with g++~13.3.0 at
-optimisation level O2, and ran on a Linux virtual machine with an Intel
+optimization level O2, and ran on a Linux virtual machine with an Intel
 Xeon processor at $2.8$~GHz.
 The integer programming runs use Gurobi $13.0.2$ on an Intel Core i9-14900HX
 with $24$ cores under Windows, with the controlled family limited to $600$~s
@@ -153,10 +155,10 @@ per-run records in the archive carry node, pruning and oracle
 counters. Two boundary samples locate the frontier, and
 Table~\ref{tab:q1boundary} reports them together. The first holds
 three seeded runs per cell under the $60$~s limit of the main protocol,
-and the second reruns the same grid with ten fresh seeds per cell under
+and the second reruns the same grid with ten seeds per cell under
 the tenfold budget of $600$~s, on the same virtual machine. The two
-samples draw different seeds, so reading the budget effect across them
-would confound the budget with the sampling, and the budget contrast is
+samples share only three of the ten seeds, so reading the budget effect
+across them would still confound the budget with the sampling, and the budget contrast is
 therefore read inside the ten-seed sample alone. The code is
 deterministic and single-threaded and every record stores its solve
 time, so a run of that sample counts as solved under $60$~s exactly
@@ -218,7 +220,7 @@ solved count at $n=28$ rising from one in ten to six in ten across the
 same sweep. The
 covering pruning of Lemma~\ref{lem:cover} might seem the natural
 mechanism, but Observation~\ref{obs:p1redundant} rules that reading out
-in advance, for these runs perform plain optimisation, and there every
+in advance, for these runs perform plain optimization, and there every
 node the covering rule discards is discarded by the infeasibility
 branch of P2 as well, so the rule can change which counter certifies a
 closure and what certifying it costs, never the tree. An ablation
@@ -234,9 +236,10 @@ remaining pruning counters and the optimal values are identical as well,
 exactly as the observation prescribes. What the rule removes is oracle
 work, since it
 decides a node by a prefix scan over capacities where the test solves a
-minimum-cost flow, and the share of nodes decided the cheap way climbs
-with the bound, from about one in ten thousand at $k^\ast=4$ to roughly
-one in six at $k^\ast=16$. At these sizes the saving stays inside the
+minimum-cost flow, and over the $18$ terminating pairs the share of
+nodes decided the cheap way climbs
+with the bound, from roughly one node in seven hundred at $k^\ast=4$
+to one node in ten at $k^\ast=16$. At these sizes the saving stays inside the
 run-to-run noise, the $18$ terminating pairs costing $242$~s with the
 rule against $245$~s without it, and the slower of the two settings
 splits nine against nine over the individual instances. The six
@@ -265,7 +268,7 @@ small-$n$ regime the weight-independent enumeration bound gives \textsc{Xp} no
 way to prune below $n^{k}$, whereas the compact model carries the linear
 structure a modern solver exploits, so \textsc{Mip} is expected to close quickly the very controlled-family
 instances on which \textsc{Xp} exhausts its $60$~s budget. The campaign
-realises that expectation, and Table~\ref{tab:q2codes} summarises it.
+realizes that expectation, and Table~\ref{tab:q2codes} summarizes it.
 \textsc{Mip} closes all $400$ controlled instances with a median solving
 time of $0.55$~s, among them every instance the enumeration had left
 censored at $60$~s.
@@ -286,10 +289,12 @@ and $883$ seconds. Each value lies strictly below the best solution
 reported for the same instance by \citet{MauriEtAl2021}, respectively
 $1{,}923{,}813$, $1{,}910{,}011$ and $1{,}896{,}699$, so the campaign
 closes the three instances and improves their best-known solutions at the
-same time. On these three runs the terminal bound equalled the incumbent
-at the recorded precision, and we report the optima subject to the
-solver's default floating-point certificates, with the incumbent costs
-confirmed by the independent recomputation noted above.
+same time. On these three runs the stored bound equals the incumbent exactly and
+the logged relative gap is zero at the eight decimal places the harness
+records, so the absolute gap lies below one as the exactness argument of
+Section~\ref{sec:exp-setup} requires, subject to the solver's
+floating-point bound certificate, with the incumbent costs confirmed by
+the independent recomputation noted above.
 The branch-and-Benders-cut \textsc{Bd} enters here not as a faster
 solver, for it closes $8$ of the $400$ controlled instances within the
 same budget, but as a device for cross-validation and for the structural
@@ -384,7 +389,7 @@ that reading, not a causal identification.
 
 \input{tables/tab_q3_mediation.tex}
 
-The bound behaves accordingly. It correlates negatively with the root
+The bound behaves accordingly, correlating negatively with the root
 gap in every group, from $-0.42$ to $-0.73$ with $-0.36$ pooled, tight
 capacities going with tight relaxations. Once the root gap is held
 fixed the negative association with the terminal gap does not survive,
@@ -395,8 +400,9 @@ the root-gap ranks, and its $p$-value comes from a Freedman--Lane
 permutation of those residuals, run within each size group in the
 pooled column so that pooled inference does not draw on group
 composition. The partial is indistinguishable from zero in
-three of the four groups and positive at $+0.52$ in the fourth, the
-only value that survives the Holm correction, at adjusted $p=0.049$.
+three groups, positive at $+0.52$ in the fourth and alone in surviving
+the Holm correction at adjusted $p=0.049$, a value at the threshold
+within Monte Carlo resolution.
 The pooled partial is positive at $+0.29$ descriptively, but the two
 residual series rise together across the four groups, the
 hundred-factory groups carrying the larger residuals of both, and

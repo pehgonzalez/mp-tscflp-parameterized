@@ -49,8 +49,8 @@ def spearman(x, y):
     return sum((rx[i]-mx)*(ry[i]-my) for i in range(n))/(sx*sy)
 
 def perm_p(x, y, nperm=20000, seed=20260718):
-    """p-valor bilateral por permutacao do Spearman com mid-ranks.
-    Semente fixa, entao o numero publicado e' deterministico."""
+    """Two-sided permutation p-value of the Spearman with mid-ranks.
+    Fixed seed, so the published number is deterministic."""
     import random as _rnd
     rng = _rnd.Random(seed)
     obs = spearman(x, y); cnt = 0; y2 = list(y)
@@ -61,7 +61,7 @@ def perm_p(x, y, nperm=20000, seed=20260718):
     return (cnt + 1) / (nperm + 1)
 
 def boot_ci(x, y, nboot=10000, seed=20260719):
-    """IC percentil bootstrap 95% do Spearman, semente fixa (numero pinado)."""
+    """Percentile bootstrap 95% CI of the Spearman coefficient, fixed seed (pinned number)."""
     import random as _rnd
     rng = _rnd.Random(seed)
     n = len(x); vals = []
@@ -364,7 +364,9 @@ residuals of the two rank-on-rank regressions on the root-gap ranks, and the
 pooled column conditions on the root gap only, not on the group. Brackets hold
 percentile bootstrap $95\%$ confidence intervals over
 $10{,}000$ resamples of the instances (seed $20260719$), not adjusted for
-multiplicity. The last row reports the Holm-adjusted
+multiplicity and drawn without stratification, so the pooled interval
+retains the group-composition component that the within-group
+permutation removes. The last row reports the Holm-adjusted
 two-sided $p$-value of the partial coefficient from a Freedman--Lane residual
 permutation test with $20{,}000$ permutations (seed $20260718$), permutations
 running within each size group in the pooled column. In the two

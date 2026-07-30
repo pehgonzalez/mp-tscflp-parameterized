@@ -22,4 +22,4 @@ worker() {
   done
 }
 worker 0 & worker 1 & wait
-echo "ABLATION CONCLUIDA: $(ls $LINES | wc -l) linhas"
+echo "ABLATION COMPLETE: $(ls $LINES | wc -l) lines"

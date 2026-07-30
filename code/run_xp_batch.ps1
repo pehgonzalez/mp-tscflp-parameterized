@@ -19,7 +19,7 @@ $OUT_DIR   = ".\results"
 $TimeLimit = 60        # seconds per instance (pre-registered Q1/Q2 budget)
 $K         = -1        # -1 = plain optimize (k = n)
 
-if (-not (Test-Path $XP_EXE)) { Write-Error "xp.exe nao encontrado em $XP_EXE"; exit 1 }
+if (-not (Test-Path $XP_EXE)) { Write-Error "xp.exe not found at $XP_EXE"; exit 1 }
 $XP_EXE = (Resolve-Path $XP_EXE).Path
 New-Item -ItemType Directory -Force -Path $OUT_DIR | Out-Null
 $OutFile = Join-Path $OUT_DIR "xp_results.csv"

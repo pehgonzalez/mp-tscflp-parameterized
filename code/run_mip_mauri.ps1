@@ -32,7 +32,7 @@ $Seed      = 0      # Gurobi Seed (recorded per row by the binary)
 $Threads   = 0      # 0 = Gurobi auto (record: i9-14900HX, 24 cores)
 $Mode      = "exact"
 
-if (-not (Test-Path $MPTSCFL_EXE)) { Write-Error "mptscfl.exe nao encontrado em $MPTSCFL_EXE"; exit 1 }
+if (-not (Test-Path $MPTSCFL_EXE)) { Write-Error "mptscfl.exe not found at $MPTSCFL_EXE"; exit 1 }
 $MPTSCFL_EXE = (Resolve-Path $MPTSCFL_EXE).Path
 New-Item -ItemType Directory -Force -Path $OUT_DIR | Out-Null
 $runs = @()   # Mauri only (Q3). method 0 only (see loop below).

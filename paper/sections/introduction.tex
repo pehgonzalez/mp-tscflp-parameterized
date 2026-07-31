@@ -23,14 +23,14 @@ shipped on a stage carries a per-product transport cost, and every
 factory and depot has a per-product capacity, while each customer has a
 per-product demand that must be satisfied. Both stages are complete
 bipartite, so any open factory may serve any depot and any open depot may
-serve any customer. The uncapacitated single-product ancestor of the
-model is the classical facility location problem, and the two-stage
+serve any customer. The uncapacitated single-product ancestor is
+the classical facility location problem, and the two-stage
 capacitated multiproduct form was already observed to be \NP-hard by
 \citet{PirkulJayaraman1998}. The benchmark and the solution methods we
 build on are those of \citet{MauriEtAl2021}, who introduced the
 hundred-instance benchmark and attacked it with two hybrid
 metaheuristics, and of \citet{MoraisEtAl2022}, who later added local
-branching to a genetic-algorithm hybrid for the same model.
+branching to a genetic-algorithm hybrid for the same problem.
 
 Two facts recur in this literature, and both concern difficulty rather
 than modelling. First, the instances resist exact solution. On the
@@ -48,7 +48,7 @@ explained. Facility location as such has a parameterized literature,
 whose closest antecedent here is the parameterized view of
 \citet{FellowsFernau2011}, a map of uncapacitated single-stage variants,
 but no parameterized analysis covers the two-stage capacitated
-multiproduct model, and we give what is, to our knowledge, the first. We
+multiproduct problem, and we give what is, to our knowledge, the first. We
 work throughout with the cardinality-constrained decision version, in which
 a solution may open at most $k$ facilities, counting factories and depots
 together, and $k$ is
@@ -133,7 +133,7 @@ stage of the solving process the association is anchored. The protocol, instance
 that every figure can be regenerated.
 
 The remainder of this paper is organized as follows.
-Section~\ref{sec:literature} places the model in the exact, heuristic and
+Section~\ref{sec:literature} places the problem in the exact, heuristic and
 parameterized literatures and closes with a positioning table.
 Section~\ref{sec:prelim} fixes the model, proves the routing oracle,
 that is the subroutine that, given a design, computes its optimal

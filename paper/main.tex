@@ -77,30 +77,34 @@ Location Problem: A Parameterized Complexity Analysis}
 
 \begin{abstract}
 In the multiproduct two-stage capacitated facility location problem
-(MP-TSCFLP), factories and depots open at fixed cost and route products
-to customers under per-product capacities and demands. On the
-hundred-instance benchmark of Mauri and coauthors a commercial solver
-proved no instance optimal within the original limits. Parameterized
-analyses of facility location cover uncapacitated single-stage
-variants, and we give, to our knowledge, the first for this problem.
-Unless P equals NP, the four size parameters obey a dichotomy in
-which the problem is fixed-parameter tractable exactly when the
-parameter set contains both facility counts. The facility-count parameter admits
-no polynomial kernel unless NP lies in coNP/poly. One product and one
-factory already force strong NP-hardness and, unless P equals NP,
-logarithmic set-cover inapproximability. In the number of opened
-facilities the problem is W[2]-hard, and under the Exponential Time
-Hypothesis its XP algorithm is optimal up to the constant in the
-exponent. With
-one customer and one product, separable first-stage costs delimit a
-pseudo-polynomial, only weakly hard slice, while strong hardness
-persists outside the separable class. A verification battery on the order of nine hundred thousand
-computational checks, most of them exhaustive design enumerations,
-validated every hardness gadget and the exact codes, with no failure.
-Integrality of the data turns any certified absolute gap below one
-into optimality under the solver's tolerances, yielding three
-solver-certified optimal values that improve the best values of Mauri
-and coauthors.
+(MP-TSCFLP), factories and depots open at fixed cost and route several
+products to customers under per-product capacities and demands. Its
+literature manages the difficulty with relaxations and hybrid
+metaheuristics, and on the hundred-instance benchmark of Mauri and
+coauthors no optimal value had ever been proven. We treat that
+difficulty as a mathematical object. Parameterized analyses of
+facility location cover uncapacitated single-stage variants, and we
+give, to our knowledge, the first for the capacitated two-stage
+multiproduct problem. Unless P equals NP, the four size parameters
+obey a dichotomy in which the problem is fixed-parameter tractable
+exactly when the parameter set contains both facility counts, through
+a single algorithm exponential only in those two counts. One product
+and one factory already force strong NP-hardness and logarithmic
+set-cover inapproximability, while one customer and one product
+isolate a numeric layer that separable first-stage costs render
+pseudo-polynomial, strong hardness persisting outside the separable
+class. In the number of opened facilities the problem is W[2]-hard,
+and under the Exponential Time Hypothesis the direct enumeration is
+optimal up to the constant in the exponent. Kernelization is delimited
+from both sides, since no polynomial kernel exists in the facility
+counts unless NP lies in coNP/poly, even under unary encodings,
+whereas costs and total demands polynomially bounded in a slightly
+larger parameter admit one. Roughly nine hundred thousand
+computational checks validated every hardness gadget and the exact
+codes, with no failure. The computational study closes three benchmark
+instances to certified optimality for the first time, improving their
+best-known values, and finds that a covering bound available before
+any optimization tracks the tightness of the solver's root relaxation.
 \end{abstract}
 
 \begin{highlights}

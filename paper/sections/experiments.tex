@@ -313,7 +313,8 @@ confront the bound with the integer
 solver on the benchmark that the original study left without a single proven
 optimum. The bound is available
 before anything is solved, at the cost of sorting each capacity vector
-once, and it varies widely across the benchmark, as Figure~\ref{fig:q3} shows. Table~\ref{tab:q3groups} reports the campaign by
+once, and it varies widely across the benchmark, as the marginal panel
+of Figure~\ref{fig:q3scatter} shows. Table~\ref{tab:q3groups} reports the campaign by
 size group, the range of the bound, the median terminal gap, the proven
 optima and the within-group correlations with their Holm-adjusted
 $p$-values. Within every size group the
@@ -323,16 +324,6 @@ instance features still vary within a group, so the bound may in part
 proxy properties the design does not separate.
 
 \input{tables/tab_q3_groups.tex}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{fig_q3_kstar.pdf}
-\caption{The covering bound $k^\ast$ across the four benchmark groups. Each
-point is one instance and the bar marks the group median. The bound spreads by
-a factor of more than four inside every group, varying across instances of
-equal size, so its variation is not a proxy for instance size.}
-\label{fig:q3}
-\end{figure}
 
 The completed campaign lets the association between $k^\ast$ and the
 terminal gaps \textsc{Mip} reports on the $100$ benchmark instances be
@@ -410,17 +401,22 @@ and in no group and not in the pool does the partial coefficient
 stay distinguishably negative. The partial coefficient is the Pearson
 correlation of the residuals of the two rank-on-rank regressions on
 the root-gap ranks, and its $p$-value comes from a Freedman--Lane
-permutation of those residuals, run within each size group in the
-pooled column so that pooled inference does not draw on group
-composition. The partial is indistinguishable from zero in
-three groups and positive at $+0.52$ in the fourth, whose
+permutation of those residuals. In the pooled column ranks and
+residuals are taken inside each size group and the residual pairs are
+then pooled, so the coefficient, its interval and its permutation all
+measure the within-group association and none of the three carries the
+between-group composition. The partial is indistinguishable from zero
+in three groups and positive at $+0.52$ in the fourth, whose
 Holm-adjusted $p$ of $0.055$ sits just above the threshold, so no
 partial coefficient of either sign survives the correction.
-The pooled partial is positive at $+0.29$ descriptively, but the two
+The within-group pooled partial reads $+0.19$ with a raw $p$ of
+$0.052$, to the same side of the threshold. A naive pooled partial
+computed on global ranks without the group adjustment would read
+$+0.29$, but the two
 residual series rise together across the four groups, the
-hundred-factory groups carrying the larger residuals of both, and
-once permutations respect the groups the pooled value is not
-distinguishable from zero. The intervals of the table are percentile
+hundred-factory groups carrying the larger residuals of both, so that
+figure blends the within-group association with between-group
+composition and the table does not report it. The intervals of the table are percentile
 bootstrap intervals over instances and are not adjusted for
 multiplicity, and each instance was run once under automatic thread
 count and a wall-clock limit, so they quantify sampling variability
@@ -457,7 +453,12 @@ the controlled comparison.
 \includegraphics[width=0.85\textwidth]{fig_q3_scatter.pdf}
 \caption{Terminal gap of \textsc{Mip} under the $3{,}600$~s limit
 against the covering bound $k^\ast$, one marker per benchmark
-instance, coloured by size group. Within every group larger bounds
+instance, coloured by size group. The marginal panel above the scatter
+gives the distribution of the bound within each group on the shared
+axis, one row per group with a tick at the group median, and the bound
+spreads by a factor of more than four inside every group, so its
+variation is not a proxy for instance size. In the scatter, within
+every group larger bounds
 accompany smaller gaps, the association Table~\ref{tab:q3groups}
 quantifies. The within-group reading is what controls for instance
 size.}

@@ -36,7 +36,16 @@ def axis_arrows(ax):
     ax.plot(0,1.0,"^",transform=ax.transAxes,clip_on=False,color="black",
             ms=3.5,zorder=6)
 
-rows=list(csv.DictReader(open(os.path.join(RES,"q1_xp.csv"))))
+def _clamp(rs, col, cap):
+    # Censored runs are recorded at their limit, as Section 6.1 declares; the
+    # raw files overshoot by milliseconds and the figures inherit the clamp.
+    for _r in rs:
+        try:
+            if float(_r[col]) > cap: _r[col] = "%.3f" % cap
+        except (ValueError, TypeError, KeyError): pass
+    return rs
+
+rows=_clamp(list(csv.DictReader(open(os.path.join(RES,"q1_xp.csv")))),"time",60.0)
 def n_of(r): return int(r["nI"])+int(r["nJ"])
 def kt(r): return int(r["kstar_target"])
 BOUND=[r for r in rows if r["nK"]=="30" and r["nL"]=="3"]  # boundary/pilot family (has solves)
@@ -105,7 +114,7 @@ axb.set_title("(b)",fontsize=9,loc="left")
 # inside the ten-seed 600 s sample. A run counts as solved at 60 s exactly
 # when its recorded time is <= 60 s (deterministic single-thread code), so
 # the two curves compare the same instances and only the budget varies.
-b600=list(csv.DictReader(open(os.path.join(RES,"q1_boundary600.csv"))))
+b600=_clamp(list(csv.DictReader(open(os.path.join(RES,"q1_boundary600.csv")))),"time",600.0)
 NSC=[20,24,28,30,40]
 frac60=[]; frac600=[]
 for n in NSC:
@@ -132,34 +141,7 @@ for ext in ("pdf","png"):
     fig.savefig(os.path.join(OUT,f"fig_q1_regime.{ext}"),dpi=200,bbox_inches="tight")
 plt.close(fig)
 
-# ---------- Figure Q3: k* distribution across benchmark groups (strip+median) ----------
 m=list(csv.DictReader(open(os.path.join(RES,"mauri_kstar.csv"))))
-def grp(r): return f"{'50' if r['nI']=='50' else '100'}-{r['nL']}"
-order=["50-5","50-10","100-5","100-10"]
-data={g:[] for g in order}
-for r in m: data[grp(r)].append(int(r["kstar_py"]))
-fig2,ax=plt.subplots(figsize=(4.6,3.1))
-import random as _r; rng2=_r.Random(7)
-# per-group colours identical to those of the scatter figure (colour follows the entity)
-GCOL={"50-5":"#CC79A7","50-10":"#009E73","100-5":"#E69F00","100-10":"#0072B2"}
-for i,g in enumerate(order):
-    xs=[i+rng2.uniform(-0.16,0.16) for _ in data[g]]
-    ax.scatter(xs,data[g],s=16,color=GCOL[g],alpha=0.85,edgecolors="white",
-               linewidths=0.4,zorder=3)
-    med=st.median(data[g]); lo=min(data[g]); hi=max(data[g])
-    ax.plot([i-0.28,i+0.28],[med,med],color="0.1",lw=1.6,zorder=4)   # median
-    ax.plot([i,i],[lo,hi],color="0.55",lw=0.7,zorder=1)              # range spine
-    ax.annotate(f"{lo}-{hi}",xy=(i,hi),xytext=(0,3),textcoords="offset points",
-                ha="center",fontsize=6.6,color="0.35")
-ax.set_xticks(range(len(order))); ax.set_xticklabels(order)
-ax.set_xlim(-0.5,3.6); ax.set_ylim(0,76)
-ax.set_xlabel("benchmark group $|I|$-$|L|$")
-ax.set_ylabel("covering bound $k^\\ast$")
-axis_arrows(ax)
-fig2.tight_layout(pad=0.4)
-for ext in ("pdf","png"):
-    fig2.savefig(os.path.join(OUT,f"fig_q3_kstar.{ext}"),dpi=200,bbox_inches="tight")
-plt.close(fig2)
 
 # ---------- Figure Q3 scatter: terminal gap against k*, by size group ----------
 # Same join and numbers as scripts/finalize_after_campaign.py::make_q3_scatter.
@@ -178,11 +160,35 @@ for r in csv.DictReader(open(os.path.join(RES,"mauri_mip.csv"))):
 groups=sorted({r["grp"] for r in srows})
 palette=["#0072B2","#E69F00","#009E73","#CC79A7","#D55E00"]
 markers=["o","s","^","D","v"]
-fig3,ax3=plt.subplots(figsize=(6.4,3.8))
+# The former k*-distribution figure now lives as a top marginal of this
+# scatter, one row per size group on the shared k* axis with a tick at
+# the group median, so the spread at fixed size is read where it is used.
+fig3=plt.figure(figsize=(6.4,4.6),layout="constrained")
+gs=fig3.add_gridspec(2,1,height_ratios=[0.30,1.0],hspace=0.08)
+axm=fig3.add_subplot(gs[0])
+ax3=fig3.add_subplot(gs[1],sharex=axm)
+import random as _r; rngm=_r.Random(11)
+for gi,g in enumerate(groups):
+    ks=[r["k"] for r in srows if r["grp"]==g]
+    ys=[gi+rngm.uniform(-0.18,0.18) for _ in ks]
+    axm.scatter(ks,ys,s=18,alpha=0.85,label=g.replace("-L", ", $|L|$="),
+                color=palette[gi%len(palette)],marker=markers[gi%len(markers)],
+                edgecolors="white",linewidths=0.5,zorder=3)
+    medk=st.median(ks)
+    axm.plot([medk,medk],[gi-0.32,gi+0.32],color="0.1",lw=1.5,zorder=4)
+axm.set_ylim(-0.6,len(groups)-0.4)
+axm.set_yticks([])
+for _sp in ("top","right","left"): axm.spines[_sp].set_visible(False)
+plt.setp(axm.get_xticklabels(),visible=False)
+axm.tick_params(axis="x",length=0)
+axm.legend(loc="lower left",bbox_to_anchor=(0.02,1.02),ncol=2,fontsize=7.5,
+           handletextpad=0.2,labelspacing=0.3,columnspacing=1.2,
+           borderaxespad=0.0,title="size group $|I|$-$|J|$-$|K|$",
+           title_fontsize=7.5)
 for gi,g in enumerate(groups):
     pts=[r for r in srows if r["grp"]==g]
     ax3.scatter([r["k"] for r in pts],[100.0*r["g"] for r in pts],
-                s=34,alpha=0.9,label=g.replace("-L", ", $|L|$="),
+                s=34,alpha=0.9,
                 color=palette[gi%len(palette)],
                 marker=markers[gi%len(markers)],
                 edgecolors="white",linewidths=0.8,zorder=3)
@@ -191,14 +197,7 @@ ax3.set_ylabel("terminal gap (%)")
 ax3.grid(axis="y",alpha=0.25,linewidth=0.5,zorder=0)
 # the four groups overlap, so the colour+marker legend stays, placed fully
 # outside the axes area
-ax3.legend(loc="lower left",bbox_to_anchor=(0.02,1.01),ncol=2,fontsize=7.5,
-           handletextpad=0.2,labelspacing=0.3,columnspacing=1.2,
-           borderaxespad=0.0,title="size group $|I|$-$|J|$-$|K|$",
-           title_fontsize=7.5)
-ax3._legend_ = ax3.get_legend()
-ax3._legend_. _legend_box.align = "left"
 axis_arrows(ax3)
-fig3.tight_layout(pad=0.4)
 for ext in ("pdf","png"):
     fig3.savefig(os.path.join(OUT,f"fig_q3_scatter.{ext}"),dpi=200,bbox_inches="tight")
 plt.close(fig3)

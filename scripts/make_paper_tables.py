@@ -23,9 +23,29 @@ RES  = os.path.join(ROOT, "results")
 OUT  = os.path.join(ROOT, "paper", "tables")
 os.makedirs(OUT, exist_ok=True)
 
+# Section 6.1 promises that the time of a censored run is recorded at its
+# limit, and the solver's own bookkeeping overshoots a wall clock by a few
+# milliseconds (60.001 s against a 60 s limit, 600.008 s against 600 s in
+# the raw files). The clamp lives here in the loader so that every table
+# inherits the declared convention, whichever field a future table reads.
+TIME_LIMIT = {"q1_xp.csv":           ("time",          60.0),
+              "q1_boundary600.csv":  ("time",         600.0),
+              "controlled_mip.csv":  ("solver_time_s", 600.0),
+              "controlled_bd.csv":   ("solver_time_s", 600.0),
+              "mauri_mip.csv":       ("solver_time_s", 3600.0)}
+
 def load(name):
     with open(os.path.join(RES, name), newline="") as fh:
-        return list(csv.DictReader(fh))
+        rows = list(csv.DictReader(fh))
+    if name in TIME_LIMIT:
+        col, cap = TIME_LIMIT[name]
+        for r in rows:
+            try:
+                if float(r[col]) > cap:
+                    r[col] = "%.3f" % cap
+            except (ValueError, TypeError, KeyError):
+                pass
+    return rows
 
 def median(xs):
     s = sorted(xs); n = len(s)
@@ -61,6 +81,89 @@ def perm_p(x, y, nperm=20000, seed=20260718):
         if abs(spearman(x, y2)) >= abs(obs) - 1e-12:
             cnt += 1
     return (cnt + 1) / (nperm + 1)
+
+
+def within_resid_pairs(sample, strata):
+    """Per-group rank residuals of the partial, pooled. Ranks and the
+    regression on the conditioning ranks are taken inside each group, so
+    the pooled pairs carry no between-group component, and the statistic
+    below is the single estimand the pooled cell of the partial row
+    reports, tests and brackets."""
+    ex, ey, labs = [], [], []
+    for g in sorted(set(strata)):
+        idx = [i for i in range(len(strata)) if strata[i] == g]
+        xs = [sample[i][0] for i in idx]
+        ys = [sample[i][1] for i in idx]
+        zs = [sample[i][2] for i in idx]
+        ex += resid_ranks(xs, zs)
+        ey += resid_ranks(ys, zs)
+        labs += [g] * len(idx)
+    return ex, ey, labs
+
+
+def partial_within(sample, strata):
+    ex, ey, _ = within_resid_pairs(sample, strata)
+    return pearson(ex, ey)
+
+
+def perm_p_partial_within(sample, strata, nperm=20000, seed=20260718):
+    """Freedman-Lane permutation of the within-group pooled partial. The
+    per-group gap residuals are permuted inside their group and
+    re-residualized on the group's own conditioning ranks."""
+    import random as _rnd
+    ex, ey, labs = within_resid_pairs(sample, strata)
+    groups = sorted(set(labs))
+    idx_of = {g: [i for i in range(len(labs)) if labs[i] == g] for g in groups}
+    rz_of = {}
+    for g in groups:
+        gi = [i for i in range(len(strata)) if strata[i] == g]
+        rz_of[g] = rankdata([sample[i][2] for i in gi])
+    def reresid_group(vals, rz):
+        n = len(vals); mv = sum(vals)/n; mz = sum(rz)/n
+        szz = sum((t-mz)**2 for t in rz)
+        beta = sum((rz[i]-mz)*(vals[i]-mv) for i in range(n))/szz if szz > 0 else 0.0
+        return [vals[i] - (mv + beta*(rz[i]-mz)) for i in range(n)]
+    obs = pearson(ex, ey); rng = _rnd.Random(seed); cnt = 0; yy = list(ey)
+    for _ in range(nperm):
+        for g in groups:
+            ps = idx_of[g]
+            vals = [yy[i] for i in ps]
+            rng.shuffle(vals)
+            for i, v in zip(ps, vals):
+                yy[i] = v
+        rebuilt = []
+        for g in groups:
+            ps = idx_of[g]
+            rebuilt += reresid_group([yy[i] for i in ps], rz_of[g])
+        if abs(pearson(ex, rebuilt)) >= abs(obs) - 1e-12:
+            cnt += 1
+    return (cnt + 1) / (nperm + 1)
+
+
+def boot_ci_partial_within(sample, strata, nboot=10000, seed=20260719):
+    """Stratified percentile bootstrap of the same within-group statistic."""
+    import random as _rnd
+    rng = _rnd.Random(seed)
+    groups = sorted(set(strata))
+    idx_of = {g: [i for i in range(len(strata)) if strata[i] == g] for g in groups}
+    vals = []
+    for _ in range(nboot):
+        samp, labs = [], []
+        for g in groups:
+            gi = idx_of[g]
+            for _k in gi:
+                samp.append(sample[gi[rng.randrange(len(gi))]])
+                labs.append(g)
+        try:
+            v = partial_within(samp, labs)
+        except ZeroDivisionError:
+            continue
+        if v == v:
+            vals.append(v)
+    vals.sort()
+    if not vals:
+        return float("nan"), float("nan")
+    return vals[int(0.025*len(vals))], vals[int(0.975*len(vals))-1]
 
 def boot_ci(x, y, nboot=10000, seed=20260719):
     """Percentile bootstrap 95% CI of the Spearman coefficient, fixed seed (pinned number)."""
@@ -372,6 +475,13 @@ mci   = {(g, i): boot_ci_stat(st, msample[g],
 praw  = {g: perm_p_partial(col(msample[g],0), col(msample[g],1), col(msample[g],2),
                            strata=(pooled_strata if g == "pooled" else None))
          for g in mcols}
+# The pooled cell of the partial row reports the within-group estimand,
+# so its coefficient, interval and permutation all measure the same
+# object and the between-group composition never enters the cell.
+PARTIAL_ROW = 3
+mvals[("pooled", PARTIAL_ROW)] = partial_within(msample["pooled"], pooled_strata)
+mci[("pooled", PARTIAL_ROW)] = boot_ci_partial_within(msample["pooled"], pooled_strata)
+praw["pooled"] = perm_p_partial_within(msample["pooled"], pooled_strata)
 srt = sorted(praw.items(), key=lambda t: t[1]); m = len(srt); prev = 0.0; padj = {}
 for i, (g, p) in enumerate(srt):
     a_ = min(1.0, max(prev, (m - i) * p)); prev = a_; padj[g] = a_
@@ -395,13 +505,16 @@ bound with the terminal gap, of the bound with the root relaxation gap, of the
 two gaps with each other, the partial rank correlation of the bound with the
 terminal gap at fixed root gap, and the correlation of the bound with the
 explored node count. The partial coefficient is the Pearson correlation of the
-residuals of the two rank-on-rank regressions on the root-gap ranks, and the
-pooled column conditions on the root gap only, not on the group. Brackets hold
+residuals of the two rank-on-rank regressions on the root-gap ranks. In
+the pooled column of the partial row, ranks and residuals are taken
+inside each size group and the residual pairs are then pooled, so
+coefficient, interval and $p$-value all measure the within-group
+association and the between-group composition enters none of them.
+Brackets hold
 percentile bootstrap $95\%$ confidence intervals over
 $10{,}000$ resamples of the instances (seed $20260719$), not adjusted for
 multiplicity, with resampling stratified by size group in the pooled
-column so that interval and permutation exclude the same
-group-composition component. The last two rows report the raw and the
+column. The last two rows report the raw and the
 Holm-adjusted
 two-sided $p$-value of the partial coefficient from a Freedman--Lane residual
 permutation test with $20{,}000$ permutations (seed $20260718$), permutations

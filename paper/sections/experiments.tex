@@ -374,18 +374,30 @@ certify infeasibility soonest.
 The stored solver logs let the association be examined conditionally
 on the root relaxation
 with no further runs, the extraction being pinned to a script and its
-coefficients collected in Table~\ref{tab:q3mediation}. The reading rests
+coefficients collected in Table~\ref{tab:q3mediation}. The root gap of
+a run is $(U_T-L_0)/U_T$ in per cent, where $L_0$ is the root
+relaxation objective the log records before branching starts and $U_T$
+is the final incumbent of the run, the same value that enters the
+terminal gap. The dual side of the measure is thus fixed at the root
+while its yardstick comes from the end of the run, a convention that
+puts the two gaps over a common denominator, and every one of the
+hundred runs reports both fields, so no case without an incumbent and
+no zero denominator arises. The reading rests
 first on how the campaign is built. Ninety-seven of the hundred runs
-stop at the time limit, and a run that stops there reports the distance
-between its incumbent and a dual bound that has moved little from the
-root value, so on this benchmark the terminal gap is close to a
-deterministic image of the root relaxation gap. The measured
-coefficients bear that out, the two quantities rank-correlating at
+stop at the time limit, and the archived bounds measure directly how
+far the dual side travels after the root. The relative movement
+$(L_T-L_0)/L_T$ of the final bound $L_T$ has group medians between
+$0.18$ and $0.68$ per cent and never exceeds $1.7$ per cent. Against
+root gaps whose group medians run from $1.0$ to $4.4$ per cent, the
+two fifty-factory groups therefore recover an appreciable share of a
+small root gap, while the hundred-factory ten-product group barely dents a
+gap above four per cent. What the conditional analysis uses is the
+rank association, and there the two gaps rank-correlate at
 $+0.97$ pooled and between $+0.89$ and $+1.00$ within groups. Whatever
-the covering bound is associated with, it is thus associated with a
-quantity settled before the branch-and-bound search begins, and the
-conditional coefficients below are a descriptive check consistent with
-that reading, not a causal identification.
+the covering bound is associated with, it is associated with a
+quantity whose dual side is settled before the branch-and-bound search
+begins, and the conditional coefficients below are a descriptive check
+consistent with that reading, not a causal identification.
 
 \input{tables/tab_q3_mediation.tex}
 

@@ -230,7 +230,7 @@ surviving search still reaches an optimum.
 Algorithm~\ref{alg:xpbb} decides $\mathrm{MP\text{-}TSCFLP}(B,k)$, and when
 run with $B=+\infty$ it returns $\mathrm{best}=\OPT_k$.
 \end{proposition}
-The full argument appears in \ref{app:bb}. Its three steps justify
+The full argument appears in Appendix~\ref{app:bb}. Its three steps justify
 the early return of line 3 through Lemma~\ref{lem:cover}, bound
 $\mathrm{best}$ below by $\OPT_k$ because only feasible designs within
 the cardinality budget ever reach a leaf, and bound it above by tracking
@@ -406,7 +406,7 @@ rays of $\Delta_l$ certify infeasibility, and their objectives are
 positive exactly when (F1), respectively (F2), of
 Proposition~\ref{prop:feas} fails.
 \end{proposition}
-The proof, given in \ref{app:duals}, writes the block dual explicitly.
+The proof, given in Appendix~\ref{app:duals}, writes the block dual explicitly.
 No dual constraint mentions the design, which yields the independence of
 $\Delta_l$, weak duality yields the displayed inequality, strong duality
 supplies the attaining point $u^\ast$, and the two recession rays are
@@ -446,7 +446,7 @@ may assume $|K|\le\tau$, where $\tau$
 is the number of distinct second-stage cost columns, computable in
 polynomial time.
 \end{proposition}
-We prove this in \ref{app:agg} by exhibiting the two maps directly. The
+We prove this in Appendix~\ref{app:agg} by exhibiting the two maps directly. The
 merge adds the flow rows of the two customers and preserves every
 constraint and every cost term. The split trims any surplus of the
 merged row and expands it by the northwest-corner procedure, which
@@ -480,7 +480,7 @@ Replacing every capacity $b_{il}$ by $\min(b_{il},D_l)$ and every
 $p_{jl}$ by $\min(p_{jl},D_l)$ preserves feasibility, routing value and
 cost of every design, hence the optimum and both decision answers.
 \end{observation}
-Appendix \ref{app:cap} proves this by trimming any routing until every
+Appendix~\ref{app:cap} proves this by trimming any routing until every
 product moves exactly $D_l$ across each stage, at no cost increase,
 after which no capacity beyond $D_l$ can carry flow and the cap changes
 nothing.
@@ -529,7 +529,7 @@ has costs in $\{0,1\}$ and a single customer whose demand, the only
 product total, is $|I|\,(|J|+1)\le\kappa^{2}$, so the slice lies in the
 subclass for every $c^\star\ge 2$.
 \end{proposition}
-The proof, given in \ref{app:ft}, is elementary for the first
+The proof, given in Appendix~\ref{app:ft}, is elementary for the first
 subclass. Aggregation and capping leave every datum except the budget
 within $\kappa^{c^\star}$, the all-open design decides feasibility
 outright, and its cost, itself polynomially bounded in $\kappa$, caps

@@ -316,12 +316,25 @@ def perm_p_partial(x, y, z, strata=None, nperm=20000, seed=20260718):
             cnt += 1
     return (cnt + 1) / (nperm + 1)
 
-def boot_ci_stat(stat, data, nboot=10000, seed=20260719):
-    """Percentile bootstrap over instances for any statistic of the sample."""
+def boot_ci_stat(stat, data, nboot=10000, seed=20260719, strata=None):
+    """Percentile bootstrap over instances for any statistic of the sample.
+
+    With strata, resampling is done within each stratum (same sizes), so the
+    pooled interval draws no variability from group composition, matching the
+    stratified permutation used for the pooled p-value."""
     import random as _rnd
     rng = _rnd.Random(seed); n = len(data); vals = []
+    groups = None
+    if strata is not None:
+        groups = {}
+        for d, g in zip(data, strata):
+            groups.setdefault(g, []).append(d)
     for _ in range(nboot):
-        s = [data[rng.randrange(n)] for _ in range(n)]
+        if groups is None:
+            s = [data[rng.randrange(n)] for _ in range(n)]
+        else:
+            s = [grp[rng.randrange(len(grp))]
+                 for grp in groups.values() for _ in grp]
         try:
             v = stat(s)
         except ZeroDivisionError:
@@ -352,8 +365,10 @@ mcols = order + ["pooled"]
 msample = {g: (med_rows[g] if g != "pooled" else [t for g2 in order for t in med_rows[g2]])
            for g in mcols}
 mvals = {(g, i): st(msample[g]) for g in mcols for i, (_, st) in enumerate(STATS)}
-mci   = {(g, i): boot_ci_stat(st, msample[g]) for g in mcols for i, (_, st) in enumerate(STATS)}
 pooled_strata = [g2 for g2 in order for _ in med_rows[g2]]
+mci   = {(g, i): boot_ci_stat(st, msample[g],
+                              strata=(pooled_strata if g == "pooled" else None))
+         for g in mcols for i, (_, st) in enumerate(STATS)}
 praw  = {g: perm_p_partial(col(msample[g],0), col(msample[g],1), col(msample[g],2),
                            strata=(pooled_strata if g == "pooled" else None))
          for g in mcols}
@@ -366,6 +381,8 @@ for i, (lab, _) in enumerate(STATS):
                   " & ".join("$%+.2f$" % mvals[(g, i)] for g in mcols) + r" \\")
     mlines.append(" & " + " & ".join(
         r"{\scriptsize [$%+.2f$, $%+.2f$]}" % mci[(g, i)] for g in mcols) + r" \\[2pt]")
+mlines.append(r"raw $p$ (partial) & " +
+              " & ".join("$%.3f$" % praw[g] for g in mcols) + r" \\")
 mlines.append(r"adjusted $p$ (partial) & " +
               " & ".join("$%.3f$" % padj[g] for g in mcols) + r" \\")
 with open(os.path.join(OUT, "tab_q3_mediation.tex"), "w") as fh:
@@ -382,9 +399,10 @@ residuals of the two rank-on-rank regressions on the root-gap ranks, and the
 pooled column conditions on the root gap only, not on the group. Brackets hold
 percentile bootstrap $95\%$ confidence intervals over
 $10{,}000$ resamples of the instances (seed $20260719$), not adjusted for
-multiplicity and drawn without stratification, so the pooled interval
-retains the group-composition component that the within-group
-permutation removes. The last row reports the Holm-adjusted
+multiplicity, with resampling stratified by size group in the pooled
+column so that interval and permutation exclude the same
+group-composition component. The last two rows report the raw and the
+Holm-adjusted
 two-sided $p$-value of the partial coefficient from a Freedman--Lane residual
 permutation test with $20{,}000$ permutations (seed $20260718$), permutations
 running within each size group in the pooled column. In the two

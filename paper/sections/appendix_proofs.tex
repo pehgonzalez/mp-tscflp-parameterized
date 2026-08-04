@@ -239,7 +239,7 @@ for its unit second-stage cost. Fix a feasible design $(Y,Z)$. In an
 optimal solution we may assume that \eqref{eq:C1} and~\eqref{eq:C2} are
 tight, since lowering flow on the nonnegative-cost arcs cannot raise the
 cost. The lowering argument is the one in the proof of
-Proposition~\ref{prop:oracle} in \ref{app:proofs}. Under
+Proposition~\ref{prop:oracle} in Appendix~\ref{app:proofs}. Under
 this assumption the depot marginal $e_j=\sum_i x_{ij}=w_j$
 is both the inflow and the outflow of depot $j$, the factory marginal
 $a_i=\sum_j x_{ij}$ is the load of factory $i$, and $\sum_i a_i=\sum_j
@@ -445,7 +445,7 @@ rows~\eqref{eq:C2}, oriented as $\sum_i x_{ijl}-\sum_k w_{jkl}\ge 0$,
 the factory rows~\eqref{eq:C3} with right-hand side $b_{il}y_i$, and the
 depot rows~\eqref{eq:C4} with right-hand side $p_{jl}z_j$. The trimming
 step in the proof of Proposition~\ref{prop:oracle}, given in
-\ref{app:proofs}, lowers flows at no
+Appendix~\ref{app:proofs}, lowers flows at no
 cost increase until~\eqref{eq:C2} is tight, so replacing~\eqref{eq:C2}
 by the equality $\sum_i x_{ijl}=\sum_k w_{jkl}$ changes neither the
 feasibility nor the optimal value of the block, and we dualize it in
@@ -550,7 +550,7 @@ cost of every design, hence the optimum and both decision answers.}
 \begin{proof}[Proof of Observation~\ref{obs:capping}]
 Fix a design of
 the original instance. Any routing of it can be trimmed, as in
-the proof of Proposition~\ref{prop:oracle} in \ref{app:proofs}, until each product's total
+the proof of Proposition~\ref{prop:oracle} in Appendix~\ref{app:proofs}, until each product's total
 flow across each stage equals $D_l$, at no increase in cost. A
 trimmed routing sends at most $D_l$ units of product $l$ through any
 single factory or depot, so it respects the capped capacities and is a

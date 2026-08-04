@@ -2,10 +2,11 @@
 
 This section locates the intractability of MP-TSCFLP along the four
 dimensions of an instance. We first show that shrinking two of the four sets to a single element
-already forces strong NP-hardness and logarithmic inapproximability, and
-then that the same covering mechanism can be lodged in the products
-and, in the numeric layer, in the factories themselves rather than in
-the customers. The
+already forces strong NP-hardness and logarithmic inapproximability.
+The same covering mechanism then reappears with the products in place
+of the customers as the covered elements, and finally with the
+factories themselves in that role, once tight capacities turn them
+into carriers of demand. The
 cardinality parameter $k$ then inherits W[2]-hardness together with a
 tight ETH lower bound, and finally a purely numeric group of instances,
 in which both demand dimensions are trivial, turns out to be hard as
@@ -488,8 +489,10 @@ setting $k_z=t$.
 \end{theorem}
 
 The budget parameterization is W[2]-hard here because the slice carries
-unit depot charges, so the budget counts the open depots, and
-parameterization by a budget value is encoding-sensitive in general.
+unit depot charges, so on this slice the budget simply counts the open
+depots. No such reading exists in general, for a budget has no scale
+of its own and rescaling all costs rescales it freely, which is why we
+state the budget result only on this slice.
 
 \begin{proof}
 We reduce from \textsc{Set Cover} parameterized
@@ -573,10 +576,12 @@ optimal up to the constant in the exponent.
 The quantitative form of the exclusion requires one clarification.
 Running times of the shape $f(k)\cdot N^{O(k)}$
 are not, and could not be, excluded, because the enumeration of
-Observation~\ref{obs:xp} achieves exactly such a bound. The excluded
-class is fixed before the composition. For every computable $f$ and
+Observation~\ref{obs:xp} achieves exactly such a bound. What the
+theorem excludes is every running time whose exponent grows sublinearly
+in the parameter. For every computable $f$ and
 every function $h$ with $h(t)/t\to 0$ no algorithm decides the target in
-time $f(t)\,N^{h(t)}$, and the composition maps an algorithm with
+time $f(t)\,N^{h(t)}$, and this class is preserved by the composition,
+which maps an algorithm with
 exponent $h(k)=o(k)$ to one with exponent $h'(t)\le c\,h(t+1)+c$, which
 is again $o(t)$. The pair of results thus brackets the parameter from
 both sides, the exponent

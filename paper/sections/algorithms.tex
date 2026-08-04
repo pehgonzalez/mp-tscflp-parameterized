@@ -15,7 +15,8 @@ facilities}\label{sec:xp}
 Once a design is fixed the cost is determined by the routing oracle of
 Proposition~\ref{prop:oracle}, so the only combinatorial freedom left is
 which facilities to open. Bounding that freedom by $k$ leaves at most
-$e\,n^{k}$ candidate supports, and each is priced by one oracle call.
+$e\,n^{k}$ candidate supports, with $e$ the base of the natural
+logarithm, and each is priced by one oracle call.
 The next theorem promotes the brute-force membership of
 Observation~\ref{obs:xp} to a running time whose exponent is linear in
 $k$, and the branch-and-bound that follows stays within the same
@@ -425,11 +426,12 @@ needs the master's own bounds.
 \subsection{Kernelization}\label{sec:kernel}
 
 Preprocessing is the last algorithmic question, and it divides cleanly.
-Customers with identical cost columns aggregate exactly, products do
-not, a bound on costs and total demands yields a polynomial kernel
-outright, a bound on costs and budget still yields a polynomial
+On the positive side, customers with identical cost columns aggregate
+exactly, a bound on costs and total demands yields a polynomial kernel
+outright, and a bound on costs and budget still yields a polynomial
 compression through the weight-reduction technique of
-\citet{FrankTardos1987}, and yet no polynomial kernel exists in
+\citet{FrankTardos1987}. On the negative side, products do not
+aggregate, and no polynomial kernel exists in
 the winning parameter unless the polynomial hierarchy collapses. The first
 reduction is safe and cheap.
 
@@ -606,7 +608,8 @@ copy-specific set membership is carried not by the depots but by the
 cost matrix to the copy-specific customers introduced next. Opening
 $P_a^{b}$ reads bit $a$ of the selected index as $b$. A guard customer
 per pair reaches either selector of its own pair at cost $0$ and every
-other depot at cost $1$, so an unguarded pair costs at least $Q$ and at
+other depot at cost $1$. A pair with neither selector open therefore
+leaves its guard on unit-cost arcs at a cost of at least $Q$, so at
 least one selector per pair must open. The opening charges cap the
 number of open selectors, since $s+1$ open selectors already cost
 $(s+1)(t+1)=s(t+1)+t+1=B+1>B$, so
@@ -734,7 +737,7 @@ representation the obstruction
 is arithmetic rather than structural.
 
 \begin{observation}[width is uninformative]\label{obs:cliquewidth}
-The incidence structure comes first.
+We first fix the graph the claim is about.
 For every instance the layered incidence graph on $I\cup J\cup K$ is the
 complete bipartite graph $K_{J,\,I\cup K}$, since
 $K_{I,J}\cup K_{J,K}=K_{J,\,I\cup K}$. Its clique-width is at most $2$,

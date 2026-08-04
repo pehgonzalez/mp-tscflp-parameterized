@@ -49,11 +49,12 @@ parameter sweeps.
 
 The study uses two instance families, the first with a main grid and a
 boundary extension, the second the benchmark. The first is a family with controlled
-covering bound, built by a deterministic generator seeded by the parameter
-tuple, in which, on each side, one facility fewer than the per-side target
-receives capacities that jointly fall one unit short of the binding
-product's demand, a choice that pins the per-side covering count to the
-target. The main
+covering bound, built by a deterministic generator seeded by the
+parameter tuple. On each side the generator designates a group of one
+facility fewer than the per-side target and gives it capacities that
+jointly fall one unit short of the binding product's demand, so no
+group below the target size can cover that demand, which pins the
+per-side covering count to the target. The main
 grid has target per-side count in $\{2,3,4,5,6\}$, so $k^\ast\in\{4,6,8,10,12\}$,
 factory and depot counts in $\{20,40\}$, customers in $\{50,100\}$, products in
 $\{5,10\}$ and five seeds, for $400$ instances. A boundary extension on
@@ -94,8 +95,7 @@ hence $\tau=|K|$. Capacity capping leaves every benchmark capacity
 unchanged, since no capacity exceeds its product's total demand,
 customer aggregation never applies as just noted, and the covering
 bound is thus the only signal the paper's toolkit produces on these
-instances. One by-product of
-parsing them is used repeatedly
+instances. One consequence of the data format is used repeatedly
 below and is recorded here. Every
 datum is integral, so the optimal value is integral by
 Proposition~\ref{prop:oracle}, and a solver that reports optimality with

@@ -73,10 +73,12 @@ form, in general require treewidth combined with maximum degree
 covering results turns on a metric, a connectivity
 requirement or a graph width, whereas the hardness we isolate is arithmetic,
 carried by capacities and demands, so their positive machinery does not
-transfer to the representations analysed here, while richer
-representations remain unanalysed rather than excluded. The contrast is sharpest on the
-approximation side. What separates our covering core from the capacitated clustering results
-is the absence of a metric. There the parameterized lower bounds have
+transfer to the incidence representation analysed here. Richer
+representations of an instance might behave differently, and we leave
+them unanalysed rather than excluded. The contrast is sharpest on the
+approximation side, where what separates our covering core from the
+capacitated clustering results is the absence of a metric. Without a
+metric the parameterized lower bounds have
 recently caught up with the classical ones, since approximating
 \textsc{Set Cover} parameterized by the solution size within any constant
 factor is itself $\mathrm{W}[2]$-hard \citep{LinRenSunWang2023}. This suggests the same barrier for
@@ -86,9 +88,10 @@ spirit to the present analysis is the parameterized study of
 minimum-weight solution subgraphs of and-or graphs by
 \citet{DantasProttiSouza2013}, where a cheapest subnetwork must respect
 local dependency semantics and zero-weight arcs are exactly what turns a
-fixed-parameter tractable problem $\mathrm{W}[2]$-hard. Zero fixed charges play a
-comparable role in our constructions, which require either large numbers,
-many products or positive charges to produce hardness.
+fixed-parameter tractable problem $\mathrm{W}[2]$-hard. Zero fixed charges play a comparable role here, for with every
+charge at zero the problem turns polynomial, and our constructions
+need large numbers, many products or a positive charge somewhere to
+produce hardness.
 
 Table~\ref{tab:positioning} closes the section by placing this paper
 against the works discussed above, one line per selected work and one

@@ -62,8 +62,9 @@ answer matters beyond taxonomy, because each tractable combination names
 a regime in which exact solution scales, and each hard combination names
 a feature whose cost no exact method avoids unless \Ppoly${}={}$\NP. The
 analysis is a classification, so the algorithms it produces are devices for
-locating the difficulty rather than candidates to beat a commercial solver,
-and its practical residue is an a priori bound that annotates an instance
+locating the difficulty rather than candidates to beat a commercial solver.
+What it leaves for practice is a lower bound on the number of facilities
+any feasible design must open, computable from the capacities alone
 before any optimization is run.
 
 Our findings fall into three groups, one locating the hardness along
@@ -81,11 +82,14 @@ covering problem, and no approximation beats the logarithmic Set Cover
 threshold unless \Ppoly${}={}$\NP\ (Theorem~\ref{thm:cover},
 Corollary~\ref{cor:coverinapprox}). Fixing any single size parameter to
 a constant leaves the problem \NP-hard, which we prove through four
-hard groups, each fixing two of the four dimensions to one. Behind the
-groups sit four discrimination pairs, pairs in which one facility side
-tells the members of another dimension apart through its cost matrix, a
-notion Section~\ref{sec:complexity} fixes precisely, so hardness
-survives every single restriction.
+hard groups, each fixing two of the four dimensions to one. A single
+mechanism, which we call a discrimination pair, drives all four. One
+facility side faces another dimension of the instance, depots facing
+customers or factories facing products for example, and its cost
+matrix assigns each member of that dimension a distinct zero-one
+pattern, which is enough to encode a covering problem.
+Section~\ref{sec:complexity} fixes the notion precisely, and since
+some pair survives every single restriction, so does the hardness.
 
 Second, we draw the tractability border. Parameterizing by any subset
 $P$ of the four size parameters, the problem is fixed-parameter
@@ -110,10 +114,11 @@ admits no polynomial kernel in $|I|+|J|$ unless
 polynomial kernel does appear once costs and total demands are
 polynomially bounded in the larger parameter
 $|I|+|J|+|L|+\tau$, with $\tau$ the number of distinct second-stage
-cost columns (Proposition~\ref{prop:ftcompress}). The obstruction over the
-incidence representation we analyse is arithmetic rather
-than structural, for that incidence graph always has clique-width at
-most two (Observation~\ref{obs:cliquewidth}). Several further positive
+cost columns (Proposition~\ref{prop:ftcompress}). Graph width explains none of this difficulty, for the incidence
+graph of an instance always has clique-width at most two
+(Observation~\ref{obs:cliquewidth}), so over that representation the
+obstruction is arithmetic, living in the capacities and demands rather
+than in the shape of the network. Several further positive
 results, the pseudo-polynomial regimes and the
 customer aggregation among them, are stated and classified but kept
 outside the algorithmic core, since our aim is the map and not the

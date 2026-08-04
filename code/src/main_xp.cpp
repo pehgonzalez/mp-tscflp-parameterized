@@ -17,6 +17,8 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
+#include <limits>
 #include <string>
 
 #include "instance.hpp"
@@ -39,8 +41,21 @@ int main(int argc, char** argv) {
         }
         return v;
     };
+    // Range guards. The time limit is capped so the duration conversion in
+    // the solver stays representable, and k must fit in int before the cast.
+    const double kMaxTimeLimitS = 1e7;  // ~115 days, far above any protocol
     const double tl = (argc >= 3) ? parse_num(argv[2], false) : 3600.0;
-    const int k = (argc >= 4) ? static_cast<int>(parse_num(argv[3], true)) : -1;
+    if (!std::isfinite(tl) || tl > kMaxTimeLimitS) {
+        std::fprintf(stderr, "bad numeric argument '%s'\n", argv[2]);
+        return 2;
+    }
+    const double k_raw = (argc >= 4) ? parse_num(argv[3], true) : -1.0;
+    if (k_raw < static_cast<double>(std::numeric_limits<int>::min()) ||
+        k_raw > static_cast<double>(std::numeric_limits<int>::max())) {
+        std::fprintf(stderr, "bad numeric argument '%s'\n", argv[3]);
+        return 2;
+    }
+    const int k = static_cast<int>(k_raw);
 
     std::string name = path;
     if (auto pos = name.find_last_of("/\\"); pos != std::string::npos) name = name.substr(pos + 1);

@@ -36,9 +36,9 @@ Write $T_{\mathrm{orac}}$ for the time of one routing-oracle call and
 normalize $k\le n$. Then $\mathrm{MP\text{-}TSCFLP}(B,k)$ is decidable,
 and the least cost $\OPT_k$ over feasible designs opening at most $k$
 facilities is computable, in time $O\bigl(n^{k}\cdot
-(T_{\mathrm{orac}}+n|L|)\bigr)$ for $k\ge 1$, and in time
-$O(T_{\mathrm{orac}}+n|L|)$
-for $k=0$. In particular the problem lies in \XP\ in the parameter $k$.
+(T_{\mathrm{orac}}+n|L|)+|K||L|\bigr)$ for $k\ge 1$, and in time
+$O(T_{\mathrm{orac}}+n|L|+|K||L|)$
+for $k=0$, the additive term reading the demand totals once. In particular the problem lies in \XP\ in the parameter $k$.
 \end{theorem}
 \begin{proof}
 A feasible design opening at most $k$ facilities has a
@@ -48,9 +48,12 @@ plus the routing value $v(S)$, and by Proposition~\ref{prop:oracle} the
 routing value is attained, so each feasible support realizes exactly its
 cost and $\OPT_k$ is the minimum of $\mathrm{cost}(S)$ over feasible
 supports of size at most $k$. When no such support is feasible we put
-$\OPT_k=+\infty$, and the correct answer is then \textsc{no}. Enumerate
+$\OPT_k=+\infty$, and the correct answer is then \textsc{no}. The totals $D_1,\dots,D_{|L|}$ are computed once in $O(|K||L|)$ time
+and reused by every feasibility test, which is the additive term of the
+statement. Enumerate
 every such $S$, test feasibility
-by Proposition~\ref{prop:feas} in $O(n|L|)$ time, and price the feasible
+by Proposition~\ref{prop:feas} in $O(n|L|)$ time against the
+precomputed totals, and price the feasible
 ones by one oracle call. The number of supports is
 $\sum_{t=0}^{k}\binom{n}{t}\le\sum_{t=0}^{k}\frac{n^{t}}{t!}
 \le n^{k}\sum_{t\ge 0}\frac{1}{t!}=e\,n^{k}$
@@ -60,11 +63,11 @@ nonnegative terms. Each support
 costs one $O(n|L|)$ feasibility test plus at most one oracle call, and
 $T_{\mathrm{orac}}$ is left as a stated quantity rather than bounded
 below, since an implementation may share preprocessed data across calls,
-giving $O\bigl(n^{k}(T_{\mathrm{orac}}+n|L|)\bigr)$ in total. For
+giving $O\bigl(n^{k}(T_{\mathrm{orac}}+n|L|)+|K||L|\bigr)$ in total. For
 $k=0$ only the empty design is priced. That design is feasible exactly
 when every $D_l=0$, since for it the left-hand sums of (F1) and (F2) are
 empty, so one feasibility test and at most one oracle call suffice,
-within $O(T_{\mathrm{orac}}+n|L|)$. Comparing the minimum
+within $O(T_{\mathrm{orac}}+n|L|+|K||L|)$ counting the totals. Comparing the minimum
 against $B$ decides $\mathrm{MP\text{-}TSCFLP}(B,k)$.
 \end{proof}
 
@@ -251,7 +254,8 @@ for $n\ge 2$ by the geometric series and the cases $n\le 1$ are
 trivial. Each
 node performs the sorts and prefix scans of P1 and at most one oracle
 call, so the whole search runs in
-$O\bigl(n^{k+2}(T_{\mathrm{orac}}+n|L|\log n)\bigr)$ time, a
+$O\bigl(n^{k+2}(T_{\mathrm{orac}}+n|L|\log n)+|K||L|\bigr)$ time, with
+the additive term again reading the demand totals once, a
 polynomial factor above the enumeration bound of Theorem~\ref{thm:xp}
 and within the same $n^{k+O(1)}$ regime, which is all the
 classification uses. On the seeded validation suite
